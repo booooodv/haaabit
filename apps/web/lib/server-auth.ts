@@ -1,3 +1,4 @@
+import type { HabitListFilters, Weekday } from "@haaabit/contracts/habits";
 import type { TodaySummary } from "@haaabit/contracts/today";
 import "server-only";
 
@@ -18,12 +19,43 @@ type HabitPayload = {
   userId: string;
   name: string;
   kind: "boolean" | "quantity";
+  description: string | null;
+  category: string | null;
+  targetValue: number | null;
+  unit: string | null;
+  startDate: string;
+  isActive: boolean;
   frequencyType: "daily" | "weekly_count" | "weekdays" | "monthly_count";
+  frequencyCount: number | null;
+  weekdays: Weekday[];
 };
 
 type TodaySummaryPayload = {
   summary: TodaySummary;
 };
+
+function buildHabitListPath(filters?: Partial<HabitListFilters>) {
+  const params = new URLSearchParams();
+
+  if (filters?.status) {
+    params.set("status", filters.status);
+  }
+
+  if (filters?.query) {
+    params.set("query", filters.query);
+  }
+
+  if (filters?.category) {
+    params.set("category", filters.category);
+  }
+
+  if (filters?.kind) {
+    params.set("kind", filters.kind);
+  }
+
+  const query = params.toString();
+  return query.length > 0 ? `/api/habits?${query}` : "/api/habits";
+}
 
 export async function buildCookieHeader() {
   const cookieStore = await cookies();
@@ -50,8 +82,11 @@ export async function getSessionFromCookieHeader(cookieHeader: string): Promise<
   return (await response.json()) as SessionPayload;
 }
 
-export async function listHabitsFromCookieHeader(cookieHeader: string): Promise<HabitPayload[]> {
-  const response = await fetch(createApiUrl("/api/habits"), {
+export async function listHabitsFromCookieHeader(
+  cookieHeader: string,
+  filters?: Partial<HabitListFilters>,
+): Promise<HabitPayload[]> {
+  const response = await fetch(createApiUrl(buildHabitListPath(filters)), {
     headers: cookieHeader.length > 0 ? { cookie: cookieHeader } : undefined,
     cache: "no-store",
   });

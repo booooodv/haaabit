@@ -16,7 +16,7 @@ export default function NewHabitPage() {
         Your account is ready. Add the first habit now so future logins can route straight into your
         dashboard.
       </p>
-      <HabitCreateForm />
+      <HabitCreateForm submitLabel="Create first habit" />
     </section>
   );
 }
