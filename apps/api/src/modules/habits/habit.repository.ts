@@ -88,3 +88,21 @@ export async function createHabitRecord(
     },
   });
 }
+
+export async function listHabitRecords(db: PrismaClient, userId: string) {
+  return db.habit.findMany({
+    where: {
+      userId,
+    },
+    orderBy: {
+      createdAt: "asc",
+    },
+    include: {
+      weekdays: {
+        orderBy: {
+          day: "asc",
+        },
+      },
+    },
+  });
+}

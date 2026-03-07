@@ -3,6 +3,7 @@ import fastify, { type FastifyInstance, type FastifyReply } from "fastify";
 import type { PrismaClient } from "./generated/prisma/client";
 import { registerAuth } from "./auth/auth";
 import { AuthSessionError, assertOwnsUser, requireSession } from "./auth/session";
+import { registerHabitRoutes } from "./modules/habits/habit.routes";
 import { registerCors } from "./plugins/cors";
 import { registerDb } from "./plugins/db";
 import { registerEnv } from "./plugins/env";
@@ -29,6 +30,7 @@ export async function createApp(options: CreateAppOptions = {}) {
   await registerDb(app, options.prisma);
   await registerCors(app);
   await registerAuth(app);
+  await registerHabitRoutes(app);
 
   app.get("/health", async () => ({ ok: true }));
 
