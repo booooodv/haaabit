@@ -1,3 +1,4 @@
+import type { ApiAccessTokenResponse } from "@haaabit/contracts/api";
 import type { HabitDetail, HabitListFilters, Weekday } from "@haaabit/contracts/habits";
 import type { OverviewStats } from "@haaabit/contracts/stats";
 import type { TodaySummary } from "@haaabit/contracts/today";
@@ -42,6 +43,8 @@ type HabitDetailPayload = {
 type OverviewStatsPayload = {
   overview: OverviewStats;
 };
+
+type ApiAccessTokenPayload = ApiAccessTokenResponse;
 
 function buildHabitListPath(filters?: Partial<HabitListFilters>) {
   const params = new URLSearchParams();
@@ -138,6 +141,19 @@ export async function getOverviewStatsFromCookieHeader(cookieHeader: string): Pr
 
   const body = (await response.json()) as OverviewStatsPayload;
   return body.overview;
+}
+
+export async function getApiAccessTokenFromCookieHeader(cookieHeader: string): Promise<ApiAccessTokenResponse> {
+  const response = await fetch(createApiUrl("/api/api-access/token"), {
+    headers: cookieHeader.length > 0 ? { cookie: cookieHeader } : undefined,
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error("Unable to load api access token");
+  }
+
+  return (await response.json()) as ApiAccessTokenPayload;
 }
 
 export async function getHabitDetailFromCookieHeader(

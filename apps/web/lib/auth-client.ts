@@ -1,3 +1,4 @@
+import type { ApiAccessTokenResponse } from "@haaabit/contracts/api";
 import type { CreateHabitInput, HabitListFilters, UpdateHabitInput, Weekday } from "@haaabit/contracts/habits";
 import type { OverviewStats } from "@haaabit/contracts/stats";
 import type { TodaySummary } from "@haaabit/contracts/today";
@@ -27,6 +28,8 @@ type TodaySummaryResponse = {
 type OverviewStatsResponse = {
   overview: OverviewStats;
 };
+
+type ApiAccessTokenResponseBody = ApiAccessTokenResponse;
 
 type TodayActionInput = {
   habitId: string;
@@ -191,6 +194,18 @@ export async function getOverviewStats() {
   });
 
   return body.overview;
+}
+
+export async function getApiAccessToken() {
+  return requestJson<ApiAccessTokenResponseBody>("/api/api-access/token", {
+    method: "GET",
+  });
+}
+
+export async function resetApiAccessToken() {
+  return requestJson<ApiAccessTokenResponseBody>("/api/api-access/token/reset", {
+    method: "POST",
+  });
 }
 
 export async function completeTodayHabit(input: TodayActionInput) {

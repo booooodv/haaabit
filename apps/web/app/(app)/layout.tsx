@@ -31,7 +31,12 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
           }}
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
-            <span style={{ color: "#6b5e50" }}>{session.user.email}</span>
+            <div style={{ display: "flex", gap: "0.9rem", alignItems: "center", flexWrap: "wrap" }}>
+              <span style={{ color: "#6b5e50" }}>{session.user.email}</span>
+              <Link href={routes.apiAccess} style={{ color: "#173d35", fontWeight: 700, textDecoration: "none" }}>
+                API Access
+              </Link>
+            </div>
             <SignOutButton />
           </div>
 

@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./api": "./src/api.ts",
     "./habits": "./src/habits.ts",
     "./checkins": "./src/checkins.ts",
     "./today": "./src/today.ts",
