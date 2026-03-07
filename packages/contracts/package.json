@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./habits": "./src/habits.ts"
+    "./habits": "./src/habits.ts",
+    "./today": "./src/today.ts"
   },
   "dependencies": {
     "zod": "^4.1.5"
