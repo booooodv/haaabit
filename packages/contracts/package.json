@@ -5,6 +5,7 @@
   "type": "module",
   "exports": {
     "./habits": "./src/habits.ts",
+    "./checkins": "./src/checkins.ts",
     "./today": "./src/today.ts"
   },
   "dependencies": {
