@@ -4,6 +4,7 @@ import type { PrismaClient } from "./generated/prisma/client";
 import { registerAuth } from "./auth/auth";
 import { AuthSessionError, assertOwnsUser, requireSession } from "./auth/session";
 import { registerHabitRoutes } from "./modules/habits/habit.routes";
+import { registerTodayRoutes } from "./modules/today/today.routes";
 import { registerCors } from "./plugins/cors";
 import { registerDb } from "./plugins/db";
 import { registerEnv } from "./plugins/env";
@@ -31,6 +32,7 @@ export async function createApp(options: CreateAppOptions = {}) {
   await registerCors(app);
   await registerAuth(app);
   await registerHabitRoutes(app);
+  await registerTodayRoutes(app);
 
   app.get("/health", async () => ({ ok: true }));
 
