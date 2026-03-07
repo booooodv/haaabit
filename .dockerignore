@@ -1,0 +1,13 @@
+node_modules
+.next
+dist
+.git
+.planning
+coverage
+test-results
+playwright-report
+pnpm-debug.log
+*.db
+*.db-*
+*.sqlite
+*.sqlite-*

@@ -1,4 +1,5 @@
 import fastify, { type FastifyInstance, type FastifyReply } from "fastify";
+import { pathToFileURL } from "node:url";
 
 import type { PrismaClient } from "./generated/prisma/client";
 import { API_DOCS_PATH, API_SPEC_PATH, getPersonalApiToken, resetPersonalApiToken } from "./auth/api-token";
@@ -156,7 +157,12 @@ async function start() {
   });
 }
 
-if (process.argv[1]?.endsWith("server.ts")) {
+function isDirectExecution(): boolean {
+  const entrypoint = process.argv[1];
+  return Boolean(entrypoint) && import.meta.url === pathToFileURL(entrypoint).href;
+}
+
+if (isDirectExecution()) {
   start().catch((error) => {
     console.error(error);
     process.exit(1);

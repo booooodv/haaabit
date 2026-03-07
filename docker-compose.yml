@@ -1,0 +1,90 @@
+services:
+  proxy:
+    image: caddy:2.10-alpine
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+      web:
+        condition: service_healthy
+    ports:
+      - "${HAAABIT_PUBLIC_PORT:-8080}:80"
+    volumes:
+      - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      API_INTERNAL_BASE_URL: ${API_INTERNAL_BASE_URL:-http://api:3001}
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/health').then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      APP_BASE_URL: ${APP_BASE_URL:-http://localhost:8080}
+      DATABASE_URL: ${DATABASE_URL:-file:/data/haaabit.db}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?BETTER_AUTH_SECRET is required}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-}
+      CORS_ORIGIN: ${CORS_ORIGIN:-}
+    volumes:
+      - sqlite_data:/data
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3001/health').then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      APP_BASE_URL: ${APP_BASE_URL:-http://localhost:8080}
+      DATABASE_URL: ${DATABASE_URL:-file:/data/haaabit.db}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?BETTER_AUTH_SECRET is required}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-}
+      CORS_ORIGIN: ${CORS_ORIGIN:-}
+    volumes:
+      - sqlite_data:/data
+    command:
+      [
+        "sh",
+        "-lc",
+        "if [ \"$${DATABASE_URL#file:}\" != \"$${DATABASE_URL}\" ]; then db_path=\"$${DATABASE_URL#file:}\"; mkdir -p \"$$(dirname \"$${db_path}\")\"; [ -f \"$${db_path}\" ] || : > \"$${db_path}\"; fi; pnpm --filter @haaabit/api exec prisma migrate deploy --config prisma.config.ts --schema prisma/schema.prisma",
+      ]
+
+volumes:
+  sqlite_data:
