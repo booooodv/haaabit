@@ -83,7 +83,7 @@ services:
       [
         "sh",
         "-lc",
-        "if [ \"$${DATABASE_URL#file:}\" != \"$${DATABASE_URL}\" ]; then db_path=\"$${DATABASE_URL#file:}\"; mkdir -p \"$$(dirname \"$${db_path}\")\"; [ -f \"$${db_path}\" ] || : > \"$${db_path}\"; fi; pnpm --filter @haaabit/api exec prisma migrate deploy --config prisma.config.ts --schema prisma/schema.prisma",
+        "if [ \"$${DATABASE_URL#file:}\" != \"$${DATABASE_URL}\" ]; then db_path=\"$${DATABASE_URL#file:}\"; mkdir -p \"$$(dirname \"$${db_path}\")\"; [ -f \"$${db_path}\" ] || : > \"$${db_path}\"; fi; pnpm exec prisma migrate deploy --config prisma.config.ts --schema prisma/schema.prisma",
       ]
 
 volumes:

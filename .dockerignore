@@ -1,6 +1,8 @@
 node_modules
 .next
+apps/web/.next
 dist
+apps/api/dist
 .git
 .planning
 coverage
