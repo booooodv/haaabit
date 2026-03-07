@@ -1,4 +1,5 @@
 import type { HabitDetail, HabitListFilters, Weekday } from "@haaabit/contracts/habits";
+import type { OverviewStats } from "@haaabit/contracts/stats";
 import type { TodaySummary } from "@haaabit/contracts/today";
 import "server-only";
 
@@ -36,6 +37,10 @@ type TodaySummaryPayload = {
 
 type HabitDetailPayload = {
   item: HabitDetail;
+};
+
+type OverviewStatsPayload = {
+  overview: OverviewStats;
 };
 
 function buildHabitListPath(filters?: Partial<HabitListFilters>) {
@@ -119,6 +124,20 @@ export async function getTodaySummaryFromCookieHeader(cookieHeader: string): Pro
 
   const body = (await response.json()) as TodaySummaryPayload;
   return body.summary;
+}
+
+export async function getOverviewStatsFromCookieHeader(cookieHeader: string): Promise<OverviewStats> {
+  const response = await fetch(createApiUrl("/api/stats/overview"), {
+    headers: cookieHeader.length > 0 ? { cookie: cookieHeader } : undefined,
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error("Unable to load overview stats");
+  }
+
+  const body = (await response.json()) as OverviewStatsPayload;
+  return body.overview;
 }
 
 export async function getHabitDetailFromCookieHeader(

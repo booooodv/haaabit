@@ -3,6 +3,7 @@
 import type { HabitDetail } from "@haaabit/contracts/habits";
 import Link from "next/link";
 
+import { CompletionRateChart } from "../dashboard/completion-rate-chart";
 import { HabitHistoryList } from "./habit-history-list";
 
 function StatCard({ label, value }: { label: string; value: number }) {
@@ -109,6 +110,20 @@ export function HabitDetailDrawer({
           <StatCard label="Longest streak" value={detail.stats.longestStreak} />
           <StatCard label="Total completions" value={detail.stats.totalCompletions} />
           <StatCard label="Interruptions" value={detail.stats.interruptionCount} />
+        </div>
+
+        <div style={{ display: "grid", gap: "0.75rem" }}>
+          <h3 style={{ margin: 0 }}>Recent trends</h3>
+          <CompletionRateChart
+            title="Last 7 days"
+            subtitle="Daily-granularity habit progress"
+            points={detail.trends.last7Days}
+          />
+          <CompletionRateChart
+            title="Last 30 days"
+            subtitle="Longer habit completion trend"
+            points={detail.trends.last30Days}
+          />
         </div>
 
         <div style={{ display: "grid", gap: "0.75rem" }}>
