@@ -6,7 +6,7 @@ import "server-only";
 
 import { cookies } from "next/headers";
 
-import { createApiUrl } from "./api";
+import { createServerApiUrl } from "./api";
 
 type SessionPayload = {
   user: {
@@ -78,7 +78,7 @@ export async function buildCookieHeader() {
 }
 
 export async function getSessionFromCookieHeader(cookieHeader: string): Promise<SessionPayload | null> {
-  const response = await fetch(createApiUrl("/api/session"), {
+  const response = await fetch(createServerApiUrl("/api/session"), {
     headers: cookieHeader.length > 0 ? { cookie: cookieHeader } : undefined,
     cache: "no-store",
   });
@@ -98,7 +98,7 @@ export async function listHabitsFromCookieHeader(
   cookieHeader: string,
   filters?: Partial<HabitListFilters>,
 ): Promise<HabitPayload[]> {
-  const response = await fetch(createApiUrl(buildHabitListPath(filters)), {
+  const response = await fetch(createServerApiUrl(buildHabitListPath(filters)), {
     headers: cookieHeader.length > 0 ? { cookie: cookieHeader } : undefined,
     cache: "no-store",
   });
@@ -116,7 +116,7 @@ export async function listHabitsFromCookieHeader(
 }
 
 export async function getTodaySummaryFromCookieHeader(cookieHeader: string): Promise<TodaySummary> {
-  const response = await fetch(createApiUrl("/api/today"), {
+  const response = await fetch(createServerApiUrl("/api/today"), {
     headers: cookieHeader.length > 0 ? { cookie: cookieHeader } : undefined,
     cache: "no-store",
   });
@@ -130,7 +130,7 @@ export async function getTodaySummaryFromCookieHeader(cookieHeader: string): Pro
 }
 
 export async function getOverviewStatsFromCookieHeader(cookieHeader: string): Promise<OverviewStats> {
-  const response = await fetch(createApiUrl("/api/stats/overview"), {
+  const response = await fetch(createServerApiUrl("/api/stats/overview"), {
     headers: cookieHeader.length > 0 ? { cookie: cookieHeader } : undefined,
     cache: "no-store",
   });
@@ -144,7 +144,7 @@ export async function getOverviewStatsFromCookieHeader(cookieHeader: string): Pr
 }
 
 export async function getApiAccessTokenFromCookieHeader(cookieHeader: string): Promise<ApiAccessTokenResponse> {
-  const response = await fetch(createApiUrl("/api/api-access/token"), {
+  const response = await fetch(createServerApiUrl("/api/api-access/token"), {
     headers: cookieHeader.length > 0 ? { cookie: cookieHeader } : undefined,
     cache: "no-store",
   });
@@ -160,7 +160,7 @@ export async function getHabitDetailFromCookieHeader(
   cookieHeader: string,
   habitId: string,
 ): Promise<HabitDetail | null> {
-  const response = await fetch(createApiUrl(`/api/habits/${habitId}`), {
+  const response = await fetch(createServerApiUrl(`/api/habits/${habitId}`), {
     headers: cookieHeader.length > 0 ? { cookie: cookieHeader } : undefined,
     cache: "no-store",
   });
