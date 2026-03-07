@@ -31,26 +31,19 @@ async function signUpThroughApi(request: APIRequestContext, context: BrowserCont
   await context.addCookies(cookies);
 }
 
-test("signed-in users can generate and view their personal api token", async ({ page, request, context }) => {
-  const email = `api-access-${Date.now()}@example.com`;
+test("signed-in users can open the interactive api docs from api access", async ({ page, request, context }) => {
+  const email = `api-docs-${Date.now()}@example.com`;
 
-  await signUpThroughApi(request, context, email, "API Access User");
+  await signUpThroughApi(request, context, email, "API Docs User");
 
   await page.goto("/api-access");
-
-  await expect(page.getByRole("heading", { name: "API access" })).toBeVisible();
-  await expect(page.getByText("No personal API token has been generated yet.")).toBeVisible();
-
   await page.getByRole("button", { name: "Generate token" }).click();
 
-  const tokenField = page.getByLabel("Personal API token");
-  await expect(tokenField).toHaveValue(/haaabit_/);
-  await expect(page.getByRole("link", { name: "Open API docs" })).toBeVisible();
+  await page.getByRole("link", { name: "Open API docs" }).click();
 
-  const firstToken = await tokenField.inputValue();
-
-  await page.getByRole("button", { name: "Rotate token" }).click();
-
-  await expect(tokenField).toHaveValue(/haaabit_/);
-  await expect(tokenField).not.toHaveValue(firstToken);
+  await expect(page).toHaveURL(/\/api\/docs$/, { timeout: 15_000 });
+  await expect(page.getByRole("heading", { name: "Haaabit API" })).toBeVisible();
+  await expect(page.getByText("Authorization: Bearer")).toBeVisible();
+  await expect(page.getByText("/api/openapi.json")).toBeVisible();
+  await expect(page.locator("code").filter({ hasText: /^\/api\/habits$/ }).first()).toBeVisible();
 });

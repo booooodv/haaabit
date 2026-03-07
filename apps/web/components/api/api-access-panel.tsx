@@ -4,6 +4,7 @@ import type { ApiAccessTokenResponse } from "@haaabit/contracts/api";
 import { useState, useTransition } from "react";
 
 import { getApiAccessToken, resetApiAccessToken } from "../../lib/auth-client";
+import { createApiUrl } from "../../lib/api";
 
 export function ApiAccessPanel({
   initialTokenState,
@@ -66,8 +67,11 @@ export function ApiAccessPanel({
         <button type="button" onClick={() => refreshToken(true)}>
           {tokenState.token ? "Rotate token" : "Generate token"}
         </button>
-        <a href={tokenState.docsPath} style={{ color: "#173d35", fontWeight: 700 }}>
+        <a href={createApiUrl(tokenState.docsPath)} style={{ color: "#173d35", fontWeight: 700 }}>
           Open API docs
+        </a>
+        <a href={createApiUrl(tokenState.specPath)} style={{ color: "#5c5145", fontWeight: 700 }}>
+          OpenAPI JSON
         </a>
       </div>
 
