@@ -198,6 +198,43 @@ export async function findOwnedHabitRecord(
   });
 }
 
+export async function findOwnedHabitDetailRecord(
+  db: PrismaClient,
+  params: {
+    userId: string;
+    habitId: string;
+    rangeStart: string;
+    rangeEnd: string;
+  },
+) {
+  return db.habit.findFirst({
+    where: buildHabitWhereInput(params),
+    include: {
+      user: {
+        select: {
+          timezone: true,
+        },
+      },
+      weekdays: {
+        orderBy: {
+          day: "asc",
+        },
+      },
+      dayStates: {
+        where: {
+          dateKey: {
+            gte: params.rangeStart,
+            lte: params.rangeEnd,
+          },
+        },
+        orderBy: {
+          dateKey: "asc",
+        },
+      },
+    },
+  });
+}
+
 export async function updateHabitRecord(
   db: PrismaClient,
   params: {

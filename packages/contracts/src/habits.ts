@@ -110,9 +110,57 @@ export const updateHabitInputSchema = z
     message: "At least one editable habit field must be provided",
   });
 
+export const habitRecordSchema = z.object({
+  id: nonEmptyString,
+  userId: nonEmptyString,
+  name: nonEmptyString,
+  kind: habitKindSchema,
+  description: z.string().nullable(),
+  category: z.string().nullable(),
+  targetValue: z.number().int().positive().nullable(),
+  unit: z.string().nullable(),
+  startDate: isoDateSchema,
+  isActive: z.boolean(),
+  frequencyType: z.enum(["daily", "weekly_count", "weekdays", "monthly_count"]),
+  frequencyCount: z.number().int().positive().nullable(),
+  weekdays: z.array(weekdaySchema),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+export const habitDetailStatsSchema = z.object({
+  currentStreak: z.number().int().min(0),
+  longestStreak: z.number().int().min(0),
+  totalCompletions: z.number().int().min(0),
+  interruptionCount: z.number().int().min(0),
+});
+
+export const habitDetailHistoryRowSchema = z.object({
+  periodType: z.enum(["day", "week", "month"]),
+  periodKey: nonEmptyString,
+  periodStart: isoDateSchema,
+  periodEnd: isoDateSchema,
+  status: z.enum(["completed", "missed"]),
+  completionCount: z.number().int().min(0),
+  completionTarget: z.number().int().positive(),
+  value: z.number().int().min(0).nullable(),
+  valueTarget: z.number().int().positive().nullable(),
+  unit: z.string().nullable(),
+});
+
+export const habitDetailSchema = z.object({
+  habit: habitRecordSchema,
+  stats: habitDetailStatsSchema,
+  recentHistory: z.array(habitDetailHistoryRowSchema),
+});
+
 export type Weekday = z.infer<typeof weekdaySchema>;
 export type HabitKind = z.infer<typeof habitKindSchema>;
 export type HabitFrequency = z.infer<typeof habitFrequencySchema>;
 export type CreateHabitInput = z.infer<typeof createHabitInputSchema>;
 export type HabitListFilters = z.infer<typeof habitListFiltersSchema>;
 export type UpdateHabitInput = z.infer<typeof updateHabitInputSchema>;
+export type HabitRecord = z.infer<typeof habitRecordSchema>;
+export type HabitDetailStats = z.infer<typeof habitDetailStatsSchema>;
+export type HabitDetailHistoryRow = z.infer<typeof habitDetailHistoryRowSchema>;
+export type HabitDetail = z.infer<typeof habitDetailSchema>;
