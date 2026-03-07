@@ -1,5 +1,15 @@
-import { test } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
-test.skip("auth shell flow is implemented in plan 01-03", async () => {
-  // Playwright infrastructure placeholder for plan 01-01 verification.
+test("logged-out users land on auth page and protected shell redirects back to login when session is invalid", async ({
+  page,
+}) => {
+  await page.goto("/");
+
+  await expect(page.getByRole("heading", { name: "Sign in to Haaabit" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Sign in" })).toBeVisible();
+
+  await page.goto("/dashboard");
+
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.getByRole("heading", { name: "Sign in to Haaabit" })).toBeVisible();
 });
