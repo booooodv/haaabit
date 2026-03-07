@@ -1,4 +1,5 @@
 import type { CreateHabitInput } from "@haaabit/contracts/habits";
+import type { TodaySummary } from "@haaabit/contracts/today";
 
 import { createApiUrl } from "./api";
 
@@ -8,6 +9,20 @@ type HabitPayload = {
   name: string;
   kind: "boolean" | "quantity";
   frequencyType: "daily" | "weekly_count" | "weekdays" | "monthly_count";
+};
+
+type TodaySummaryResponse = {
+  summary: TodaySummary;
+};
+
+type TodayActionInput = {
+  habitId: string;
+  source?: "web" | "ai" | "system";
+  note?: string | null;
+};
+
+type SetTodayTotalInput = TodayActionInput & {
+  total: number;
 };
 
 type SignInInput = {
@@ -87,4 +102,31 @@ export async function createHabit(input: CreateHabitInput) {
   });
 
   return body.item;
+}
+
+export async function getTodaySummary() {
+  return requestJson<TodaySummaryResponse>("/api/today", {
+    method: "GET",
+  });
+}
+
+export async function completeTodayHabit(input: TodayActionInput) {
+  return requestJson<TodaySummaryResponse & { affectedHabit: HabitPayload }>("/api/today/complete", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export async function setTodayHabitTotal(input: SetTodayTotalInput) {
+  return requestJson<TodaySummaryResponse & { affectedHabit: HabitPayload }>("/api/today/set-total", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export async function undoTodayHabit(input: TodayActionInput) {
+  return requestJson<TodaySummaryResponse & { affectedHabit: HabitPayload }>("/api/today/undo", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
 }

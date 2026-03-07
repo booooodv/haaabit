@@ -1,3 +1,4 @@
+import type { TodaySummary } from "@haaabit/contracts/today";
 import "server-only";
 
 import { cookies } from "next/headers";
@@ -18,6 +19,10 @@ type HabitPayload = {
   name: string;
   kind: "boolean" | "quantity";
   frequencyType: "daily" | "weekly_count" | "weekdays" | "monthly_count";
+};
+
+type TodaySummaryPayload = {
+  summary: TodaySummary;
 };
 
 export async function buildCookieHeader() {
@@ -61,4 +66,18 @@ export async function listHabitsFromCookieHeader(cookieHeader: string): Promise<
 
   const body = (await response.json()) as { items: HabitPayload[] };
   return body.items;
+}
+
+export async function getTodaySummaryFromCookieHeader(cookieHeader: string): Promise<TodaySummary> {
+  const response = await fetch(createApiUrl("/api/today"), {
+    headers: cookieHeader.length > 0 ? { cookie: cookieHeader } : undefined,
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error("Unable to load today summary");
+  }
+
+  const body = (await response.json()) as TodaySummaryPayload;
+  return body.summary;
 }
