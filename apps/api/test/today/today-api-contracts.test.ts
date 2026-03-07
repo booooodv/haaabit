@@ -139,5 +139,52 @@ describe("today api contracts", () => {
         ],
       },
     });
+
+    const invalidActionResponse = await context.app.inject({
+      method: "POST",
+      url: "/api/today/complete",
+      headers: {
+        authorization: `Bearer ${token}`,
+        "x-haaabit-now": "2026-03-11T09:10:00.000Z",
+      },
+      payload: {
+        habitId: habit.id,
+        source: "ai",
+      },
+    });
+
+    expect(invalidActionResponse.statusCode).toBe(400);
+    expect(invalidActionResponse.json()).toMatchObject({
+      code: "BAD_REQUEST",
+      message: "Only boolean habits can use complete",
+    });
+
+    await context.app.inject({
+      method: "POST",
+      url: `/api/habits/${habit.id}/archive`,
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+    });
+
+    const archivedActionResponse = await context.app.inject({
+      method: "POST",
+      url: "/api/today/set-total",
+      headers: {
+        authorization: `Bearer ${token}`,
+        "x-haaabit-now": "2026-03-11T09:15:00.000Z",
+      },
+      payload: {
+        habitId: habit.id,
+        total: 4,
+        source: "ai",
+      },
+    });
+
+    expect(archivedActionResponse.statusCode).toBe(409);
+    expect(archivedActionResponse.json()).toMatchObject({
+      code: "HABIT_INACTIVE",
+      message: "Archived habits are read-only until restored",
+    });
   });
 });

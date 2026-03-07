@@ -41,6 +41,10 @@ export const overviewStatsSchema = z.object({
   stabilityRanking: z.array(stabilityRankingEntrySchema),
 });
 
+export const overviewStatsResponseSchema = z.object({
+  overview: overviewStatsSchema,
+});
+
 export type OverviewTrendPoint = z.infer<typeof overviewTrendPointSchema>;
 export type StabilityRankingEntry = z.infer<typeof stabilityRankingEntrySchema>;
 export type OverviewMetrics = z.infer<typeof overviewMetricsSchema>;

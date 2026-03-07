@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 const isoDateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "startDate must use YYYY-MM-DD");
+const isoDateTimeSchema = z.string().datetime({ offset: true });
 const nonEmptyString = z.string().trim().min(1);
 const optionalNonEmptyString = z.string().trim().min(1).optional();
 const nullableOptionalNonEmptyString = z.string().trim().min(1).nullable().optional();
@@ -168,6 +169,30 @@ export const habitDetailSchema = z.object({
   }),
 });
 
+export const habitRecordResponseSchema = habitRecordSchema.omit({
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  createdAt: isoDateTimeSchema,
+  updatedAt: isoDateTimeSchema,
+});
+
+export const habitDetailResponseItemSchema = habitDetailSchema.extend({
+  habit: habitRecordResponseSchema,
+});
+
+export const habitListResponseSchema = z.object({
+  items: z.array(habitRecordResponseSchema),
+});
+
+export const habitItemResponseSchema = z.object({
+  item: habitRecordResponseSchema,
+});
+
+export const habitDetailResponseSchema = z.object({
+  item: habitDetailResponseItemSchema,
+});
+
 export type Weekday = z.infer<typeof weekdaySchema>;
 export type HabitKind = z.infer<typeof habitKindSchema>;
 export type HabitFrequency = z.infer<typeof habitFrequencySchema>;
@@ -179,3 +204,5 @@ export type HabitDetailStats = z.infer<typeof habitDetailStatsSchema>;
 export type HabitDetailHistoryRow = z.infer<typeof habitDetailHistoryRowSchema>;
 export type HabitTrendPoint = z.infer<typeof habitTrendPointSchema>;
 export type HabitDetail = z.infer<typeof habitDetailSchema>;
+export type HabitRecordResponse = z.infer<typeof habitRecordResponseSchema>;
+export type HabitDetailResponseItem = z.infer<typeof habitDetailResponseItemSchema>;

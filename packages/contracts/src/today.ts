@@ -52,6 +52,28 @@ export const todayPeriodKeySchema = z.object({
   monthKey: monthKeySchema,
 });
 
+export const todayAffectedHabitSchema = z.object({
+  id: nonEmptyString,
+  userId: nonEmptyString,
+  name: nonEmptyString,
+  kind: todayHabitKindSchema,
+  frequencyType: todayFrequencyTypeSchema,
+  frequencyCount: z.number().int().positive().nullable(),
+  targetValue: z.number().int().positive().nullable(),
+  unit: nonEmptyString.nullable(),
+  startDate: isoDateKeySchema,
+  weekdays: z.array(todayWeekdaySchema),
+});
+
+export const todaySummaryResponseSchema = z.object({
+  summary: todaySummarySchema,
+});
+
+export const todayActionResponseSchema = z.object({
+  affectedHabit: todayAffectedHabitSchema,
+  summary: todaySummarySchema,
+});
+
 export type TodayStatus = z.infer<typeof todayStatusSchema>;
 export type TodayHabitKind = z.infer<typeof todayHabitKindSchema>;
 export type TodayFrequencyType = z.infer<typeof todayFrequencyTypeSchema>;
@@ -59,3 +81,4 @@ export type TodayWeekday = z.infer<typeof todayWeekdaySchema>;
 export type TodayProgress = z.infer<typeof todayProgressSchema>;
 export type TodayItem = z.infer<typeof todayItemSchema>;
 export type TodaySummary = z.infer<typeof todaySummarySchema>;
+export type TodayAffectedHabit = z.infer<typeof todayAffectedHabitSchema>;

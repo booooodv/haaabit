@@ -10,6 +10,7 @@ import { registerTodayRoutes } from "./modules/today/today.routes";
 import { registerCors } from "./plugins/cors";
 import { registerDb } from "./plugins/db";
 import { registerEnv } from "./plugins/env";
+import { registerOpenApi } from "./plugins/openapi";
 
 type CreateAppOptions = {
   env?: Partial<NodeJS.ProcessEnv>;
@@ -36,6 +37,7 @@ export async function createApp(options: CreateAppOptions = {}) {
   await registerHabitRoutes(app);
   await registerStatsRoutes(app);
   await registerTodayRoutes(app);
+  await registerOpenApi(app);
 
   app.get("/health", async () => ({ ok: true }));
 

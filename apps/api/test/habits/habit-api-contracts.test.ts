@@ -157,5 +157,46 @@ describe("habit api contracts", () => {
         }),
       ],
     });
+
+    const invalidCreateResponse = await context.app.inject({
+      method: "POST",
+      url: "/api/habits",
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+      payload: {
+        name: "Invalid quantity habit",
+        kind: "quantity",
+        frequency: {
+          type: "daily",
+        },
+      },
+    });
+
+    expect(invalidCreateResponse.statusCode).toBe(400);
+    expect(invalidCreateResponse.json()).toMatchObject({
+      code: "BAD_REQUEST",
+      message: "Invalid habit payload",
+      issues: {
+        fieldErrors: {
+          targetValue: expect.any(Array),
+        },
+      },
+    });
+
+    const missingHabitResponse = await context.app.inject({
+      method: "GET",
+      url: "/api/habits/does-not-exist",
+      headers: {
+        authorization: `Bearer ${token}`,
+        "x-haaabit-now": "2026-03-11T12:00:00.000Z",
+      },
+    });
+
+    expect(missingHabitResponse.statusCode).toBe(404);
+    expect(missingHabitResponse.json()).toMatchObject({
+      code: "NOT_FOUND",
+      message: "Habit not found",
+    });
   });
 });

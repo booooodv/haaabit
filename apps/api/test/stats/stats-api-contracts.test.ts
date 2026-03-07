@@ -97,5 +97,19 @@ describe("stats api contracts", () => {
         ],
       },
     });
+
+    const unauthenticatedResponse = await context.app.inject({
+      method: "GET",
+      url: "/api/stats/overview",
+      headers: {
+        "x-haaabit-now": "2026-03-11T12:00:00.000Z",
+      },
+    });
+
+    expect(unauthenticatedResponse.statusCode).toBe(401);
+    expect(unauthenticatedResponse.json()).toMatchObject({
+      code: "UNAUTHORIZED",
+      message: "Authentication required",
+    });
   });
 });
