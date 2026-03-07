@@ -1,4 +1,5 @@
 .planning/
+.worktrees/
 需求说明.md
 node_modules/
 apps/*/node_modules/
