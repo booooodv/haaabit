@@ -1,7 +1,7 @@
 import { ZodError } from "zod";
 import type { FastifyReply, FastifyRequest } from "fastify";
 
-import { AuthSessionError, requireSession } from "../../auth/session";
+import { AuthSessionError, requireAuthenticatedUser } from "../../auth/session";
 import {
   archiveHabit,
   createHabit,
@@ -65,13 +65,13 @@ function getRequestTimestamp(request: FastifyRequest) {
 
 export async function listHabitsHandler(request: FastifyRequest, reply: FastifyReply) {
   try {
-    const session = await requireSession(request);
+    const user = await requireAuthenticatedUser(request);
     const items = await listHabits(
       {
         db: request.server.db,
       },
       {
-        userId: session.user.id,
+        userId: user.id,
         filters: request.query,
       },
     );
@@ -89,13 +89,13 @@ export async function listHabitsHandler(request: FastifyRequest, reply: FastifyR
 
 export async function createHabitHandler(request: FastifyRequest, reply: FastifyReply) {
   try {
-    const session = await requireSession(request);
+    const user = await requireAuthenticatedUser(request);
     const item = await createHabit(
       {
         db: request.server.db,
       },
       {
-        userId: session.user.id,
+        userId: user.id,
         input: request.body,
       },
     );
@@ -114,13 +114,13 @@ export async function createHabitHandler(request: FastifyRequest, reply: Fastify
 
 export async function getHabitDetailHandler(request: FastifyRequest, reply: FastifyReply) {
   try {
-    const session = await requireSession(request);
+    const user = await requireAuthenticatedUser(request);
     const item = await getHabitDetail(
       {
         db: request.server.db,
       },
       {
-        userId: session.user.id,
+        userId: user.id,
         habitId: getHabitId(request),
         timestamp: getRequestTimestamp(request),
       },
@@ -139,13 +139,13 @@ export async function getHabitDetailHandler(request: FastifyRequest, reply: Fast
 
 export async function updateHabitHandler(request: FastifyRequest, reply: FastifyReply) {
   try {
-    const session = await requireSession(request);
+    const user = await requireAuthenticatedUser(request);
     const item = await updateHabit(
       {
         db: request.server.db,
       },
       {
-        userId: session.user.id,
+        userId: user.id,
         habitId: getHabitId(request),
         input: request.body,
       },
@@ -164,13 +164,13 @@ export async function updateHabitHandler(request: FastifyRequest, reply: Fastify
 
 export async function archiveHabitHandler(request: FastifyRequest, reply: FastifyReply) {
   try {
-    const session = await requireSession(request);
+    const user = await requireAuthenticatedUser(request);
     const item = await archiveHabit(
       {
         db: request.server.db,
       },
       {
-        userId: session.user.id,
+        userId: user.id,
         habitId: getHabitId(request),
       },
     );
@@ -188,13 +188,13 @@ export async function archiveHabitHandler(request: FastifyRequest, reply: Fastif
 
 export async function restoreHabitHandler(request: FastifyRequest, reply: FastifyReply) {
   try {
-    const session = await requireSession(request);
+    const user = await requireAuthenticatedUser(request);
     const item = await restoreHabit(
       {
         db: request.server.db,
       },
       {
-        userId: session.user.id,
+        userId: user.id,
         habitId: getHabitId(request),
       },
     );

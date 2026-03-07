@@ -1,6 +1,6 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 
-import { AuthSessionError, requireSession } from "../../auth/session";
+import { AuthSessionError, requireAuthenticatedUser } from "../../auth/session";
 
 import { getOverviewStats } from "./stats.service";
 
@@ -23,13 +23,13 @@ function getRequestTimestamp(request: FastifyRequest) {
 
 export async function getOverviewStatsHandler(request: FastifyRequest, reply: FastifyReply) {
   try {
-    const session = await requireSession(request);
+    const user = await requireAuthenticatedUser(request);
     const overview = await getOverviewStats(
       {
         db: request.server.db,
       },
       {
-        userId: session.user.id,
+        userId: user.id,
         timestamp: getRequestTimestamp(request),
       },
     );

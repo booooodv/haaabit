@@ -1,7 +1,7 @@
 import { ZodError } from "zod";
 import type { FastifyReply, FastifyRequest } from "fastify";
 
-import { AuthSessionError, requireSession } from "../../auth/session";
+import { AuthSessionError, requireAuthenticatedUser } from "../../auth/session";
 import { completeHabitForToday, setHabitTotalForToday, undoHabitForToday } from "../checkins/checkin.service";
 import { HabitInactiveError } from "../habits/habit.service";
 
@@ -235,8 +235,8 @@ function sendRequestError(reply: FastifyReply, error: unknown) {
 
 export async function getTodayHandler(request: FastifyRequest, reply: FastifyReply) {
   try {
-    const session = await requireSession(request);
-    return buildTodayResponse(request, session.user.id, getRequestTimestamp(request));
+    const user = await requireAuthenticatedUser(request);
+    return buildTodayResponse(request, user.id, getRequestTimestamp(request));
   } catch (error) {
     if (error instanceof AuthSessionError) {
       sendAuthError(reply, error);
@@ -249,14 +249,14 @@ export async function getTodayHandler(request: FastifyRequest, reply: FastifyRep
 
 export async function completeTodayHabitHandler(request: FastifyRequest, reply: FastifyReply) {
   try {
-    const session = await requireSession(request);
+    const user = await requireAuthenticatedUser(request);
     const timestamp = getRequestTimestamp(request);
     const result = await completeHabitForToday(
       {
         db: request.server.db,
       },
       {
-        userId: session.user.id,
+        userId: user.id,
         ...(request.body as Record<string, unknown>),
         timestamp,
       } as Parameters<typeof completeHabitForToday>[1],
@@ -264,7 +264,7 @@ export async function completeTodayHabitHandler(request: FastifyRequest, reply: 
 
     return {
       affectedHabit: result.habit,
-      ...(await buildTodayResponse(request, session.user.id, timestamp)),
+      ...(await buildTodayResponse(request, user.id, timestamp)),
     };
   } catch (error) {
     if (error instanceof AuthSessionError) {
@@ -278,14 +278,14 @@ export async function completeTodayHabitHandler(request: FastifyRequest, reply: 
 
 export async function setTodayHabitTotalHandler(request: FastifyRequest, reply: FastifyReply) {
   try {
-    const session = await requireSession(request);
+    const user = await requireAuthenticatedUser(request);
     const timestamp = getRequestTimestamp(request);
     const result = await setHabitTotalForToday(
       {
         db: request.server.db,
       },
       {
-        userId: session.user.id,
+        userId: user.id,
         ...(request.body as Record<string, unknown>),
         timestamp,
       } as Parameters<typeof setHabitTotalForToday>[1],
@@ -293,7 +293,7 @@ export async function setTodayHabitTotalHandler(request: FastifyRequest, reply: 
 
     return {
       affectedHabit: result.habit,
-      ...(await buildTodayResponse(request, session.user.id, timestamp)),
+      ...(await buildTodayResponse(request, user.id, timestamp)),
     };
   } catch (error) {
     if (error instanceof AuthSessionError) {
@@ -307,14 +307,14 @@ export async function setTodayHabitTotalHandler(request: FastifyRequest, reply: 
 
 export async function undoTodayHabitHandler(request: FastifyRequest, reply: FastifyReply) {
   try {
-    const session = await requireSession(request);
+    const user = await requireAuthenticatedUser(request);
     const timestamp = getRequestTimestamp(request);
     const result = await undoHabitForToday(
       {
         db: request.server.db,
       },
       {
-        userId: session.user.id,
+        userId: user.id,
         ...(request.body as Record<string, unknown>),
         timestamp,
       } as Parameters<typeof undoHabitForToday>[1],
@@ -322,7 +322,7 @@ export async function undoTodayHabitHandler(request: FastifyRequest, reply: Fast
 
     return {
       affectedHabit: result.habit,
-      ...(await buildTodayResponse(request, session.user.id, timestamp)),
+      ...(await buildTodayResponse(request, user.id, timestamp)),
     };
   } catch (error) {
     if (error instanceof AuthSessionError) {
