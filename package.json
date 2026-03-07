@@ -5,6 +5,8 @@
   "packageManager": "pnpm@10.6.2",
   "scripts": {
     "dev": "pnpm --parallel --filter @haaabit/api dev --filter @haaabit/web dev",
+    "postinstall": "pnpm --filter @haaabit/api exec prisma generate --config ../../prisma.config.ts --schema ../../prisma/schema.prisma",
+    "prisma:generate": "pnpm --filter @haaabit/api exec prisma generate --config ../../prisma.config.ts --schema ../../prisma/schema.prisma",
     "typecheck": "pnpm -r exec tsc --noEmit",
     "test": "pnpm --filter @haaabit/api vitest run",
     "test:e2e": "pnpm --filter @haaabit/web playwright test",
@@ -12,6 +14,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.53.2",
+    "@prisma/adapter-libsql": "^7.4.2",
     "@types/node": "^24.3.0",
     "prisma": "^7.4.2",
     "tsx": "^4.20.5",
