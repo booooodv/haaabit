@@ -148,10 +148,24 @@ export const habitDetailHistoryRowSchema = z.object({
   unit: z.string().nullable(),
 });
 
+export const habitTrendPointSchema = z.object({
+  date: isoDateSchema,
+  status: z.enum(["completed", "pending", "missed", "not_due"]),
+  completionRate: z.number().min(0).max(1).nullable(),
+  completedCount: z.number().int().nonnegative(),
+  completionTarget: z.number().int().positive().nullable(),
+  value: z.number().int().nonnegative().nullable(),
+  valueTarget: z.number().int().positive().nullable(),
+});
+
 export const habitDetailSchema = z.object({
   habit: habitRecordSchema,
   stats: habitDetailStatsSchema,
   recentHistory: z.array(habitDetailHistoryRowSchema),
+  trends: z.object({
+    last7Days: z.array(habitTrendPointSchema).length(7),
+    last30Days: z.array(habitTrendPointSchema).length(30),
+  }),
 });
 
 export type Weekday = z.infer<typeof weekdaySchema>;
@@ -163,4 +177,5 @@ export type UpdateHabitInput = z.infer<typeof updateHabitInputSchema>;
 export type HabitRecord = z.infer<typeof habitRecordSchema>;
 export type HabitDetailStats = z.infer<typeof habitDetailStatsSchema>;
 export type HabitDetailHistoryRow = z.infer<typeof habitDetailHistoryRowSchema>;
+export type HabitTrendPoint = z.infer<typeof habitTrendPointSchema>;
 export type HabitDetail = z.infer<typeof habitDetailSchema>;

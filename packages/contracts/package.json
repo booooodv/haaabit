@@ -6,7 +6,8 @@
   "exports": {
     "./habits": "./src/habits.ts",
     "./checkins": "./src/checkins.ts",
-    "./today": "./src/today.ts"
+    "./today": "./src/today.ts",
+    "./stats": "./src/stats.ts"
   },
   "dependencies": {
     "zod": "^4.1.5"
