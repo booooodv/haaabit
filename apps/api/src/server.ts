@@ -1,4 +1,4 @@
-import fastify, { type FastifyInstance } from "fastify";
+import fastify, { type FastifyInstance, type FastifyReply } from "fastify";
 
 import type { PrismaClient } from "./generated/prisma/client";
 import { registerAuth } from "./auth/auth";
@@ -13,7 +13,7 @@ type CreateAppOptions = {
   prisma?: PrismaClient;
 };
 
-function sendAuthError(reply: FastifyInstance["reply"], error: AuthSessionError): void {
+function sendAuthError(reply: FastifyReply, error: AuthSessionError): void {
   reply.status(error.statusCode).send({
     code: error.statusCode === 401 ? "UNAUTHORIZED" : "FORBIDDEN",
     message: error.message,

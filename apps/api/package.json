@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@fastify/cors": "^11.1.0",
+    "@haaabit/contracts": "workspace:*",
     "@prisma/adapter-libsql": "^7.4.2",
     "@prisma/client": "^7.4.2",
     "better-auth": "^1.3.7",
