@@ -23,7 +23,7 @@ export default defineConfig({
       },
     },
     {
-      command: "pnpm --filter @haaabit/web dev -- --hostname 127.0.0.1 --port 3000",
+      command: "pnpm --filter @haaabit/web exec next dev --hostname 127.0.0.1 --port 3000",
       cwd: "../..",
       port: 3000,
       reuseExistingServer: !process.env.CI,
