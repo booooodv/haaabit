@@ -5,6 +5,7 @@ import { AuthSessionError, requireSession } from "../../auth/session";
 import {
   archiveHabit,
   createHabit,
+  getHabitDetail,
   HabitInactiveError,
   HabitNotFoundError,
   listHabits,
@@ -52,6 +53,16 @@ function getHabitId(request: FastifyRequest) {
   return (request.params as { habitId: string }).habitId;
 }
 
+function getRequestTimestamp(request: FastifyRequest) {
+  const header = request.headers["x-haaabit-now"];
+
+  if (request.server.env.NODE_ENV === "test" && typeof header === "string" && header.length > 0) {
+    return header;
+  }
+
+  return new Date();
+}
+
 export async function listHabitsHandler(request: FastifyRequest, reply: FastifyReply) {
   try {
     const session = await requireSession(request);
@@ -90,6 +101,31 @@ export async function createHabitHandler(request: FastifyRequest, reply: Fastify
     );
 
     reply.status(201);
+    return { item };
+  } catch (error) {
+    if (error instanceof AuthSessionError) {
+      sendAuthError(reply, error);
+      return reply;
+    }
+
+    return sendHabitRequestError(reply, error);
+  }
+}
+
+export async function getHabitDetailHandler(request: FastifyRequest, reply: FastifyReply) {
+  try {
+    const session = await requireSession(request);
+    const item = await getHabitDetail(
+      {
+        db: request.server.db,
+      },
+      {
+        userId: session.user.id,
+        habitId: getHabitId(request),
+        timestamp: getRequestTimestamp(request),
+      },
+    );
+
     return { item };
   } catch (error) {
     if (error instanceof AuthSessionError) {
