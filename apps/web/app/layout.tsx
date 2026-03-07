@@ -1,0 +1,14 @@
+import type { ReactNode } from "react";
+
+export const metadata = {
+  title: "Haaabit",
+  description: "AI-first habit tracking",
+};
+
+export default function RootLayout({ children }: { children: ReactNode }) {
+  return (
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  );
+}

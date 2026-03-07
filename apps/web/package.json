@@ -10,10 +10,15 @@
     "playwright": "playwright"
   },
   "dependencies": {
+    "@haaabit/contracts": "workspace:*",
     "better-auth": "^1.3.7",
     "next": "^16.1.6",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "zod": "^4.1.5"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2"
   }
 }

@@ -81,3 +81,35 @@ export async function signUp(app: FastifyInstance, overrides: Partial<{ email: s
     },
   };
 }
+
+export async function signIn(
+  app: FastifyInstance,
+  credentials: {
+    email?: string;
+    password?: string;
+  } = {},
+) {
+  const response = await app.inject({
+    method: "POST",
+    url: "/api/auth/sign-in/email",
+    payload: {
+      email: credentials.email ?? "alice@example.com",
+      password: credentials.password ?? "password123",
+    },
+  });
+
+  return {
+    response,
+    cookie: normalizeCookie(response.headers["set-cookie"]),
+  };
+}
+
+export async function signOut(app: FastifyInstance, cookie: string) {
+  return app.inject({
+    method: "POST",
+    url: "/api/auth/sign-out",
+    headers: {
+      cookie,
+    },
+  });
+}
