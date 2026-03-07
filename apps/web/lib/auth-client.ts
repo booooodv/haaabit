@@ -81,11 +81,12 @@ function buildHabitListPath(filters?: Partial<HabitListFilters>) {
 }
 
 async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
+  const hasBody = init?.body !== undefined;
   const response = await fetch(createApiUrl(path), {
     ...init,
     credentials: "include",
     headers: {
-      "content-type": "application/json",
+      ...(hasBody ? { "content-type": "application/json" } : {}),
       ...(init?.headers ?? {}),
     },
   });
