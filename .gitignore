@@ -1,2 +1,8 @@
 .planning/
 需求说明.md
+node_modules/
+apps/*/node_modules/
+apps/api/src/generated/
+apps/api/.tmp/
+.next/
+dist/

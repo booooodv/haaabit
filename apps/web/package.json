@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "playwright": "playwright"
   },
   "dependencies": {
     "better-auth": "^1.3.7",
