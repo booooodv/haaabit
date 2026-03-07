@@ -1,6 +1,7 @@
 import fastify, { type FastifyInstance, type FastifyReply } from "fastify";
 
 import type { PrismaClient } from "./generated/prisma/client";
+import { API_DOCS_PATH, API_SPEC_PATH, getPersonalApiToken, resetPersonalApiToken } from "./auth/api-token";
 import { registerAuth } from "./auth/auth";
 import { AuthSessionError, assertOwnsUser, requireSession } from "./auth/session";
 import { registerHabitRoutes } from "./modules/habits/habit.routes";
@@ -90,6 +91,46 @@ export async function createApp(options: CreateAppOptions = {}) {
       assertOwnsUser(session, (request.params as { userId: string }).userId);
 
       return { ok: true };
+    } catch (error) {
+      if (error instanceof AuthSessionError) {
+        sendAuthError(reply, error);
+        return reply;
+      }
+
+      throw error;
+    }
+  });
+
+  app.get("/api/api-access/token", async (request, reply) => {
+    try {
+      const session = await requireSession(request);
+      const currentToken = await getPersonalApiToken(app.db, session.user.id);
+
+      return {
+        token: currentToken?.token ?? null,
+        docsPath: API_DOCS_PATH,
+        specPath: API_SPEC_PATH,
+      };
+    } catch (error) {
+      if (error instanceof AuthSessionError) {
+        sendAuthError(reply, error);
+        return reply;
+      }
+
+      throw error;
+    }
+  });
+
+  app.post("/api/api-access/token/reset", async (request, reply) => {
+    try {
+      const session = await requireSession(request);
+      const token = await resetPersonalApiToken(app.db, session.user.id);
+
+      return {
+        token: token.token,
+        docsPath: API_DOCS_PATH,
+        specPath: API_SPEC_PATH,
+      };
     } catch (error) {
       if (error instanceof AuthSessionError) {
         sendAuthError(reply, error);
