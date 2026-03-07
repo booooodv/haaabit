@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { OverviewSection } from "../../../components/dashboard/overview-section";
-import { TodayDashboard } from "../../../components/today/today-dashboard";
+import { DashboardShell } from "../../../components/dashboard/dashboard-shell";
 import { routes } from "../../../lib/navigation";
 import {
   buildCookieHeader,
@@ -32,14 +31,6 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div
-      style={{
-        display: "grid",
-        gap: "1.5rem",
-      }}
-    >
-      <OverviewSection overview={overview} />
-      <TodayDashboard initialSummary={todaySummary} />
-    </div>
+    <DashboardShell initialOverview={overview} initialSummary={todaySummary} />
   );
 }

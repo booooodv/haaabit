@@ -41,13 +41,16 @@ export function CompletionRateChart({
   title,
   subtitle,
   points,
+  testId,
 }: {
   title: string;
   subtitle: string;
   points: ChartPoint[];
+  testId?: string;
 }) {
   return (
     <section
+      data-testid={testId}
       style={{
         display: "grid",
         gap: "0.9rem",

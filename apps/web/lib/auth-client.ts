@@ -1,4 +1,5 @@
 import type { CreateHabitInput, HabitListFilters, UpdateHabitInput, Weekday } from "@haaabit/contracts/habits";
+import type { OverviewStats } from "@haaabit/contracts/stats";
 import type { TodaySummary } from "@haaabit/contracts/today";
 
 import { createApiUrl } from "./api";
@@ -21,6 +22,10 @@ export type HabitRecord = {
 
 type TodaySummaryResponse = {
   summary: TodaySummary;
+};
+
+type OverviewStatsResponse = {
+  overview: OverviewStats;
 };
 
 type TodayActionInput = {
@@ -178,6 +183,14 @@ export async function getTodaySummary() {
   return requestJson<TodaySummaryResponse>("/api/today", {
     method: "GET",
   });
+}
+
+export async function getOverviewStats() {
+  const body = await requestJson<OverviewStatsResponse>("/api/stats/overview", {
+    method: "GET",
+  });
+
+  return body.overview;
 }
 
 export async function completeTodayHabit(input: TodayActionInput) {

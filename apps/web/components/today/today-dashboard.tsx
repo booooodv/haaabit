@@ -12,9 +12,10 @@ import { TodayItemCard } from "./today-item";
 
 type TodayDashboardProps = {
   initialSummary: TodaySummary;
+  onActionSettled?: () => Promise<void>;
 };
 
-export function TodayDashboard({ initialSummary }: TodayDashboardProps) {
+export function TodayDashboard({ initialSummary, onActionSettled }: TodayDashboardProps) {
   const [summary, setSummary] = useState(initialSummary);
   const [error, setError] = useState<string | null>(null);
   const [isRefreshing, startTransition] = useTransition();
@@ -26,6 +27,7 @@ export function TodayDashboard({ initialSummary }: TodayDashboardProps) {
       try {
         const result = await action();
         setSummary(result.summary);
+        await onActionSettled?.();
       } catch (submissionError) {
         setError(submissionError instanceof Error ? submissionError.message : "Unable to update today");
       }

@@ -6,13 +6,16 @@ function MetricCard({
   label,
   value,
   hint,
+  testId,
 }: {
   label: string;
   value: string;
   hint: string;
+  testId: string;
 }) {
   return (
     <div
+      data-testid={testId}
       style={{
         display: "grid",
         gap: "0.35rem",
@@ -31,9 +34,16 @@ function MetricCard({
   );
 }
 
-export function OverviewSection({ overview }: { overview: OverviewStats }) {
+export function OverviewSection({
+  overview,
+  isRefreshing = false,
+}: {
+  overview: OverviewStats;
+  isRefreshing?: boolean;
+}) {
   return (
     <section
+      data-testid="dashboard-overview"
       style={{
         display: "grid",
         gap: "1.25rem",
@@ -65,16 +75,19 @@ export function OverviewSection({ overview }: { overview: OverviewStats }) {
           label="Completed today"
           value={String(overview.metrics.todayCompletedCount)}
           hint={`${Math.round(overview.metrics.todayCompletionRate * 100)}% of due habits`}
+          testId="overview-metric-today-completed"
         />
         <MetricCard
           label="This week"
           value={`${Math.round(overview.metrics.weeklyCompletionRate * 100)}%`}
           hint="Natural calendar week"
+          testId="overview-metric-this-week"
         />
         <MetricCard
           label="Active habits"
           value={String(overview.metrics.activeHabitCount)}
           hint="Current working set"
+          testId="overview-metric-active-habits"
         />
       </div>
 
@@ -89,9 +102,11 @@ export function OverviewSection({ overview }: { overview: OverviewStats }) {
           title="30-day completion rate"
           subtitle="Daily-granularity account trend"
           points={overview.trends.last30Days}
+          testId="overview-trend-chart"
         />
 
         <section
+          data-testid="overview-ranking"
           style={{
             display: "grid",
             gap: "0.8rem",
@@ -113,6 +128,7 @@ export function OverviewSection({ overview }: { overview: OverviewStats }) {
               overview.stabilityRanking.slice(0, 5).map((entry, index) => (
                 <div
                   key={entry.habitId}
+                  data-testid={`overview-ranking-item-${index}`}
                   style={{
                     display: "grid",
                     gap: "0.2rem",
@@ -139,6 +155,10 @@ export function OverviewSection({ overview }: { overview: OverviewStats }) {
           </div>
         </section>
       </div>
+
+      {isRefreshing ? (
+        <p style={{ margin: 0, color: "#67594d", fontSize: "0.92rem" }}>Refreshing overview…</p>
+      ) : null}
     </section>
   );
 }
