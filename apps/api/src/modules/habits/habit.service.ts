@@ -7,6 +7,7 @@ import type {
   UpdateHabitInput,
 } from "@haaabit/contracts/habits";
 import type { PrismaClient } from "../../generated/prisma/client";
+import { buildHabitTrendSlice } from "../stats/stats.shared";
 
 import { addDays, compareDateKeys, getMonthBounds, getWeekBounds, getWeekday, resolveHabitDay } from "../today/today-clock";
 
@@ -506,6 +507,16 @@ export async function getHabitDetail(
     habit: serializeHabit(record),
     stats: buildStats(computedHistory),
     recentHistory: computedHistory.filter(isSettledRow).reverse().slice(0, 10),
+    trends: {
+      last7Days: buildHabitTrendSlice(record, {
+        todayKey: day.todayKey,
+        days: 7,
+      }),
+      last30Days: buildHabitTrendSlice(record, {
+        todayKey: day.todayKey,
+        days: 30,
+      }),
+    },
   };
 }
 
