@@ -3,6 +3,7 @@ import { z } from "zod";
 const isoDateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "startDate must use YYYY-MM-DD");
 const nonEmptyString = z.string().trim().min(1);
 const optionalNonEmptyString = z.string().trim().min(1).optional();
+const nullableOptionalNonEmptyString = z.string().trim().min(1).nullable().optional();
 
 export const weekdaySchema = z.enum([
   "monday",
@@ -84,7 +85,34 @@ export const createHabitInputSchema = z
     }
   });
 
+export const habitListFiltersSchema = z
+  .strictObject({
+    status: z.enum(["active", "archived"]).default("active"),
+    query: optionalNonEmptyString,
+    category: optionalNonEmptyString,
+    kind: habitKindSchema.optional(),
+  })
+  .default({
+    status: "active",
+  });
+
+export const updateHabitInputSchema = z
+  .strictObject({
+    name: nonEmptyString.optional(),
+    description: nullableOptionalNonEmptyString,
+    category: nullableOptionalNonEmptyString,
+    targetValue: z.number().int().positive().optional(),
+    unit: nullableOptionalNonEmptyString,
+    startDate: isoDateSchema.optional(),
+    frequency: habitFrequencySchema.optional(),
+  })
+  .refine((value) => Object.keys(value).length > 0, {
+    message: "At least one editable habit field must be provided",
+  });
+
 export type Weekday = z.infer<typeof weekdaySchema>;
 export type HabitKind = z.infer<typeof habitKindSchema>;
 export type HabitFrequency = z.infer<typeof habitFrequencySchema>;
 export type CreateHabitInput = z.infer<typeof createHabitInputSchema>;
+export type HabitListFilters = z.infer<typeof habitListFiltersSchema>;
+export type UpdateHabitInput = z.infer<typeof updateHabitInputSchema>;

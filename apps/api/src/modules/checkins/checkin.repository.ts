@@ -3,6 +3,7 @@ import type { Prisma, PrismaClient } from "../../generated/prisma/client";
 export type PersistedCheckinHabit = {
   id: string;
   userId: string;
+  isActive: boolean;
   name: string;
   kind: string;
   frequencyType: string;

@@ -1,4 +1,4 @@
-import type { PrismaClient } from "../../generated/prisma/client";
+import type { Prisma, PrismaClient } from "../../generated/prisma/client";
 
 import type { NormalizedCreateHabitInput } from "./habit.schema";
 
@@ -96,6 +96,164 @@ export async function listHabitRecords(db: PrismaClient, userId: string) {
     },
     orderBy: {
       createdAt: "asc",
+    },
+    include: {
+      weekdays: {
+        orderBy: {
+          day: "asc",
+        },
+      },
+    },
+  });
+}
+
+type HabitListFilters = {
+  status?: "active" | "archived";
+  query?: string;
+  category?: string;
+  kind?: NormalizedCreateHabitInput["kind"];
+};
+
+function buildHabitWhereInput(params: {
+  userId: string;
+  habitId?: string;
+  filters?: HabitListFilters;
+}): Prisma.HabitWhereInput {
+  const where: Prisma.HabitWhereInput = {
+    userId: params.userId,
+  };
+
+  if (params.habitId) {
+    where.id = params.habitId;
+  }
+
+  if (params.filters?.status) {
+    where.isActive = params.filters.status === "active";
+  }
+
+  if (params.filters?.category) {
+    where.category = params.filters.category;
+  }
+
+  if (params.filters?.kind) {
+    where.kind = toStoredHabitKind(params.filters.kind);
+  }
+
+  if (params.filters?.query) {
+    where.OR = [
+      {
+        name: {
+          contains: params.filters.query,
+        },
+      },
+      {
+        category: {
+          contains: params.filters.query,
+        },
+      },
+    ];
+  }
+
+  return where;
+}
+
+export async function listHabitRecordsByFilter(
+  db: PrismaClient,
+  params: {
+    userId: string;
+    filters?: HabitListFilters;
+  },
+) {
+  return db.habit.findMany({
+    where: buildHabitWhereInput(params),
+    orderBy: {
+      createdAt: "asc",
+    },
+    include: {
+      weekdays: {
+        orderBy: {
+          day: "asc",
+        },
+      },
+    },
+  });
+}
+
+export async function findOwnedHabitRecord(
+  db: PrismaClient,
+  params: {
+    userId: string;
+    habitId: string;
+  },
+) {
+  return db.habit.findFirst({
+    where: buildHabitWhereInput(params),
+    include: {
+      weekdays: {
+        orderBy: {
+          day: "asc",
+        },
+      },
+    },
+  });
+}
+
+export async function updateHabitRecord(
+  db: PrismaClient,
+  params: {
+    habitId: string;
+    habit: NormalizedCreateHabitInput;
+  },
+) {
+  return db.habit.update({
+    where: {
+      id: params.habitId,
+    },
+    data: {
+      kind: toStoredHabitKind(params.habit.kind),
+      name: params.habit.name,
+      description: params.habit.description,
+      category: params.habit.category,
+      frequencyType: toStoredFrequencyType(params.habit.frequencyType),
+      frequencyCount: params.habit.frequencyCount,
+      targetValue: params.habit.targetValue,
+      unit: params.habit.unit,
+      startDate: params.habit.startDate,
+      isActive: params.habit.isActive,
+      weekdays: {
+        deleteMany: {},
+        ...(params.habit.weekdays.length
+          ? {
+              create: params.habit.weekdays.map((day) => ({
+                day: toStoredWeekday(day),
+              })),
+            }
+          : {}),
+      },
+    },
+    include: {
+      weekdays: {
+        orderBy: {
+          day: "asc",
+        },
+      },
+    },
+  });
+}
+
+export async function setHabitActiveState(
+  db: PrismaClient,
+  params: {
+    habitId: string;
+    isActive: boolean;
+  },
+) {
+  return db.habit.update({
+    where: {
+      id: params.habitId,
+    },
+    data: {
+      isActive: params.isActive,
     },
     include: {
       weekdays: {

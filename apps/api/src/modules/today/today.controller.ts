@@ -3,6 +3,7 @@ import type { FastifyReply, FastifyRequest } from "fastify";
 
 import { AuthSessionError, requireSession } from "../../auth/session";
 import { completeHabitForToday, setHabitTotalForToday, undoHabitForToday } from "../checkins/checkin.service";
+import { HabitInactiveError } from "../habits/habit.service";
 
 import { buildTodaySummary } from "./today-summary";
 import { resolveHabitDay } from "./today-clock";
@@ -216,6 +217,14 @@ function sendRequestError(reply: FastifyReply, error: unknown) {
   if (error instanceof Error && /Only .* can use/.test(error.message)) {
     reply.status(400).send({
       code: "BAD_REQUEST",
+      message: error.message,
+    });
+    return reply;
+  }
+
+  if (error instanceof HabitInactiveError) {
+    reply.status(409).send({
+      code: "HABIT_INACTIVE",
       message: error.message,
     });
     return reply;

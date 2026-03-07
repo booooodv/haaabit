@@ -1,8 +1,12 @@
 import {
   type CreateHabitInput,
+  type HabitListFilters,
   type HabitKind,
+  type UpdateHabitInput,
   type Weekday,
   createHabitInputSchema,
+  habitListFiltersSchema,
+  updateHabitInputSchema,
 } from "@haaabit/contracts/habits";
 
 export type NormalizedCreateHabitInput = {
@@ -25,6 +29,14 @@ type NormalizeCreateHabitOptions = {
 
 export function parseCreateHabitInput(input: unknown): CreateHabitInput {
   return createHabitInputSchema.parse(input);
+}
+
+export function parseHabitListFilters(input: unknown): HabitListFilters {
+  return habitListFiltersSchema.parse(input ?? {});
+}
+
+export function parseUpdateHabitInput(input: unknown): UpdateHabitInput {
+  return updateHabitInputSchema.parse(input);
 }
 
 export function normalizeCreateHabitInput(

@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 
 import { createHabit } from "../../src/modules/habits/habit.service";
+import { archiveHabit } from "../../src/modules/habits/habit.service";
 import { createTestContext, signUp, type TestContext } from "../helpers/app";
 
 async function createOwnedHabit(
@@ -171,6 +172,101 @@ describe("today action routes", () => {
           },
         ],
       },
+    });
+  });
+
+  it("rejects today write actions for archived habits", async () => {
+    context = await createTestContext();
+    const { body, cookie } = await signUp(context.app);
+
+    const booleanHabit = await createOwnedHabit(context, body.user.id, {
+      name: "Meditate",
+      frequency: {
+        type: "daily",
+      },
+    });
+    const quantityHabit = await createOwnedHabit(context, body.user.id, {
+      name: "Read",
+      kind: "quantity",
+      targetValue: 10,
+      unit: "pages",
+      frequency: {
+        type: "daily",
+      },
+    });
+
+    await archiveHabit(
+      {
+        db: context.app.db,
+      },
+      {
+        userId: body.user.id,
+        habitId: booleanHabit.id,
+      },
+    );
+    await archiveHabit(
+      {
+        db: context.app.db,
+      },
+      {
+        userId: body.user.id,
+        habitId: quantityHabit.id,
+      },
+    );
+
+    const completeResponse = await context.app.inject({
+      method: "POST",
+      url: "/api/today/complete",
+      headers: {
+        cookie,
+        "x-haaabit-now": "2026-03-11T08:00:00.000Z",
+      },
+      payload: {
+        habitId: booleanHabit.id,
+        source: "web",
+      },
+    });
+
+    expect(completeResponse.statusCode).toBe(409);
+    expect(completeResponse.json()).toMatchObject({
+      code: "HABIT_INACTIVE",
+    });
+
+    const setTotalResponse = await context.app.inject({
+      method: "POST",
+      url: "/api/today/set-total",
+      headers: {
+        cookie,
+        "x-haaabit-now": "2026-03-11T09:00:00.000Z",
+      },
+      payload: {
+        habitId: quantityHabit.id,
+        total: 5,
+        source: "web",
+      },
+    });
+
+    expect(setTotalResponse.statusCode).toBe(409);
+    expect(setTotalResponse.json()).toMatchObject({
+      code: "HABIT_INACTIVE",
+    });
+
+    const undoResponse = await context.app.inject({
+      method: "POST",
+      url: "/api/today/undo",
+      headers: {
+        cookie,
+        "x-haaabit-now": "2026-03-11T10:00:00.000Z",
+      },
+      payload: {
+        habitId: quantityHabit.id,
+        source: "web",
+      },
+    });
+
+    expect(undoResponse.statusCode).toBe(409);
+    expect(undoResponse.json()).toMatchObject({
+      code: "HABIT_INACTIVE",
     });
   });
 });

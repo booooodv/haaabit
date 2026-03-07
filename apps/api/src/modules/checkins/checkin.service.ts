@@ -1,5 +1,6 @@
 import type { PrismaClient } from "../../generated/prisma/client";
 
+import { HabitInactiveError } from "../habits/habit.service";
 import { resolveHabitDay } from "../today/today-clock";
 
 import {
@@ -192,6 +193,10 @@ export async function completeHabitForToday(
     timestamp: params.timestamp,
   });
 
+  if (!context.habit.isActive) {
+    throw new HabitInactiveError();
+  }
+
   if (context.habit.kind !== "BOOLEAN") {
     throw new Error("Only boolean habits can use complete");
   }
@@ -228,6 +233,10 @@ export async function setHabitTotalForToday(
     timestamp: params.timestamp,
   });
 
+  if (!context.habit.isActive) {
+    throw new HabitInactiveError();
+  }
+
   if (context.habit.kind !== "QUANTITY") {
     throw new Error("Only quantified habits can use set-total");
   }
@@ -260,6 +269,11 @@ export async function undoHabitForToday(
     habitId: parsed.habitId,
     timestamp: params.timestamp,
   });
+
+  if (!context.habit.isActive) {
+    throw new HabitInactiveError();
+  }
+
   const latestMutation = await findLatestCheckinMutation(dependencies.db, {
     habitId: context.habit.id,
     dateKey: context.day.todayKey,
