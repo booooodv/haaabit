@@ -65,6 +65,9 @@ describe("habit detail routes", () => {
     const responseBody = response.json() as {
       item: {
         recentHistory: Array<Record<string, unknown>>;
+        trends: {
+          last7Days: Array<Record<string, unknown>>;
+        };
       };
     };
 
@@ -102,6 +105,19 @@ describe("habit detail routes", () => {
         unit: "pages",
       }),
     ]);
+    expect(responseBody.item.trends.last7Days).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          date: "2026-03-03",
+          status: "completed",
+          completionRate: 1,
+          completedCount: 1,
+          completionTarget: 1,
+          value: 10,
+          valueTarget: 8,
+        }),
+      ]),
+    );
   });
 
   it("keeps archived habits readable while enforcing ownership on detail reads", async () => {
