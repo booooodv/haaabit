@@ -7,5 +7,5 @@ export default async function HabitsManagementPage() {
     status: "active",
   });
 
-  return <HabitsPage initialItems={initialItems} />;
+  return <HabitsPage initialItems={initialItems} initialStatus="active" />;
 }

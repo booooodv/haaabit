@@ -1,4 +1,4 @@
-import type { HabitListFilters, Weekday } from "@haaabit/contracts/habits";
+import type { HabitDetail, HabitListFilters, Weekday } from "@haaabit/contracts/habits";
 import type { TodaySummary } from "@haaabit/contracts/today";
 import "server-only";
 
@@ -32,6 +32,10 @@ type HabitPayload = {
 
 type TodaySummaryPayload = {
   summary: TodaySummary;
+};
+
+type HabitDetailPayload = {
+  item: HabitDetail;
 };
 
 function buildHabitListPath(filters?: Partial<HabitListFilters>) {
@@ -115,4 +119,25 @@ export async function getTodaySummaryFromCookieHeader(cookieHeader: string): Pro
 
   const body = (await response.json()) as TodaySummaryPayload;
   return body.summary;
+}
+
+export async function getHabitDetailFromCookieHeader(
+  cookieHeader: string,
+  habitId: string,
+): Promise<HabitDetail | null> {
+  const response = await fetch(createApiUrl(`/api/habits/${habitId}`), {
+    headers: cookieHeader.length > 0 ? { cookie: cookieHeader } : undefined,
+    cache: "no-store",
+  });
+
+  if (response.status === 404) {
+    return null;
+  }
+
+  if (!response.ok) {
+    throw new Error("Unable to load habit detail");
+  }
+
+  const body = (await response.json()) as HabitDetailPayload;
+  return body.item;
 }

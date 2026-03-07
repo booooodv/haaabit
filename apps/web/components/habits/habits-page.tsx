@@ -1,5 +1,7 @@
 "use client";
 
+import type { HabitDetail } from "@haaabit/contracts/habits";
+import Link from "next/link";
 import { useDeferredValue, useEffect, useState, useTransition } from "react";
 
 import {
@@ -8,10 +10,15 @@ import {
   restoreHabit,
   type HabitRecord,
 } from "../../lib/auth-client";
+import { routes } from "../../lib/navigation";
 import { HabitCreateForm } from "./habit-create-form";
+import { HabitDetailDrawer } from "./habit-detail-drawer";
 
 type HabitsPageProps = {
   initialItems: HabitRecord[];
+  initialStatus?: HabitStatus;
+  initialDetail?: HabitDetail | null;
+  closeDetailHref?: string;
 };
 
 type HabitStatus = "active" | "archived";
@@ -44,8 +51,13 @@ function formatMeta(habit: HabitRecord) {
   return "Boolean";
 }
 
-export function HabitsPage({ initialItems }: HabitsPageProps) {
-  const [status, setStatus] = useState<HabitStatus>("active");
+export function HabitsPage({
+  initialItems,
+  initialStatus = "active",
+  initialDetail = null,
+  closeDetailHref = routes.habits,
+}: HabitsPageProps) {
+  const [status, setStatus] = useState<HabitStatus>(initialStatus);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("");
   const [kind, setKind] = useState<HabitKindFilter>("all");
@@ -276,6 +288,7 @@ export function HabitsPage({ initialItems }: HabitsPageProps) {
                 <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap", alignItems: "start" }}>
                   {status === "active" ? (
                     <>
+                      <Link href={routes.habitDetail(habit.id)}>View details</Link>
                       <button type="button" onClick={() => setOverlay({ mode: "edit", habit })}>
                         Edit
                       </button>
@@ -284,9 +297,12 @@ export function HabitsPage({ initialItems }: HabitsPageProps) {
                       </button>
                     </>
                   ) : (
-                    <button type="button" onClick={() => handleRestore(habit.id)}>
-                      Restore
-                    </button>
+                    <>
+                      <Link href={routes.habitDetail(habit.id)}>View details</Link>
+                      <button type="button" onClick={() => handleRestore(habit.id)}>
+                        Restore
+                      </button>
+                    </>
                   )}
                 </div>
               </div>
@@ -389,6 +405,8 @@ export function HabitsPage({ initialItems }: HabitsPageProps) {
           </div>
         </div>
       ) : null}
+
+      {initialDetail ? <HabitDetailDrawer detail={initialDetail} closeHref={closeDetailHref} /> : null}
     </section>
   );
 }
