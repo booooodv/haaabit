@@ -84,6 +84,8 @@ model Habit {
   updatedAt      DateTime      @updatedAt
   user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   weekdays       HabitWeekday[]
+  dayStates      HabitDayState[]
+  mutations      CheckInMutation[]
 
   @@index([userId, isActive])
   @@index([frequencyType])
@@ -97,4 +99,41 @@ model HabitWeekday {
 
   @@unique([habitId, day])
   @@index([day])
+}
+
+model HabitDayState {
+  id         String            @id @default(cuid())
+  habitId     String
+  dateKey     String
+  value       Int?
+  completed   Boolean           @default(false)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  habit       Habit             @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  mutations   CheckInMutation[]
+
+  @@unique([habitId, dateKey])
+  @@index([dateKey])
+  @@index([habitId, completed, dateKey])
+}
+
+model CheckInMutation {
+  id                String        @id @default(cuid())
+  habitId            String
+  dayStateId         String
+  dateKey            String
+  type               String
+  source             String
+  note               String?
+  previousValue      Int?
+  nextValue          Int?
+  previousCompleted  Boolean
+  nextCompleted      Boolean
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  habit              Habit         @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  dayState           HabitDayState @relation(fields: [dayStateId], references: [id], onDelete: Cascade)
+
+  @@index([habitId, dateKey, createdAt])
+  @@index([dayStateId, createdAt])
 }
