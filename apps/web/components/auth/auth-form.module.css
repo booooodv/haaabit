@@ -3,6 +3,31 @@
   gap: 1.15rem;
 }
 
+.modeBlock {
+  display: grid;
+  gap: 0.35rem;
+  padding: 1rem 1rem 1.05rem;
+  border: 1px solid rgba(102, 122, 115, 0.16);
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.74), rgba(246, 248, 247, 0.92));
+}
+
+.modeEyebrow {
+  margin: 0;
+  color: var(--color-text-soft);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.modeDescription {
+  margin: 0;
+  color: var(--color-text-muted);
+  line-height: 1.55;
+}
+
 .fields {
   display: grid;
   gap: 1rem;

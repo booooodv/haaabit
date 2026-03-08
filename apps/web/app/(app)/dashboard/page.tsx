@@ -1,7 +1,4 @@
-import { redirect } from "next/navigation";
-
 import { DashboardShell } from "../../../components/dashboard/dashboard-shell";
-import { routes } from "../../../lib/navigation";
 import {
   buildCookieHeader,
   getOverviewStatsFromCookieHeader,
@@ -12,6 +9,8 @@ import {
 type DashboardPageProps = {
   searchParams?: Promise<{
     simulateLoading?: string;
+    simulateTodayError?: string;
+    simulateOverviewError?: string;
   }>;
 };
 
@@ -32,23 +31,33 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     }),
   ]);
 
-  const [todaySummaryResult, overviewResult] = await Promise.allSettled([
-    getTodaySummaryFromCookieHeader(cookieHeader),
-    getOverviewStatsFromCookieHeader(cookieHeader),
-  ]);
+  const emptyState =
+    activeHabits.length === 0 ? (archivedHabits.length > 0 ? "archived-only" : "no-habits") : null;
 
-  if (activeHabits.length === 0 && archivedHabits.length === 0) {
-    redirect(routes.newHabit);
-  }
+  let initialSummary = null;
+  let initialOverview = null;
+  let initialLoadError: string | null = null;
 
-  if (activeHabits.length === 0) {
-    redirect(archivedHabits.length > 0 ? `${routes.habits}?status=archived` : routes.habits);
+  if (!emptyState) {
+    if (params?.simulateTodayError === "1" || params?.simulateOverviewError === "1") {
+      initialLoadError = "Unable to load today and overview right now.";
+    } else {
+      const [todaySummaryResult, overviewResult] = await Promise.allSettled([
+        getTodaySummaryFromCookieHeader(cookieHeader),
+        getOverviewStatsFromCookieHeader(cookieHeader),
+      ]);
+
+      initialSummary = todaySummaryResult.status === "fulfilled" ? todaySummaryResult.value : null;
+      initialOverview = overviewResult.status === "fulfilled" ? overviewResult.value : null;
+    }
   }
 
   return (
     <DashboardShell
-      initialOverview={overviewResult.status === "fulfilled" ? overviewResult.value : null}
-      initialSummary={todaySummaryResult.status === "fulfilled" ? todaySummaryResult.value : null}
+      emptyState={emptyState}
+      initialLoadError={initialLoadError}
+      initialOverview={initialOverview}
+      initialSummary={initialSummary}
     />
   );
 }

@@ -7,6 +7,8 @@ test("logged-out users land on auth page and protected shell redirects back to l
 
   await expect(page.getByRole("heading", { name: "Sign in to Haaabit" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Sign in" })).toBeVisible();
+  await expect(page.getByText("Private by deployment")).toBeVisible();
+  await expect(page.getByText("Stored on the deployment you control")).toBeVisible();
 
   await page.goto("/dashboard");
 
@@ -34,5 +36,9 @@ test("auth keeps sign-in failures in context", async ({ page }) => {
   await expect(feedback).toBeVisible();
   await expect(feedback).toContainText("Unable to continue");
   await expect(feedback).toContainText("Invalid email or password");
+  await expect(page.getByText("Check your email and password, then try again.")).toBeVisible();
+  await expect(page.getByLabel("Email")).toHaveValue("wrong@example.com");
+  await expect(page.getByLabel("Password")).toHaveValue("password123");
+  await expect(page.getByRole("button", { name: "Sign in" })).toBeVisible();
   await expect(page).toHaveURL(/\/$/);
 });

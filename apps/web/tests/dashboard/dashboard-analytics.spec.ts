@@ -68,8 +68,11 @@ test("dashboard analytics stays above today and refreshes after today actions", 
   await page.goto("/dashboard");
 
   await expect(page.getByTestId("today-dashboard")).toBeVisible();
-  await expect(page.locator("h1").first()).toHaveText("Analytics");
-  await expect(page.locator("h1").nth(1)).toHaveText("Today");
+  const todayBox = await page.getByTestId("today-dashboard").boundingBox();
+  const overviewBox = await page.getByTestId("dashboard-overview").boundingBox();
+  expect(todayBox).not.toBeNull();
+  expect(overviewBox).not.toBeNull();
+  expect((todayBox?.y ?? 0) < (overviewBox?.y ?? 0)).toBeTruthy();
   await expect(page.getByTestId("overview-metric-today-completed")).toContainText("0");
   await expect(page.getByTestId(`overview-ranking-item-${habitIds["Morning walk"]}`)).toContainText("Morning walk");
 
@@ -87,7 +90,7 @@ test("dashboard analytics stays above today and refreshes after today actions", 
 test.describe("mobile dashboard", () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
-  test("mobile dashboard keeps overview above today while compressing analytics", async ({ page }) => {
+  test("mobile dashboard keeps today above overview while compressing analytics into support content", async ({ page }) => {
     const email = `dashboard-mobile-${Date.now()}@example.com`;
     const startDate = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
@@ -116,12 +119,12 @@ test.describe("mobile dashboard", () => {
     await expect(page.getByTestId("app-shell-mobile-nav")).toBeVisible();
     await expect(page.getByTestId("overview-metrics")).toBeVisible();
 
-    const overviewBox = await page.getByTestId("dashboard-overview").boundingBox();
     const todayBox = await page.getByTestId("today-dashboard").boundingBox();
+    const overviewBox = await page.getByTestId("dashboard-overview").boundingBox();
 
     expect(overviewBox).not.toBeNull();
     expect(todayBox).not.toBeNull();
-    expect((overviewBox?.y ?? 0) < (todayBox?.y ?? 0)).toBeTruthy();
+    expect((todayBox?.y ?? 0) < (overviewBox?.y ?? 0)).toBeTruthy();
     expect((overviewBox?.height ?? 0) < (todayBox?.height ?? Number.POSITIVE_INFINITY)).toBeTruthy();
   });
 });

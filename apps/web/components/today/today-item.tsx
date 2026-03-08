@@ -3,11 +3,18 @@
 import type { TodayItem } from "@haaabit/contracts/today";
 import { useEffect, useState } from "react";
 
-import { Badge, Button, DisabledHint, Field, Input, cn } from "../ui";
+import { Badge, Button, DisabledHint, Field, InlineStatus, Input, cn } from "../ui";
 import styles from "./today-item.module.css";
+
+type ItemFeedback = {
+  tone: "neutral" | "success" | "danger";
+  title: string;
+  message: string;
+};
 
 type TodayItemProps = {
   item: TodayItem;
+  feedback?: ItemFeedback | null;
   isPending?: boolean;
   onComplete: (habitId: string) => Promise<void>;
   onSetTotal: (habitId: string, total: number) => Promise<void>;
@@ -32,7 +39,7 @@ function formatProgress(item: TodayItem) {
 }
 
 export function TodayItemCard(props: TodayItemProps) {
-  const { item, isPending = false, onComplete, onSetTotal, onUndo } = props;
+  const { item, feedback = null, isPending = false, onComplete, onSetTotal, onUndo } = props;
   const [draftTotal, setDraftTotal] = useState(String(item.progress.currentValue ?? 0));
 
   useEffect(() => {
@@ -114,6 +121,12 @@ export function TodayItemCard(props: TodayItemProps) {
           ) : null}
         </div>
       )}
+
+      {feedback ? (
+        <InlineStatus tone={feedback.tone} title={feedback.title}>
+          {feedback.message}
+        </InlineStatus>
+      ) : null}
 
       {isPending ? (
         <DisabledHint>Controls will unlock when this habit finishes syncing with today.</DisabledHint>

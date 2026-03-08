@@ -20,24 +20,24 @@ export default async function AuthPage() {
       <Surface variant="hero" className={styles.shell} data-testid="auth-shell">
         <PageFrame>
           <PageHeader
-            eyebrow="Session-backed access"
+            eyebrow="Private by deployment"
             title="Sign in to Haaabit"
-            description="Use the same trusted session flow that powers onboarding now and AI-assisted habit actions later."
+            description="Stored on the deployment you control. Sign in to the same local account you will use for today's check-ins, edits, and later AI-assisted actions."
           />
           <AuthForm />
           <div className={styles.valueStrip}>
             <div className={styles.valueGrid}>
               <div className={styles.valueItem}>
-                <span className={styles.valueLabel}>Today clarity</span>
-                <span className={styles.valueText}>See what is due, what is done, and what needs a correction.</span>
+                <span className={styles.valueLabel}>Local account</span>
+                <span className={styles.valueText}>Credentials stay tied to this self-hosted deployment, not a shared cloud account.</span>
               </div>
               <div className={styles.valueItem}>
-                <span className={styles.valueLabel}>Calm control</span>
-                <span className={styles.valueText}>One coherent surface for auth, habits, and later API access.</span>
+                <span className={styles.valueLabel}>Today ready</span>
+                <span className={styles.valueText}>Land in a dashboard that tells you what is due, what is done, and what needs correction.</span>
               </div>
               <div className={styles.valueItem}>
-                <span className={styles.valueLabel}>Self-host ready</span>
-                <span className={styles.valueText}>Your account stays local to the deployment you control.</span>
+                <span className={styles.valueLabel}>Calm recovery</span>
+                <span className={styles.valueText}>If a sign-in attempt fails, your entered details stay in place so you can correct and continue.</span>
               </div>
             </div>
           </div>

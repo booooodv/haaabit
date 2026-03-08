@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test("archiving the last active habit redirects dashboard back to habits and restore makes today reachable again", async ({
+test("archiving the last active habit keeps dashboard in place and restore makes today reachable again", async ({
   page,
 }) => {
   const email = `habit-regression-${Date.now()}@example.com`;
@@ -22,8 +22,10 @@ test("archiving the last active habit redirects dashboard back to habits and res
   await walkCard.getByRole("button", { name: "Archive" }).click();
 
   await page.goto("/dashboard");
+  await expect(page).toHaveURL(/\/dashboard$/);
+  await expect(page.getByText("No active habits right now")).toBeVisible();
+  await page.getByRole("button", { name: "Review archived habits" }).click();
   await expect(page).toHaveURL(/\/habits\?status=archived$/);
-  await expect(page.getByRole("heading", { name: "Habits", exact: true })).toBeVisible();
 
   const archivedCard = page.locator("article").filter({ hasText: "Morning walk" });
   await expect(archivedCard).toBeVisible();

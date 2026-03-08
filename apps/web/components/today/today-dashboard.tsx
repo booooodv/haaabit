@@ -23,9 +23,14 @@ type Feedback = {
   message: string;
 };
 
+type CardFeedback = Feedback & {
+  habitId: string;
+};
+
 export function TodayDashboard({ initialSummary, onActionSettled }: TodayDashboardProps) {
   const [summary, setSummary] = useState(initialSummary);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
+  const [cardFeedback, setCardFeedback] = useState<CardFeedback | null>(null);
   const [activeHabitId, setActiveHabitId] = useState<string | null>(null);
   const [isMutating, setIsMutating] = useState(false);
 
@@ -34,12 +39,19 @@ export function TodayDashboard({ initialSummary, onActionSettled }: TodayDashboa
     pendingTitle: string,
     successTitle: string,
     successMessage: string,
+    cardSuccessMessage: string,
     action: () => Promise<{ summary: TodaySummary }>,
   ) {
     setFeedback({
       tone: "neutral",
+      title: "Updating today",
+      message: "Your lists and summary will stay in sync when this update settles.",
+    });
+    setCardFeedback({
+      habitId,
+      tone: "neutral",
       title: pendingTitle,
-      message: "This action stays in place and unlocks when the current update finishes.",
+      message: "Saving this update without leaving the card.",
     });
     setActiveHabitId(habitId);
     setIsMutating(true);
@@ -50,20 +62,37 @@ export function TodayDashboard({ initialSummary, onActionSettled }: TodayDashboa
       await onActionSettled?.();
       setFeedback({
         tone: "success",
-        title: successTitle,
+        title: "Today updated",
         message: successMessage,
       });
+      setCardFeedback({
+        habitId,
+        tone: "success",
+        title: successTitle,
+        message: cardSuccessMessage,
+      });
     } catch (submissionError) {
+      const message = submissionError instanceof Error ? submissionError.message : "Unable to update today";
+
       setFeedback({
         tone: "danger",
+        title: "Today needs another try",
+        message,
+      });
+      setCardFeedback({
+        habitId,
+        tone: "danger",
         title: "Unable to update today",
-        message: submissionError instanceof Error ? submissionError.message : "Unable to update today",
+        message,
       });
     } finally {
       setActiveHabitId(null);
       setIsMutating(false);
     }
   }
+
+  const hasNothingDue = summary.pendingCount === 0 && summary.completedCount === 0;
+  const hasAllDone = summary.pendingCount === 0 && summary.completedCount > 0;
 
   return (
     <section className={styles.stack} data-testid="today-dashboard">
@@ -92,6 +121,23 @@ export function TodayDashboard({ initialSummary, onActionSettled }: TodayDashboa
         </PageFrame>
       </Surface>
 
+      {hasNothingDue ? (
+        <StatePanel
+          testId="today-primary-state"
+          title="Nothing due today"
+          description="Today's list is clear for now. Future or off-cycle habits will show up here when they become actionable."
+        />
+      ) : null}
+
+      {hasAllDone ? (
+        <StatePanel
+          testId="today-primary-state"
+          tone="success"
+          title="All done for today"
+          description="Everything due today is already complete. Finished habits stay visible below in case you need to review or undo."
+        />
+      ) : null}
+
       <div className={styles.sections}>
         <section className={styles.group}>
           <div className={styles.groupHeader}>
@@ -104,6 +150,7 @@ export function TodayDashboard({ initialSummary, onActionSettled }: TodayDashboa
                 <TodayItemCard
                   key={`${item.habitId}-${item.status}-${item.progress.currentValue ?? "none"}`}
                   item={item}
+                  feedback={cardFeedback?.habitId === item.habitId ? cardFeedback : null}
                   isPending={isMutating && activeHabitId === item.habitId}
                   onComplete={(habitId) =>
                     applyAction(
@@ -111,6 +158,7 @@ export function TodayDashboard({ initialSummary, onActionSettled }: TodayDashboa
                       "Marking habit complete",
                       "Habit updated",
                       "The pending list and completion totals are now in sync.",
+                      "Marked complete. You can undo from this card if needed.",
                       () => completeTodayHabit({ habitId, source: "web" }).then((result) => ({ summary: result.summary })),
                     )
                   }
@@ -120,6 +168,7 @@ export function TodayDashboard({ initialSummary, onActionSettled }: TodayDashboa
                       "Saving today total",
                       "Total saved",
                       "The updated quantity now counts toward today's completion status.",
+                      "Saved in place. Today's quantity is now up to date.",
                       () =>
                         setTodayHabitTotal({ habitId, total, source: "web" }).then((result) => ({
                           summary: result.summary,
@@ -132,13 +181,14 @@ export function TodayDashboard({ initialSummary, onActionSettled }: TodayDashboa
                       "Reverting latest update",
                       "Update reverted",
                       "Today's totals now reflect the previous saved value.",
+                      "Reverted to the previous saved value.",
                       () => undoTodayHabit({ habitId, source: "web" }).then((result) => ({ summary: result.summary })),
                     )
                   }
                 />
               ))}
             </div>
-          ) : (
+          ) : hasNothingDue || hasAllDone ? null : (
             <StatePanel
               title="Nothing pending right now"
               description="New or incomplete habits will stay here until you finish them."
@@ -158,6 +208,7 @@ export function TodayDashboard({ initialSummary, onActionSettled }: TodayDashboa
                 <TodayItemCard
                   key={`${item.habitId}-${item.status}-${item.progress.currentValue ?? "none"}`}
                   item={item}
+                  feedback={cardFeedback?.habitId === item.habitId ? cardFeedback : null}
                   isPending={isMutating && activeHabitId === item.habitId}
                   onComplete={(habitId) =>
                     applyAction(
@@ -165,6 +216,7 @@ export function TodayDashboard({ initialSummary, onActionSettled }: TodayDashboa
                       "Marking habit complete",
                       "Habit updated",
                       "The completed list has been refreshed in place.",
+                      "Marked complete. You can undo from this card if needed.",
                       () => completeTodayHabit({ habitId, source: "web" }).then((result) => ({ summary: result.summary })),
                     )
                   }
@@ -174,6 +226,7 @@ export function TodayDashboard({ initialSummary, onActionSettled }: TodayDashboa
                       "Saving today total",
                       "Total saved",
                       "The completed list now reflects the latest quantity value.",
+                      "Saved in place. Today's quantity is now up to date.",
                       () =>
                         setTodayHabitTotal({ habitId, total, source: "web" }).then((result) => ({
                           summary: result.summary,
@@ -186,13 +239,14 @@ export function TodayDashboard({ initialSummary, onActionSettled }: TodayDashboa
                       "Reverting latest update",
                       "Update reverted",
                       "This habit has moved back to the appropriate today state.",
+                      "Reverted to the previous saved value.",
                       () => undoTodayHabit({ habitId, source: "web" }).then((result) => ({ summary: result.summary })),
                     )
                   }
                 />
               ))}
             </div>
-          ) : (
+          ) : hasNothingDue ? null : (
             <StatePanel
               title="Nothing completed yet"
               description="Finished habits stay visible so you can undo or inspect today's result without leaving context."

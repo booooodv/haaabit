@@ -33,10 +33,10 @@ export function OverviewSection({
   return (
     <section data-testid="dashboard-overview" className={styles.section}>
       <div className={styles.header}>
-        <p className={styles.eyebrow}>Overview</p>
-        <h1 className={styles.title}>Analytics</h1>
+        <p className={styles.eyebrow}>Supporting overview</p>
+        <h2 className={styles.title}>Overview</h2>
         <p className={styles.description}>
-          Account-level completion trends and active habit stability before you drop into today's list.
+          Supporting account trends and stability after you have scanned today's work.
         </p>
       </div>
 

@@ -3,6 +3,12 @@
   gap: 1.5rem;
 }
 
+.actionRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
 .loadingStack {
   display: grid;
   gap: 0.85rem;

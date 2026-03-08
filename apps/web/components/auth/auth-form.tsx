@@ -15,41 +15,131 @@ type Feedback = {
   message: string;
 };
 
+type FormValues = {
+  name: string;
+  email: string;
+  password: string;
+};
+
+type FormErrors = Partial<Record<keyof FormValues, string>>;
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export function AuthForm() {
   const router = useRouter();
   const [mode, setMode] = useState<Mode>("sign-in");
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [values, setValues] = useState<FormValues>({
+    name: "",
+    email: "",
+    password: "",
+  });
+  const [errors, setErrors] = useState<FormErrors>({});
 
-  async function handleSubmit(formData: FormData) {
+  function updateField<Key extends keyof FormValues>(field: Key, nextValue: FormValues[Key]) {
+    setValues((current) => ({
+      ...current,
+      [field]: nextValue,
+    }));
+    setErrors((current) => {
+      if (!current[field]) {
+        return current;
+      }
+
+      const nextErrors = { ...current };
+      delete nextErrors[field];
+      return nextErrors;
+    });
+  }
+
+  function switchMode(nextMode: Mode) {
+    setMode(nextMode);
+    setFeedback(null);
+    setErrors({});
+  }
+
+  function validate(currentMode: Mode, currentValues: FormValues) {
+    const nextErrors: FormErrors = {};
+    const trimmedName = currentValues.name.trim();
+    const trimmedEmail = currentValues.email.trim();
+
+    if (!trimmedEmail) {
+      nextErrors.email = "Enter the email tied to this deployment.";
+    } else if (!EMAIL_PATTERN.test(trimmedEmail)) {
+      nextErrors.email = "Enter a valid email address.";
+    }
+
+    if (!currentValues.password) {
+      nextErrors.password = "Enter your password to continue.";
+    } else if (currentMode === "sign-up" && currentValues.password.length < 8) {
+      nextErrors.password = "Use at least 8 characters.";
+    }
+
+    if (currentMode === "sign-up" && !trimmedName) {
+      nextErrors.name = "Add a name for this local account.";
+    }
+
+    return {
+      isValid: Object.keys(nextErrors).length === 0,
+      nextErrors,
+      sanitized: {
+        name: trimmedName,
+        email: trimmedEmail,
+        password: currentValues.password,
+      },
+    };
+  }
+
+  async function handleSubmit() {
+    const validation = validate(mode, values);
+
+    if (!validation.isValid) {
+      setErrors(validation.nextErrors);
+      setFeedback({
+        tone: "danger",
+        title: "Check these details",
+        message: "Fix the highlighted fields and try again.",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
+    setErrors({});
     setFeedback({
       tone: "neutral",
       title: mode === "sign-up" ? "Creating your account" : "Signing you in",
       message: "This form stays locked until the current request finishes.",
     });
 
-    const email = String(formData.get("email") ?? "");
-    const password = String(formData.get("password") ?? "");
-    const name = String(formData.get("name") ?? "");
-
     try {
       if (mode === "sign-up") {
-        await signUp({ email, password, name });
+        await signUp(validation.sanitized);
         router.push(routes.newHabit);
         router.refresh();
         return;
       }
 
-      await signIn({ email, password });
+      await signIn({
+        email: validation.sanitized.email,
+        password: validation.sanitized.password,
+      });
       const habits = await listHabits();
       router.push(habits.length === 0 ? routes.newHabit : routes.dashboard);
       router.refresh();
     } catch (submissionError) {
+      const message = submissionError instanceof Error ? submissionError.message : "Unable to continue";
+
+      if (mode === "sign-in" && message.toLowerCase().includes("invalid email or password")) {
+        setErrors({
+          password: "Check your email and password, then try again.",
+        });
+      }
+
       setFeedback({
         tone: "danger",
         title: "Unable to continue",
-        message: submissionError instanceof Error ? submissionError.message : "Unable to continue",
+        message,
       });
     } finally {
       setIsSubmitting(false);
@@ -67,14 +157,47 @@ export function AuthForm() {
 
   return (
     <form action={handleSubmit} className={styles.form}>
+      <div className={styles.modeBlock}>
+        <p className={styles.modeEyebrow}>
+          {mode === "sign-up" ? "Create a local account" : "Private account access"}
+        </p>
+        <p className={styles.modeDescription}>
+          {mode === "sign-up"
+            ? "This account lives on the deployment you control, so you can sign in later without leaving your self-hosted workflow."
+            : "Use the account already stored on this deployment. Your details stay in place if you need to correct them."}
+        </p>
+      </div>
+
       <div className={styles.fields}>
         {mode === "sign-up" ? (
-          <Field label="Name" htmlFor="auth-name" required>
-            <Input id="auth-name" name="name" type="text" required autoComplete="name" disabled={isSubmitting} />
+          <Field
+            label="Name"
+            htmlFor="auth-name"
+            description="Use a name you will recognize when you come back to this deployment."
+            error={errors.name}
+            required
+          >
+            <Input
+              id="auth-name"
+              name="name"
+              type="text"
+              required
+              autoComplete="name"
+              disabled={isSubmitting}
+              value={values.name}
+              onChange={(event) => updateField("name", event.target.value)}
+              aria-invalid={errors.name ? true : undefined}
+            />
           </Field>
         ) : null}
 
-        <Field label="Email" htmlFor="auth-email" required>
+        <Field
+          label="Email"
+          htmlFor="auth-email"
+          description="Use the email you want tied to this self-hosted account."
+          error={errors.email}
+          required
+        >
           <Input
             id="auth-email"
             name="email"
@@ -82,13 +205,21 @@ export function AuthForm() {
             required
             autoComplete="email"
             disabled={isSubmitting}
+            value={values.email}
+            onChange={(event) => updateField("email", event.target.value)}
+            aria-invalid={errors.email ? true : undefined}
           />
         </Field>
 
         <Field
           label="Password"
           htmlFor="auth-password"
-          description={mode === "sign-up" ? "Use at least 8 characters." : undefined}
+          description={
+            mode === "sign-up"
+              ? "Use at least 8 characters."
+              : "Use the password already stored on this deployment."
+          }
+          error={errors.password}
           required
         >
           <Input
@@ -99,6 +230,9 @@ export function AuthForm() {
             required
             disabled={isSubmitting}
             autoComplete={mode === "sign-up" ? "new-password" : "current-password"}
+            value={values.password}
+            onChange={(event) => updateField("password", event.target.value)}
+            aria-invalid={errors.password ? true : undefined}
           />
         </Field>
       </div>
@@ -115,11 +249,11 @@ export function AuthForm() {
             {mode === "sign-up" ? "Already have an account?" : "Need a new account?"}
           </span>
           {mode === "sign-up" ? (
-            <Button type="button" variant="ghost" onClick={() => setMode("sign-in")} disabled={isSubmitting}>
+            <Button type="button" variant="ghost" onClick={() => switchMode("sign-in")} disabled={isSubmitting}>
               Back to sign in
             </Button>
           ) : (
-            <Button type="button" variant="ghost" onClick={() => setMode("sign-up")} disabled={isSubmitting}>
+            <Button type="button" variant="ghost" onClick={() => switchMode("sign-up")} disabled={isSubmitting}>
               Create account
             </Button>
           )}

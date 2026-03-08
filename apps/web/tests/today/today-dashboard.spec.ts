@@ -83,6 +83,9 @@ test("dashboard shows pending/completed groups and stays in sync through complet
   await expect(page.getByText(/^1 pending$/)).toBeVisible();
   await expect(page.getByText(/^1 completed$/)).toBeVisible();
   await expect(page.getByTestId(`today-item-${habitIds["Morning walk"]}`)).toContainText("completed");
+  await expect(page.getByTestId(`today-item-${habitIds["Morning walk"]}`)).toContainText(
+    "Marked complete. You can undo from this card if needed.",
+  );
   await expect(
     page.getByTestId(`today-item-${habitIds["Morning walk"]}`).getByRole("button", { name: "Undo" }),
   ).toBeVisible();
@@ -93,6 +96,7 @@ test("dashboard shows pending/completed groups and stays in sync through complet
   await expect(page.getByText("5 / 10 pages")).toBeVisible();
   await expect(page.getByText(/^1 pending$/)).toBeVisible();
   await expect(page.getByText(/^1 completed$/)).toBeVisible();
+  await expect(readCard).toContainText("Saved in place. Today's quantity is now up to date.");
 
   await readCard.getByLabel("Today's total").fill("10");
   await readCard.getByRole("button", { name: "Save total" }).click();
@@ -100,12 +104,14 @@ test("dashboard shows pending/completed groups and stays in sync through complet
   await expect(page.getByText(/^0 pending$/)).toBeVisible();
   await expect(page.getByText(/^2 completed$/)).toBeVisible();
   await expect(page.getByTestId(`today-item-${habitIds["Read pages"]}`)).toContainText("completed");
+  await expect(readCard).toContainText("Saved in place. Today's quantity is now up to date.");
 
   await page.getByTestId(`today-item-${habitIds["Read pages"]}`).getByRole("button", { name: "Undo" }).click();
 
   await expect(page.getByText(/^1 pending$/)).toBeVisible();
   await expect(page.getByText(/^1 completed$/)).toBeVisible();
   await expect(page.getByText("5 / 10 pages")).toBeVisible();
+  await expect(readCard).toContainText("Reverted to the previous saved value.");
 });
 
 test("today action failures stay in context", async ({ page }) => {
@@ -135,9 +141,10 @@ test("today action failures stay in context", async ({ page }) => {
   await walkCard.getByRole("button", { name: "Complete" }).click();
 
   await expect(page.getByTestId("today-feedback")).toBeVisible();
-  await expect(page.getByTestId("today-feedback")).toContainText("Unable to update today");
+  await expect(page.getByTestId("today-feedback")).toContainText("Today needs another try");
   await expect(page.getByTestId("today-feedback")).toContainText(
     "Unable to mark habit complete right now",
   );
+  await expect(walkCard).toContainText("Unable to mark habit complete right now");
   await expect(page).toHaveURL(/\/dashboard$/);
 });

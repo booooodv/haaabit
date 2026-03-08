@@ -5,6 +5,7 @@ test("signed-in user can reach dashboard after creating the first habit", async 
   const startDate = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
   await page.goto("/");
+  await expect(page.getByText("Stored on the deployment you control")).toBeVisible();
   await page.getByRole("button", { name: "Create account" }).click();
 
   await page.getByLabel("Name").fill("New User");
@@ -12,6 +13,8 @@ test("signed-in user can reach dashboard after creating the first habit", async 
   await page.getByLabel("Password").fill("password123");
   await page.getByRole("button", { name: "Create account" }).click();
 
+  await expect(page.getByText("Your account is ready")).toBeVisible();
+  await expect(page.getByText("You can refine categories, targets, and scheduling patterns later.")).toBeVisible();
   await page.getByLabel("Habit name").fill("Morning walk");
   await page.getByLabel("Start date").fill(startDate);
   await page.getByRole("button", { name: "Create first habit" }).click();
@@ -19,7 +22,7 @@ test("signed-in user can reach dashboard after creating the first habit", async 
   await expect(page).toHaveURL(/\/dashboard$/);
   await expect(page.getByTestId("dashboard-overview")).toBeVisible();
   await expect(page.getByTestId("today-dashboard")).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Analytics" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Today" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Overview" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Morning walk" })).toBeVisible();
 });
