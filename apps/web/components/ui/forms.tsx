@@ -46,9 +46,11 @@ export function Field({
   const errorId = error ? `${fieldId}-error` : undefined;
   const describedBy = [descriptionId, errorId].filter(Boolean).join(" ") || undefined;
 
-  const content = isValidElement(children)
+  const content = isValidElement<{
+    "aria-describedby"?: string;
+    "aria-errormessage"?: string;
+  }>(children)
     ? cloneElement(children, {
-        ...children.props,
         "aria-describedby": [children.props["aria-describedby"], describedBy].filter(Boolean).join(" ") || undefined,
         "aria-errormessage": errorId ?? children.props["aria-errormessage"],
       })
