@@ -81,6 +81,33 @@ test("user can manage habits through search, edit, archive, and restore flows", 
   await expect(page.locator("article").filter({ hasText: "Read Deep Work" })).toBeVisible();
 });
 
+test("closing an edit overlay returns focus to the triggering action", async ({ page }) => {
+  const email = `habits-focus-${Date.now()}@example.com`;
+
+  await page.goto("/");
+  await page.getByRole("button", { name: "Create account" }).click();
+  await page.getByLabel("Name").fill("Habit Focus User");
+  await page.getByLabel("Email").fill(email);
+  await page.getByLabel("Password").fill("password123");
+  await page.getByRole("button", { name: "Create account" }).click();
+  await page.getByLabel("Habit name").fill("Morning walk");
+  await page.getByRole("button", { name: "Create first habit" }).click();
+  await expect(page).toHaveURL(/\/dashboard$/);
+
+  await page.goto("/habits");
+
+  const card = page.locator("article").filter({ hasText: "Morning walk" });
+  const editButton = card.getByRole("button", { name: "Edit" });
+
+  await editButton.focus();
+  await editButton.press("Enter");
+  await expect(page.getByTestId("habit-form-overlay")).toBeVisible();
+
+  await page.keyboard.press("Escape");
+  await expect(page.getByTestId("habit-form-overlay")).toHaveCount(0);
+  await expect(editButton).toBeFocused();
+});
+
 test("habit action failures stay in context", async ({ page }) => {
   const email = `habits-error-${Date.now()}@example.com`;
 

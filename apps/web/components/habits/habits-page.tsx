@@ -95,7 +95,28 @@ export function HabitsPage({
   const deferredQuery = useDeferredValue(query);
   const deferredCategory = useDeferredValue(category);
   const requestIdRef = useRef(0);
+  const overlayTriggerRef = useRef<HTMLElement | null>(null);
   const workingSetSummary = formatWorkingSetSummary(status, items.length);
+
+  function rememberOverlayTrigger(target: HTMLElement) {
+    overlayTriggerRef.current = target;
+  }
+
+  function restoreOverlayTriggerFocus() {
+    const trigger = overlayTriggerRef.current;
+    if (!trigger) {
+      return;
+    }
+
+    requestAnimationFrame(() => {
+      trigger.focus();
+    });
+  }
+
+  function closeOverlayAndRestoreFocus() {
+    setOverlay(null);
+    restoreOverlayTriggerFocus();
+  }
 
   async function fetchHabits(
     nextStatus: HabitStatus,
@@ -253,7 +274,14 @@ export function HabitsPage({
                 </div>
 
                 <div className={styles.toolbarActions}>
-                  <Button type="button" onClick={() => setOverlay({ mode: "create", habit: null })} size="lg">
+                  <Button
+                    type="button"
+                    onClick={(event) => {
+                      rememberOverlayTrigger(event.currentTarget);
+                      setOverlay({ mode: "create", habit: null });
+                    }}
+                    size="lg"
+                  >
                     New habit
                   </Button>
 
@@ -345,7 +373,10 @@ export function HabitsPage({
                         <Button
                           type="button"
                           variant="secondary"
-                          onClick={() => setOverlay({ mode: "edit", habit })}
+                          onClick={(event) => {
+                            rememberOverlayTrigger(event.currentTarget);
+                            setOverlay({ mode: "edit", habit });
+                          }}
                           disabled={isPending}
                         >
                           Edit
@@ -410,15 +441,15 @@ export function HabitsPage({
           open
           onOpenChange={(nextOpen) => {
             if (!nextOpen) {
-              setOverlay(null);
+              closeOverlayAndRestoreFocus();
             }
           }}
           variant="dialog"
           title={overlay.mode === "create" ? "Create habit" : `Edit ${overlay.habit.name}`}
           description={
             overlay.mode === "create"
-              ? "Add a new habit without leaving the management list."
-              : "Update future behavior only. History remains unchanged."
+              ? "Add a habit to the working set without leaving the management surface."
+              : "Refine future behavior here. Historical records stay untouched."
           }
           testId="habit-form-overlay"
         >
@@ -427,10 +458,11 @@ export function HabitsPage({
             mode={overlay.mode}
             initialHabit={overlay.habit}
             submitLabel={overlay.mode === "create" ? "Create habit" : "Save changes"}
-            onCancel={() => setOverlay(null)}
+            onCancel={closeOverlayAndRestoreFocus}
             onSubmitted={async () => {
               const nextMode = overlay.mode;
               setOverlay(null);
+              restoreOverlayTriggerFocus();
               if (overlay.mode === "create" && status !== "active") {
                 setStatus("active");
                 return;
