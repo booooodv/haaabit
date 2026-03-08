@@ -45,15 +45,29 @@ test("signed-in users can generate and view their personal api token", async ({ 
   await page.getByRole("button", { name: "Generate token" }).click();
 
   const tokenField = page.getByLabel("Personal API token");
-  await expect(tokenField).toHaveValue(/haaabit_/);
+  await expect(tokenField).not.toHaveValue(/haaabit_/);
+  await expect(page.getByText("Treat this token like a password.")).toBeVisible();
+  await expect(page.getByText("Rotation invalidates the previous token immediately.")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "First call" })).toBeVisible();
+  await expect(page.getByText("Authorization: Bearer")).toBeVisible();
   await expect(page.getByRole("link", { name: "Open API docs" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Reveal token" }).click();
+  await expect(tokenField).toHaveValue(/haaabit_/);
 
   const firstToken = await tokenField.inputValue();
 
+  await page.getByRole("button", { name: "Copy token" }).click();
+  await expect(page.getByTestId("api-access-feedback")).toContainText("Token copied");
+
   await page.getByRole("button", { name: "Rotate token" }).click();
 
-  await expect(tokenField).toHaveValue(/haaabit_/);
   await expect(tokenField).not.toHaveValue(firstToken);
+  await expect(tokenField).not.toHaveValue(/haaabit_/);
+
+  await page.getByRole("button", { name: "Reveal token" }).click();
+  await expect(tokenField).not.toHaveValue(firstToken);
+  await expect(tokenField).toHaveValue(/haaabit_/);
 });
 
 test("api access keeps token rotation failures in context", async ({ page, request, context }) => {

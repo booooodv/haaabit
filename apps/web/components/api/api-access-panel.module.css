@@ -8,6 +8,21 @@
   gap: 1rem;
 }
 
+.guidance {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.9rem 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--color-text-muted);
+}
+
+.guidanceTitle {
+  color: var(--color-heading);
+  font-weight: 700;
+}
+
 .links {
   display: flex;
   flex-wrap: wrap;
@@ -29,4 +44,35 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 0.75rem;
+}
+
+.quickstart {
+  display: grid;
+  gap: 1rem;
+}
+
+.quickstartCopy {
+  display: grid;
+  gap: 0.35rem;
+  max-width: 36rem;
+}
+
+.kicker {
+  color: var(--color-text-soft);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.codeBlock {
+  margin: 0;
+  overflow-x: auto;
+  padding: 1rem 1.05rem;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(28, 64, 81, 0.12);
+  background: rgba(18, 29, 36, 0.92);
+  color: rgba(239, 246, 247, 0.94);
+  font-size: 0.94rem;
+  line-height: 1.6;
 }

@@ -38,6 +38,9 @@ test("signed-in users can open the interactive api docs from api access", async 
 
   await page.goto("/api-access");
   await page.getByRole("button", { name: "Generate token" }).click();
+  await expect(page.getByRole("heading", { name: "First call" })).toBeVisible();
+  await expect(page.getByText("Authorization: Bearer")).toBeVisible();
+  await expect(page.getByText("GET /api/today")).toBeVisible();
 
   await page.getByRole("link", { name: "Open API docs" }).click();
 
