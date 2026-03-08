@@ -4,12 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 
+import { LocaleSwitch, useLocale } from "../locale";
 import { SignOutButton } from "../auth/sign-out-button";
 import { Surface, cn } from "../ui";
 import {
-  primaryAppNavigation,
+  getPrimaryAppNavigation,
   routes,
-  utilityAppNavigation,
+  getUtilityAppNavigation,
 } from "../../lib/navigation";
 import styles from "./app-shell.module.css";
 
@@ -20,6 +21,9 @@ type AppShellProps = {
 
 export function AppShell({ userEmail, children }: AppShellProps) {
   const pathname = usePathname();
+  const { locale, copy } = useLocale();
+  const primaryAppNavigation = getPrimaryAppNavigation(copy.shell.navigation);
+  const utilityAppNavigation = getUtilityAppNavigation(copy.shell.navigation);
 
   return (
     <main className={styles.shell} data-testid="app-shell">
@@ -58,7 +62,10 @@ export function AppShell({ userEmail, children }: AppShellProps) {
               </nav>
             </div>
 
-            <SignOutButton />
+            <div className={styles.utilityActions}>
+              <LocaleSwitch />
+              <SignOutButton label={copy.shell.signOut} />
+            </div>
           </div>
 
           <div className={styles.brandRow}>
@@ -66,9 +73,7 @@ export function AppShell({ userEmail, children }: AppShellProps) {
               <Link href={routes.dashboard} className={styles.brandMark}>
                 Haaabit
               </Link>
-              <p className={styles.brandCopy}>
-                Calm daily execution with a stable AI-ready habit system.
-              </p>
+              <p className={styles.brandCopy}>{copy.shell.brandCopy}</p>
             </div>
 
             <nav
@@ -114,7 +119,7 @@ export function AppShell({ userEmail, children }: AppShellProps) {
               className={cn(styles.mobileNavLink, active && styles.mobileNavLinkActive)}
               aria-current={active ? "page" : undefined}
             >
-              <span className={styles.mobileNavEyebrow}>Go to</span>
+              <span className={styles.mobileNavEyebrow}>{locale === "zh-CN" ? "前往" : "Go to"}</span>
               <span>{item.label}</span>
             </Link>
           );

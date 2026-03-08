@@ -33,6 +33,13 @@
   align-items: center;
 }
 
+.utilityActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+}
+
 .identity {
   color: var(--color-text-muted);
   font-size: 0.95rem;
@@ -218,6 +225,11 @@
 
   .utilityNav {
     width: 100%;
+  }
+
+  .utilityActions {
+    width: 100%;
+    justify-content: space-between;
   }
 
   .utilityLink {

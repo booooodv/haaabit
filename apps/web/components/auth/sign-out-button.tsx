@@ -7,7 +7,7 @@ import { signOut } from "../../lib/auth-client";
 import { routes } from "../../lib/navigation";
 import { Button } from "../ui";
 
-export function SignOutButton() {
+export function SignOutButton({ label = "Log out" }: { label?: string }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -25,7 +25,7 @@ export function SignOutButton() {
         })
       }
     >
-      Log out
+      {label}
     </Button>
   );
 }

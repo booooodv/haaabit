@@ -7,20 +7,24 @@ export const routes = {
   habitDetail: (habitId: string) => `/habits/${habitId}`,
 } as const;
 
-export const primaryAppNavigation = [
-  {
-    href: routes.dashboard,
-    label: "Today",
-  },
-  {
-    href: routes.habits,
-    label: "Habits",
-  },
-] as const;
+export function getPrimaryAppNavigation(labels: { dashboard: string; habits: string }) {
+  return [
+    {
+      href: routes.dashboard,
+      label: labels.dashboard,
+    },
+    {
+      href: routes.habits,
+      label: labels.habits,
+    },
+  ] as const;
+}
 
-export const utilityAppNavigation = [
-  {
-    href: routes.apiAccess,
-    label: "API Access",
-  },
-] as const;
+export function getUtilityAppNavigation(labels: { apiAccess: string }) {
+  return [
+    {
+      href: routes.apiAccess,
+      label: labels.apiAccess,
+    },
+  ] as const;
+}

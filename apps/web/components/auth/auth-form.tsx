@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { Button, DisabledHint, Field, InlineStatus, Input } from "../ui";
 import { listHabits, signIn, signUp } from "../../lib/auth-client";
+import type { LocaleMessages } from "../../lib/i18n/messages";
 import { routes } from "../../lib/navigation";
 import styles from "./auth-form.module.css";
 
@@ -23,9 +24,12 @@ type FormValues = {
 
 type FormErrors = Partial<Record<keyof FormValues, string>>;
 
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+type AuthFormCopy = LocaleMessages["auth"]["form"];
 
-export function AuthForm() {
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const AUTH_DRAFT_STORAGE_KEY = "haaabit-auth-form-draft";
+
+export function AuthForm({ copy }: { copy: AuthFormCopy }) {
   const router = useRouter();
   const [mode, setMode] = useState<Mode>("sign-in");
   const [feedback, setFeedback] = useState<Feedback | null>(null);
@@ -35,11 +39,41 @@ export function AuthForm() {
     email: "",
     password: "",
   });
+  const [hasHydratedDraft, setHasHydratedDraft] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [focusTarget, setFocusTarget] = useState<keyof FormValues | null>(null);
   const nameRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    try {
+      const draft = window.sessionStorage.getItem(AUTH_DRAFT_STORAGE_KEY);
+
+      if (!draft) {
+        return;
+      }
+
+      const parsed = JSON.parse(draft) as Partial<FormValues>;
+      setValues({
+        name: typeof parsed.name === "string" ? parsed.name : "",
+        email: typeof parsed.email === "string" ? parsed.email : "",
+        password: typeof parsed.password === "string" ? parsed.password : "",
+      });
+    } catch {
+      window.sessionStorage.removeItem(AUTH_DRAFT_STORAGE_KEY);
+    } finally {
+      setHasHydratedDraft(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!hasHydratedDraft) {
+      return;
+    }
+
+    window.sessionStorage.setItem(AUTH_DRAFT_STORAGE_KEY, JSON.stringify(values));
+  }, [hasHydratedDraft, values]);
 
   useEffect(() => {
     if (!focusTarget) {
@@ -83,19 +117,19 @@ export function AuthForm() {
     const trimmedEmail = currentValues.email.trim();
 
     if (!trimmedEmail) {
-      nextErrors.email = "Enter the email tied to this deployment.";
+      nextErrors.email = copy.fields.email.required;
     } else if (!EMAIL_PATTERN.test(trimmedEmail)) {
-      nextErrors.email = "Enter a valid email address.";
+      nextErrors.email = copy.fields.email.invalid;
     }
 
     if (!currentValues.password) {
-      nextErrors.password = "Enter your password to continue.";
+      nextErrors.password = copy.fields.password.required;
     } else if (currentMode === "sign-up" && currentValues.password.length < 8) {
-      nextErrors.password = "Use at least 8 characters.";
+      nextErrors.password = copy.fields.password.short;
     }
 
     if (currentMode === "sign-up" && !trimmedName) {
-      nextErrors.name = "Add a name for this local account.";
+      nextErrors.name = copy.fields.name.required;
     }
 
     return {
@@ -117,8 +151,8 @@ export function AuthForm() {
       setFocusTarget(firstInvalidField(mode, validation.nextErrors));
       setFeedback({
         tone: "danger",
-        title: "Check these details",
-        message: "Fix the highlighted fields and try again.",
+        title: copy.feedback.invalidTitle,
+        message: copy.feedback.invalidMessage,
       });
       return;
     }
@@ -127,13 +161,14 @@ export function AuthForm() {
     setErrors({});
     setFeedback({
       tone: "neutral",
-      title: mode === "sign-up" ? "Creating your account" : "Signing you in",
-      message: "This form stays locked until the current request finishes.",
+      title: mode === "sign-up" ? copy.feedback.submitTitles.signUp : copy.feedback.submitTitles.signIn,
+      message: copy.feedback.submitMessage,
     });
 
     try {
       if (mode === "sign-up") {
         await signUp(validation.sanitized);
+        window.sessionStorage.removeItem(AUTH_DRAFT_STORAGE_KEY);
         router.push(routes.newHabit);
         router.refresh();
         return;
@@ -143,6 +178,7 @@ export function AuthForm() {
         email: validation.sanitized.email,
         password: validation.sanitized.password,
       });
+      window.sessionStorage.removeItem(AUTH_DRAFT_STORAGE_KEY);
       const habits = await listHabits();
       router.push(habits.length === 0 ? routes.newHabit : routes.dashboard);
       router.refresh();
@@ -151,14 +187,14 @@ export function AuthForm() {
 
       if (mode === "sign-in" && message.toLowerCase().includes("invalid email or password")) {
         setErrors({
-          password: "Check your email and password, then try again.",
+          password: copy.fields.password.invalidCredentials,
         });
         setFocusTarget("password");
       }
 
       setFeedback({
         tone: "danger",
-        title: "Unable to continue",
+        title: copy.feedback.submitErrorTitle,
         message,
       });
     } finally {
@@ -169,31 +205,31 @@ export function AuthForm() {
   const submitLabel =
     mode === "sign-up"
       ? isSubmitting
-        ? "Creating account..."
-        : "Create account"
+        ? copy.mode.signUp.pending
+        : copy.mode.signUp.submit
       : isSubmitting
-        ? "Signing in..."
-        : "Sign in";
+        ? copy.mode.signIn.pending
+        : copy.mode.signIn.submit;
 
   return (
     <form action={handleSubmit} className={styles.form}>
       <div className={styles.modeBlock}>
         <p className={styles.modeEyebrow}>
-          {mode === "sign-up" ? "Create a local account" : "Private account access"}
+          {mode === "sign-up" ? copy.mode.signUp.eyebrow : copy.mode.signIn.eyebrow}
         </p>
         <p className={styles.modeDescription}>
           {mode === "sign-up"
-            ? "This account lives on the deployment you control, so you can sign in later without leaving your self-hosted workflow."
-            : "Use the account already stored on this deployment. Your details stay in place if you need to correct them."}
+            ? copy.mode.signUp.description
+            : copy.mode.signIn.description}
         </p>
       </div>
 
       <div className={styles.fields}>
         {mode === "sign-up" ? (
           <Field
-            label="Name"
+            label={copy.fields.name.label}
             htmlFor="auth-name"
-            description="Use a name you will recognize when you come back to this deployment."
+            description={copy.fields.name.description}
             error={errors.name}
             required
           >
@@ -213,9 +249,9 @@ export function AuthForm() {
         ) : null}
 
         <Field
-          label="Email"
+          label={copy.fields.email.label}
           htmlFor="auth-email"
-          description="Use the email you want tied to this self-hosted account."
+          description={copy.fields.email.description}
           error={errors.email}
           required
         >
@@ -234,12 +270,12 @@ export function AuthForm() {
         </Field>
 
         <Field
-          label="Password"
+          label={copy.fields.password.label}
           htmlFor="auth-password"
           description={
             mode === "sign-up"
-              ? "Use at least 8 characters."
-              : "Use the password already stored on this deployment."
+              ? copy.fields.password.signUpDescription
+              : copy.fields.password.signInDescription
           }
           error={errors.password}
           required
@@ -269,15 +305,15 @@ export function AuthForm() {
       <div className={styles.actions}>
         <div className={styles.switcher}>
           <span className={styles.switchLabel}>
-            {mode === "sign-up" ? "Already have an account?" : "Need a new account?"}
+            {mode === "sign-up" ? copy.mode.signUp.switchLabel : copy.mode.signIn.switchLabel}
           </span>
           {mode === "sign-up" ? (
             <Button type="button" variant="ghost" onClick={() => switchMode("sign-in")} disabled={isSubmitting}>
-              Back to sign in
+              {copy.mode.signUp.switchAction}
             </Button>
           ) : (
             <Button type="button" variant="ghost" onClick={() => switchMode("sign-up")} disabled={isSubmitting}>
-              Create account
+              {copy.mode.signIn.switchAction}
             </Button>
           )}
         </div>
@@ -287,7 +323,7 @@ export function AuthForm() {
             {submitLabel}
           </Button>
           {isSubmitting ? (
-            <DisabledHint>The primary action will unlock as soon as this request settles.</DisabledHint>
+            <DisabledHint>{copy.disabledHint}</DisabledHint>
           ) : null}
         </div>
       </div>
