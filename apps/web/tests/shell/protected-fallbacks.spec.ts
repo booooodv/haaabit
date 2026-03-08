@@ -28,5 +28,5 @@ test("dashboard route loading stays inside the protected shell", async ({ page }
   await expect(page.getByTestId("dashboard-route-loading")).toBeVisible();
   await expect(page.getByTestId("dashboard-route-loading")).toContainText("Preparing dashboard");
   await expect(page.getByTestId("app-shell-primary-nav")).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Analytics" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Today" })).toBeVisible();
 });
