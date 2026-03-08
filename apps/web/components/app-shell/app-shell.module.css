@@ -1,0 +1,234 @@
+.shell {
+  min-height: 100vh;
+  padding:
+    clamp(1rem, 2vw, 1.4rem)
+    clamp(1rem, 3vw, 2rem)
+    calc(env(safe-area-inset-bottom) + 6.5rem);
+}
+
+.inner {
+  display: grid;
+  gap: var(--space-6);
+  max-width: 72rem;
+  margin: 0 auto;
+}
+
+.headerSurface {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.utilityRow {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-3);
+  align-items: flex-start;
+}
+
+.utilityMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.identity {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+.utilityNav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.utilityLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.2rem;
+  padding: 0.45rem 0.8rem;
+  border-radius: var(--radius-pill);
+  color: var(--color-accent-strong);
+  text-decoration: none;
+  font-weight: 700;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+
+.utilityLink:hover {
+  transform: translateY(-1px);
+}
+
+.utilityLinkActive {
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+}
+
+.brandRow {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-4);
+  align-items: flex-end;
+}
+
+.brand {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.brandMark {
+  color: var(--color-heading);
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 1.3rem + 1vw, 2rem);
+  font-weight: 650;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.brandCopy {
+  max-width: 30rem;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+.primaryNav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  align-items: center;
+}
+
+.navLink,
+.mobileNavLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  color: var(--color-heading);
+  text-decoration: none;
+  font-weight: 700;
+  transition:
+    transform 160ms ease,
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.navLink {
+  min-height: 2.9rem;
+  padding: 0.8rem 1.05rem;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.navLink:hover,
+.mobileNavLink:hover {
+  transform: translateY(-1px);
+  border-color: var(--color-border-strong);
+}
+
+.navLinkActive,
+.mobileNavLinkActive {
+  color: var(--color-accent-ink);
+  background: linear-gradient(
+    135deg,
+    var(--color-accent) 0%,
+    var(--color-accent-strong) 100%
+  );
+  border-color: transparent;
+  box-shadow: 0 12px 30px rgba(28, 64, 81, 0.22);
+}
+
+.desktopPrimaryNav {
+  display: flex;
+}
+
+.content {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.mobileNav {
+  position: fixed;
+  left: 50%;
+  bottom: calc(env(safe-area-inset-bottom) + 0.75rem);
+  z-index: 30;
+  display: none;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+  width: min(24rem, calc(100vw - 1.2rem));
+  padding: 0.7rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: calc(var(--radius-xl) + 0.2rem);
+  background: rgba(250, 252, 252, 0.94);
+  box-shadow: var(--shadow-panel);
+  backdrop-filter: blur(18px);
+  transform: translateX(-50%);
+}
+
+.mobileNavLink {
+  min-height: 3.6rem;
+  padding: 0.7rem 0.9rem;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.74);
+}
+
+.mobileNavEyebrow {
+  color: inherit;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.72;
+}
+
+@media (max-width: 720px) {
+  .shell {
+    padding:
+      var(--space-4)
+      var(--space-4)
+      calc(env(safe-area-inset-bottom) + 7.6rem);
+  }
+
+  .headerSurface {
+    gap: var(--space-3);
+  }
+
+  .utilityRow {
+    align-items: stretch;
+  }
+
+  .utilityMeta {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .identity {
+    width: 100%;
+  }
+
+  .brandRow {
+    align-items: flex-start;
+  }
+
+  .brandCopy {
+    max-width: none;
+    font-size: 0.92rem;
+  }
+
+  .desktopPrimaryNav {
+    display: none;
+  }
+
+  .mobileNav {
+    display: grid;
+  }
+}
