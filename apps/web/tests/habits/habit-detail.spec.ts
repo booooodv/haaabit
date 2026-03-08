@@ -52,8 +52,19 @@ test("habit detail supports list entry, direct link, and close back to the habit
 
   await expect(page).toHaveURL(new RegExp(`/habits/${created.item.id}$`));
   await expect(page.getByTestId("habit-detail-overlay").getByRole("heading", { name: "Read pages" })).toBeVisible();
+  await expect(page.getByTestId("habit-detail-summary")).toBeVisible();
   await expect(page.getByText("Current streak")).toBeVisible();
   await expect(page.getByText("Recent history")).toBeVisible();
+
+  const summaryBox = await page.getByTestId("habit-detail-summary").boundingBox();
+  const trendsHeadingBox = await page.getByRole("heading", { name: "Recent trends" }).boundingBox();
+  const historyHeadingBox = await page.getByRole("heading", { name: "Recent history" }).boundingBox();
+
+  expect(summaryBox).not.toBeNull();
+  expect(trendsHeadingBox).not.toBeNull();
+  expect(historyHeadingBox).not.toBeNull();
+  expect((summaryBox?.y ?? 0) < (trendsHeadingBox?.y ?? 0)).toBeTruthy();
+  expect((trendsHeadingBox?.y ?? 0) < (historyHeadingBox?.y ?? 0)).toBeTruthy();
 
   await page.getByRole("link", { name: "Close" }).click();
   await expect(page).toHaveURL(/\/habits$/);

@@ -41,38 +41,47 @@ export function HabitDetailDrawer({
       testId="habit-detail-overlay"
     >
       <div className={styles.stack}>
-        <div className={styles.headerMeta}>
-          <div className={styles.badgeRow}>
-            <Badge tone={detail.habit.isActive ? "success" : "warning"}>
-              {detail.habit.isActive ? "Active" : "Archived"}
-            </Badge>
-            {detail.habit.category ? <Badge tone="info">{detail.habit.category}</Badge> : null}
-            <Badge tone="neutral">{detail.habit.kind}</Badge>
+        <section className={styles.summary} data-testid="habit-detail-summary" aria-label="Habit summary">
+          <div className={styles.summaryHeader}>
+            <div className={styles.headerMeta}>
+              <span className={styles.kicker}>Health snapshot</span>
+              <div className={styles.badgeRow}>
+                <Badge tone={detail.habit.isActive ? "success" : "warning"}>
+                  {detail.habit.isActive ? "Active" : "Archived"}
+                </Badge>
+                {detail.habit.category ? <Badge tone="info">{detail.habit.category}</Badge> : null}
+                <Badge tone="neutral">{detail.habit.kind}</Badge>
+              </div>
+              <p className={styles.description}>{detail.habit.description ?? "No description yet."}</p>
+            </div>
+
+            <div className={styles.facts}>
+              <div className={styles.factCard}>
+                <span className={styles.factLabel}>Frequency</span>
+                <strong>{detail.habit.frequencyType}</strong>
+              </div>
+              <div className={styles.factCard}>
+                <span className={styles.factLabel}>Category</span>
+                <strong>{detail.habit.category ?? "Uncategorized"}</strong>
+              </div>
+              <div className={styles.factCard}>
+                <span className={styles.factLabel}>Target</span>
+                <strong>
+                  {detail.habit.kind === "quantity"
+                    ? `${detail.habit.targetValue ?? 0} ${detail.habit.unit ?? "units"}`
+                    : "Boolean"}
+                </strong>
+              </div>
+            </div>
           </div>
-          <p className={styles.description}>{detail.habit.description ?? "No description yet."}</p>
-        </div>
 
-        <div className={styles.facts}>
-          <span>
-            <strong>Frequency:</strong> {detail.habit.frequencyType}
-          </span>
-          <span>
-            <strong>Category:</strong> {detail.habit.category ?? "Uncategorized"}
-          </span>
-          <span>
-            <strong>Target:</strong>{" "}
-            {detail.habit.kind === "quantity"
-              ? `${detail.habit.targetValue ?? 0} ${detail.habit.unit ?? "units"}`
-              : "Boolean"}
-          </span>
-        </div>
-
-        <div className={styles.stats} data-testid="habit-detail-stats">
-          <StatCard label="Current streak" value={detail.stats.currentStreak} testId="habit-detail-stat-current-streak" />
-          <StatCard label="Longest streak" value={detail.stats.longestStreak} testId="habit-detail-stat-longest-streak" />
-          <StatCard label="Total completions" value={detail.stats.totalCompletions} testId="habit-detail-stat-total-completions" />
-          <StatCard label="Interruptions" value={detail.stats.interruptionCount} testId="habit-detail-stat-interruptions" />
-        </div>
+          <div className={styles.stats} data-testid="habit-detail-stats">
+            <StatCard label="Current streak" value={detail.stats.currentStreak} testId="habit-detail-stat-current-streak" />
+            <StatCard label="Longest streak" value={detail.stats.longestStreak} testId="habit-detail-stat-longest-streak" />
+            <StatCard label="Total completions" value={detail.stats.totalCompletions} testId="habit-detail-stat-total-completions" />
+            <StatCard label="Interruptions" value={detail.stats.interruptionCount} testId="habit-detail-stat-interruptions" />
+          </div>
+        </section>
 
         <div className={styles.section}>
           <h3>Recent trends</h3>

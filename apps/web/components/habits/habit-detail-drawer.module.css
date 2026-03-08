@@ -3,9 +3,33 @@
   gap: 1.25rem;
 }
 
+.summary {
+  display: grid;
+  gap: 1rem;
+  padding: 1.05rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.94) 0%, rgba(241, 247, 247, 0.9) 100%);
+  box-shadow: var(--shadow-soft);
+}
+
+.summaryHeader {
+  display: grid;
+  gap: 1rem;
+}
+
 .headerMeta {
   display: grid;
   gap: 0.5rem;
+}
+
+.kicker {
+  color: var(--color-text-soft);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .badgeRow {
@@ -21,8 +45,25 @@
 
 .facts {
   display: grid;
-  gap: 0.55rem;
-  color: var(--color-text-muted);
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+}
+
+.factCard {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.85rem 0.95rem;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid var(--color-border);
+}
+
+.factLabel {
+  color: var(--color-text-soft);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .stats {
@@ -61,6 +102,10 @@
 @media (max-width: 720px) {
   .stack {
     gap: 1rem;
+  }
+
+  .summary {
+    padding: 0.95rem;
   }
 
   .stats {
