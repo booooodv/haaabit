@@ -2,15 +2,17 @@
 
 import type { HabitDetailHistoryRow } from "@haaabit/contracts/habits";
 
+import { getHabitsCopy } from "../../lib/i18n/habits";
+import { useLocale } from "../locale";
 import { Badge } from "../ui";
 import styles from "./habit-history-list.module.css";
 
-function formatPeriod(row: HabitDetailHistoryRow) {
+function formatPeriod(row: HabitDetailHistoryRow, separator: string) {
   if (row.periodType === "day") {
     return row.periodKey;
   }
 
-  return `${row.periodKey} · ${row.periodStart} → ${row.periodEnd}`;
+  return `${row.periodKey} · ${row.periodStart} ${separator} ${row.periodEnd}`;
 }
 
 function formatOutcome(row: HabitDetailHistoryRow) {
@@ -22,6 +24,9 @@ function formatOutcome(row: HabitDetailHistoryRow) {
 }
 
 export function HabitHistoryList({ rows }: { rows: HabitDetailHistoryRow[] }) {
+  const { locale } = useLocale();
+  const copy = getHabitsCopy(locale);
+
   return (
     <div className={styles.rows}>
       {rows.map((row) => (
@@ -30,8 +35,10 @@ export function HabitHistoryList({ rows }: { rows: HabitDetailHistoryRow[] }) {
           className={`${styles.row} ${row.status === "completed" ? styles.completed : styles.missed}`}
         >
           <div className={styles.rowHeader}>
-            <strong>{formatPeriod(row)}</strong>
-            <Badge tone={row.status === "completed" ? "success" : "warning"}>{row.status}</Badge>
+            <strong>{formatPeriod(row, copy.history.periodSeparator)}</strong>
+            <Badge tone={row.status === "completed" ? "success" : "warning"}>
+              {row.status === "completed" ? copy.history.status.completed : copy.history.status.missed}
+            </Badge>
           </div>
           <span className={styles.outcome}>{formatOutcome(row)}</span>
         </article>

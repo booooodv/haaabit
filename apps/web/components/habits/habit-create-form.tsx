@@ -9,19 +9,11 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
 import { createHabit, updateHabit, type HabitRecord } from "../../lib/auth-client";
+import { getHabitsCopy } from "../../lib/i18n/habits";
 import { routes } from "../../lib/navigation";
+import { useLocale } from "../locale";
 import { Button, CheckboxGroup, Field, Input, Notice, Select } from "../ui";
 import styles from "./habit-create-form.module.css";
-
-const weekdayOptions: Array<{ label: string; value: Weekday }> = [
-  { label: "Monday", value: "monday" },
-  { label: "Tuesday", value: "tuesday" },
-  { label: "Wednesday", value: "wednesday" },
-  { label: "Thursday", value: "thursday" },
-  { label: "Friday", value: "friday" },
-  { label: "Saturday", value: "saturday" },
-  { label: "Sunday", value: "sunday" },
-];
 
 type HabitCreateFormProps = {
   mode?: "create" | "edit";
@@ -51,6 +43,8 @@ export function HabitCreateForm({
   onSubmitted,
 }: HabitCreateFormProps) {
   const router = useRouter();
+  const { locale } = useLocale();
+  const copy = getHabitsCopy(locale);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [frequencyType, setFrequencyType] = useState(getFrequencyType(initialHabit));
@@ -120,30 +114,31 @@ export function HabitCreateForm({
         router.push(routes.dashboard);
         router.refresh();
       } catch (submissionError) {
-        setError(submissionError instanceof Error ? submissionError.message : "Unable to save habit");
+        setError(submissionError instanceof Error ? submissionError.message : copy.form.errorTitle);
       }
     });
   }
 
-  const resolvedSubmitLabel = submitLabel ?? (mode === "edit" ? "Save changes" : "Create habit");
+  const resolvedSubmitLabel =
+    submitLabel ?? (mode === "edit" ? copy.page.overlay.editSubmit : copy.page.overlay.createSubmit);
 
   return (
     <form action={handleSubmit} className={styles.form}>
       {mode === "edit" ? (
-        <Notice tone="info" title="Future-only edits">
-          Changes update future behavior without rewriting historical records.
+        <Notice tone="info" title={copy.form.futureOnly.title}>
+          {copy.form.futureOnly.description}
         </Notice>
       ) : null}
 
       <div className={styles.split}>
-        <Field label="Habit name" htmlFor="habit-name" required>
+        <Field label={copy.form.fields.name} htmlFor="habit-name" required>
           <Input id="habit-name" name="name" type="text" required defaultValue={initialHabit?.name ?? ""} />
         </Field>
 
         <Field
-          label="Habit type"
+          label={copy.form.fields.kind.label}
           htmlFor="habit-kind"
-          description={mode === "edit" ? "Locked after creation." : "Choose whether the habit is binary or quantity-based."}
+          description={mode === "edit" ? copy.form.fields.kind.editDescription : copy.form.fields.kind.description}
         >
           <Select
             id="habit-kind"
@@ -152,37 +147,45 @@ export function HabitCreateForm({
             disabled={mode === "edit"}
             onChange={(event) => setKind(event.target.value as HabitRecord["kind"])}
           >
-            <option value="boolean">Boolean</option>
-            <option value="quantity">Quantity</option>
+            <option value="boolean">{copy.form.fields.kind.options.boolean}</option>
+            <option value="quantity">{copy.form.fields.kind.options.quantity}</option>
           </Select>
         </Field>
       </div>
 
       <div className={styles.split}>
-        <Field label="Start date" htmlFor="habit-start-date" description="Leave blank to start today.">
+        <Field
+          label={copy.form.fields.startDate.label}
+          htmlFor="habit-start-date"
+          description={copy.form.fields.startDate.description}
+        >
           <Input id="habit-start-date" name="startDate" type="date" defaultValue={initialHabit?.startDate ?? ""} />
         </Field>
 
-        <Field label="Frequency" htmlFor="habit-frequency" required>
+        <Field label={copy.form.fields.frequency.label} htmlFor="habit-frequency" required>
           <Select
             id="habit-frequency"
             name="frequencyType"
             value={frequencyType}
             onChange={(event) => setFrequencyType(event.target.value as HabitRecord["frequencyType"])}
           >
-            <option value="daily">Daily</option>
-            <option value="weekly_count">Weekly count</option>
-            <option value="weekdays">Selected weekdays</option>
-            <option value="monthly_count">Monthly count</option>
+            <option value="daily">{copy.form.fields.frequency.options.daily}</option>
+            <option value="weekly_count">{copy.form.fields.frequency.options.weeklyCount}</option>
+            <option value="weekdays">{copy.form.fields.frequency.options.weekdays}</option>
+            <option value="monthly_count">{copy.form.fields.frequency.options.monthlyCount}</option>
           </Select>
         </Field>
       </div>
 
       {frequencyType === "weekly_count" || frequencyType === "monthly_count" ? (
         <Field
-          label="Count target"
+          label={copy.form.fields.countTarget.label}
           htmlFor="habit-frequency-count"
-          description={frequencyType === "weekly_count" ? "How many times per week?" : "How many times per month?"}
+          description={
+            frequencyType === "weekly_count"
+              ? copy.form.fields.countTarget.weeklyDescription
+              : copy.form.fields.countTarget.monthlyDescription
+          }
         >
           <Input
             id="habit-frequency-count"
@@ -196,9 +199,9 @@ export function HabitCreateForm({
 
       {frequencyType === "weekdays" ? (
         <CheckboxGroup
-          legend="Weekdays"
+          legend={copy.form.fields.weekdaysLegend}
           name="weekdays"
-          options={weekdayOptions.map((weekday) => ({
+          options={copy.form.weekdays.map((weekday) => ({
             label: weekday.label,
             value: weekday.value,
             defaultChecked: getWeekdays(initialHabit).includes(weekday.value),
@@ -208,9 +211,9 @@ export function HabitCreateForm({
 
       <div className={styles.split}>
         <Field
-          label="Description"
+          label={copy.form.fields.description.label}
           htmlFor="habit-description"
-          description="Optional context for you or the AI assistant."
+          description={copy.form.fields.description.description}
         >
           <Input
             id="habit-description"
@@ -220,14 +223,18 @@ export function HabitCreateForm({
           />
         </Field>
 
-        <Field label="Category" htmlFor="habit-category" description="Useful for grouping and search later.">
+        <Field
+          label={copy.form.fields.category.label}
+          htmlFor="habit-category"
+          description={copy.form.fields.category.description}
+        >
           <Input id="habit-category" name="category" type="text" defaultValue={initialHabit?.category ?? ""} />
         </Field>
       </div>
 
       {kind === "quantity" ? (
         <div className={styles.split}>
-          <Field label="Target value" htmlFor="habit-target">
+          <Field label={copy.form.fields.targetValue} htmlFor="habit-target">
             <Input
               id="habit-target"
               name="targetValue"
@@ -238,9 +245,9 @@ export function HabitCreateForm({
           </Field>
 
           <Field
-            label="Unit"
+            label={copy.form.fields.unit.label}
             htmlFor="habit-unit"
-            description="Examples: pages, glasses, kilometers."
+            description={copy.form.fields.unit.description}
           >
             <Input id="habit-unit" name="unit" type="text" defaultValue={initialHabit?.unit ?? ""} />
           </Field>
@@ -248,7 +255,7 @@ export function HabitCreateForm({
       ) : null}
 
       {error ? (
-        <Notice tone="danger" title="Unable to save habit">
+        <Notice tone="danger" title={copy.form.errorTitle}>
           {error}
         </Notice>
       ) : null}
@@ -256,11 +263,11 @@ export function HabitCreateForm({
       <div className={styles.actions}>
         {onCancel ? (
           <Button type="button" variant="secondary" onClick={onCancel} disabled={isPending}>
-            Cancel
+            {copy.form.cancel}
           </Button>
         ) : null}
         <Button type="submit" disabled={isPending} size="lg">
-          {isPending ? "Saving..." : resolvedSubmitLabel}
+          {isPending ? copy.form.pendingSubmit : resolvedSubmitLabel}
         </Button>
       </div>
     </form>

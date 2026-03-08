@@ -30,8 +30,11 @@ test("user can manage habits through search, edit, archive, and restore flows", 
   await page.getByLabel("Password").fill("password123");
   await page.getByRole("button", { name: "Create account" }).click();
 
-  await page.getByLabel("Habit name").fill("Morning walk");
-  await page.getByRole("button", { name: "Create first habit" }).click();
+  await page.getByTestId("locale-switch").getByRole("button", { name: "中文" }).click();
+  await expect(page.getByRole("heading", { name: "创建你的第一个习惯" })).toBeVisible();
+
+  await page.getByLabel("习惯名称").fill("Morning walk");
+  await page.getByRole("button", { name: "创建第一个习惯" }).click();
   await expect(page).toHaveURL(/\/dashboard$/);
 
   await seedHabit(page, {
@@ -46,38 +49,38 @@ test("user can manage habits through search, edit, archive, and restore flows", 
   });
 
   await page.goto("/habits");
-  await expect(page.getByRole("heading", { name: "Habits" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "习惯" })).toBeVisible();
   await expect(page.getByTestId("habits-toolbar")).toBeVisible();
-  await expect(page.getByTestId("habits-toolbar")).toContainText("New habit");
+  await expect(page.getByTestId("habits-toolbar")).toContainText("新建习惯");
 
-  await page.getByLabel("Search").fill("Read");
+  await page.getByLabel("搜索").fill("Read");
   await expect(page.locator("article").filter({ hasText: "Read pages" })).toBeVisible();
   await expect(page.locator("article").filter({ hasText: "Morning walk" })).toHaveCount(0);
 
-  await page.getByLabel("Search").fill("");
-  await page.getByLabel("Kind").selectOption("quantity");
+  await page.getByLabel("搜索").fill("");
+  await page.getByLabel("类型").selectOption("quantity");
   const readCard = page.locator("article").filter({ hasText: "Read pages" });
   await expect(readCard).toBeVisible();
   await expect(readCard.getByTestId("habit-card-primary-action")).toBeVisible();
 
-  await readCard.getByRole("button", { name: "Edit" }).click();
-  await page.getByLabel("Habit name").fill("Read Deep Work");
-  await page.getByLabel("Target value").fill("12");
-  await page.getByRole("button", { name: "Save changes" }).click();
+  await readCard.getByRole("button", { name: "编辑" }).click();
+  await page.getByLabel("习惯名称").fill("Read Deep Work");
+  await page.getByLabel("目标值").fill("12");
+  await page.getByRole("button", { name: "保存更改" }).click();
 
   await expect(page.locator("article").filter({ hasText: "Read Deep Work" })).toBeVisible();
 
   const updatedCard = page.locator("article").filter({ hasText: "Read Deep Work" });
-  await updatedCard.getByRole("button", { name: "Archive" }).click();
+  await updatedCard.getByRole("button", { name: "归档" }).click();
   await expect(page.locator("article").filter({ hasText: "Read Deep Work" })).toHaveCount(0);
 
-  await page.getByRole("button", { name: "Archived" }).click();
+  await page.getByRole("button", { name: "已归档" }).click();
   const archivedCard = page.locator("article").filter({ hasText: "Read Deep Work" });
   await expect(archivedCard).toBeVisible();
-  await archivedCard.getByRole("button", { name: "Restore" }).click();
+  await archivedCard.getByRole("button", { name: "恢复" }).click();
 
-  await page.getByRole("button", { name: "Active" }).click();
-  await page.getByLabel("Kind").selectOption("all");
+  await page.getByRole("button", { name: "启用中" }).click();
+  await page.getByLabel("类型").selectOption("all");
   await expect(page.locator("article").filter({ hasText: "Read Deep Work" })).toBeVisible();
 });
 

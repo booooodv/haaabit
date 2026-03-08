@@ -47,18 +47,19 @@ test("habit detail supports list entry, direct link, and close back to the habit
   });
 
   await page.goto("/habits");
+  await page.getByTestId("locale-switch").getByRole("button", { name: "中文" }).click();
   const readCard = page.locator("article").filter({ hasText: "Read pages" });
-  await readCard.getByRole("link", { name: "View details" }).click();
+  await readCard.getByRole("link", { name: "查看详情" }).click();
 
   await expect(page).toHaveURL(new RegExp(`/habits/${created.item.id}$`));
   await expect(page.getByTestId("habit-detail-overlay").getByRole("heading", { name: "Read pages" })).toBeVisible();
   await expect(page.getByTestId("habit-detail-summary")).toBeVisible();
-  await expect(page.getByText("Current streak")).toBeVisible();
-  await expect(page.getByText("Recent history")).toBeVisible();
+  await expect(page.getByText("当前连续完成")).toBeVisible();
+  await expect(page.getByText("近期历史")).toBeVisible();
 
   const summaryBox = await page.getByTestId("habit-detail-summary").boundingBox();
-  const trendsHeadingBox = await page.getByRole("heading", { name: "Recent trends" }).boundingBox();
-  const historyHeadingBox = await page.getByRole("heading", { name: "Recent history" }).boundingBox();
+  const trendsHeadingBox = await page.getByRole("heading", { name: "近期趋势" }).boundingBox();
+  const historyHeadingBox = await page.getByRole("heading", { name: "近期历史" }).boundingBox();
 
   expect(summaryBox).not.toBeNull();
   expect(trendsHeadingBox).not.toBeNull();
@@ -66,12 +67,12 @@ test("habit detail supports list entry, direct link, and close back to the habit
   expect((summaryBox?.y ?? 0) < (trendsHeadingBox?.y ?? 0)).toBeTruthy();
   expect((trendsHeadingBox?.y ?? 0) < (historyHeadingBox?.y ?? 0)).toBeTruthy();
 
-  await page.getByRole("link", { name: "Close" }).click();
+  await page.getByRole("link", { name: "关闭" }).click();
   await expect(page).toHaveURL(/\/habits$/);
 
   await page.goto(`/habits/${created.item.id}`);
   await expect(page.getByTestId("habit-detail-overlay").getByRole("heading", { name: "Read pages" })).toBeVisible();
-  await expect(page.getByText("Total completions")).toBeVisible();
+  await expect(page.getByText("累计完成次数")).toBeVisible();
 });
 
 test.describe("mobile habit detail", () => {

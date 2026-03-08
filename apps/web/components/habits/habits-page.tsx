@@ -10,7 +10,9 @@ import {
   restoreHabit,
   type HabitRecord,
 } from "../../lib/auth-client";
+import { getHabitsCopy } from "../../lib/i18n/habits";
 import { routes } from "../../lib/navigation";
+import { useLocale } from "../locale";
 import {
   Badge,
   Button,
@@ -47,35 +49,27 @@ type Feedback = {
   message: string;
 };
 
-function formatFrequency(habit: HabitRecord) {
+function formatFrequency(habit: HabitRecord, copy: ReturnType<typeof getHabitsCopy>) {
   switch (habit.frequencyType) {
     case "daily":
-      return "Daily";
+      return copy.page.frequency.daily;
     case "weekly_count":
-      return `${habit.frequencyCount ?? 1} times per week`;
+      return copy.page.frequency.weeklyCount(habit.frequencyCount ?? 1);
     case "monthly_count":
-      return `${habit.frequencyCount ?? 1} times per month`;
+      return copy.page.frequency.monthlyCount(habit.frequencyCount ?? 1);
     case "weekdays":
-      return habit.weekdays.join(", ");
+      return copy.page.frequency.weekdays(habit.weekdays);
     default:
       return habit.frequencyType;
   }
 }
 
-function formatMeta(habit: HabitRecord) {
+function formatMeta(habit: HabitRecord, copy: ReturnType<typeof getHabitsCopy>) {
   if (habit.kind === "quantity") {
-    return `${habit.targetValue ?? 0} ${habit.unit ?? "units"}`;
+    return `${habit.targetValue ?? 0} ${habit.unit ?? copy.page.card.unitsFallback}`;
   }
 
-  return "Boolean";
-}
-
-function formatWorkingSetSummary(status: HabitStatus, count: number) {
-  if (count === 0) {
-    return status === "active" ? "No active habits in view" : "No archived habits in view";
-  }
-
-  return `${count} ${status === "active" ? "active" : "archived"} ${count === 1 ? "habit" : "habits"} in view`;
+  return copy.page.card.booleanKind;
 }
 
 export function HabitsPage({
@@ -84,6 +78,8 @@ export function HabitsPage({
   initialDetail = null,
   closeDetailHref = routes.habits,
 }: HabitsPageProps) {
+  const { locale } = useLocale();
+  const copy = getHabitsCopy(locale);
   const [status, setStatus] = useState<HabitStatus>(initialStatus);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("");
@@ -96,7 +92,7 @@ export function HabitsPage({
   const deferredCategory = useDeferredValue(category);
   const requestIdRef = useRef(0);
   const overlayTriggerRef = useRef<HTMLElement | null>(null);
-  const workingSetSummary = formatWorkingSetSummary(status, items.length);
+  const workingSetSummary = copy.page.toolbar.workingSetSummary(status, items.length);
 
   function rememberOverlayTrigger(target: HTMLElement) {
     overlayTriggerRef.current = target;
@@ -161,8 +157,8 @@ export function HabitsPage({
       }
       setFeedback({
         tone: "danger",
-        title: "Unable to update habits",
-        message: loadError instanceof Error ? loadError.message : "Unable to update habits",
+        title: copy.page.feedback.updatingErrorTitle,
+        message: loadError instanceof Error ? loadError.message : copy.page.feedback.updatingErrorTitle,
       });
     } finally {
       if (requestId === requestIdRef.current) {
@@ -173,18 +169,18 @@ export function HabitsPage({
 
   useEffect(() => {
     void refreshCurrentList({
-      pendingTitle: "Refreshing habits",
-      pendingMessage: "Filters and saved changes stay in place while this list updates.",
+      pendingTitle: copy.page.feedback.refreshPendingTitle,
+      pendingMessage: copy.page.feedback.refreshPendingMessage,
     });
-  }, [deferredCategory, deferredQuery, kind, status]);
+  }, [copy.page.feedback.refreshPendingMessage, copy.page.feedback.refreshPendingTitle, deferredCategory, deferredQuery, kind, status]);
 
   async function handleArchive(habitId: string) {
     const requestId = ++requestIdRef.current;
     setIsPending(true);
     setFeedback({
       tone: "neutral",
-      title: "Archiving habit",
-      message: "The list will refresh in place when this update settles.",
+      title: copy.page.feedback.archivePendingTitle,
+      message: copy.page.feedback.archivePendingMessage,
     });
 
     try {
@@ -196,8 +192,8 @@ export function HabitsPage({
       setItems(nextItems);
       setFeedback({
         tone: "success",
-        title: "Habit archived",
-        message: "Archived habits move out of the active list without losing history.",
+        title: copy.page.feedback.archiveSuccessTitle,
+        message: copy.page.feedback.archiveSuccessMessage,
       });
     } catch (actionError) {
       if (requestId !== requestIdRef.current) {
@@ -205,8 +201,8 @@ export function HabitsPage({
       }
       setFeedback({
         tone: "danger",
-        title: "Unable to update habits",
-        message: actionError instanceof Error ? actionError.message : "Unable to archive habit",
+        title: copy.page.feedback.updatingErrorTitle,
+        message: actionError instanceof Error ? actionError.message : copy.page.feedback.updatingErrorTitle,
       });
     } finally {
       if (requestId === requestIdRef.current) {
@@ -220,8 +216,8 @@ export function HabitsPage({
     setIsPending(true);
     setFeedback({
       tone: "neutral",
-      title: "Restoring habit",
-      message: "The archived list will refresh in place when this update settles.",
+      title: copy.page.feedback.restorePendingTitle,
+      message: copy.page.feedback.restorePendingMessage,
     });
 
     try {
@@ -233,8 +229,8 @@ export function HabitsPage({
       setItems(nextItems);
       setFeedback({
         tone: "success",
-        title: "Habit restored",
-        message: "The habit is back in the active working set and keeps its history.",
+        title: copy.page.feedback.restoreSuccessTitle,
+        message: copy.page.feedback.restoreSuccessMessage,
       });
     } catch (actionError) {
       if (requestId !== requestIdRef.current) {
@@ -242,8 +238,8 @@ export function HabitsPage({
       }
       setFeedback({
         tone: "danger",
-        title: "Unable to update habits",
-        message: actionError instanceof Error ? actionError.message : "Unable to restore habit",
+        title: copy.page.feedback.updatingErrorTitle,
+        message: actionError instanceof Error ? actionError.message : copy.page.feedback.updatingErrorTitle,
       });
     } finally {
       if (requestId === requestIdRef.current) {
@@ -257,20 +253,18 @@ export function HabitsPage({
       <Surface variant="hero">
         <PageFrame>
           <PageHeader
-            eyebrow="Maintenance surface"
-            title="Habits"
-            description="Search, edit, archive, and restore habits without touching historical records."
+            eyebrow={copy.page.header.eyebrow}
+            title={copy.page.header.title}
+            description={copy.page.header.description}
           />
 
           <div className={styles.toolbar} data-testid="habits-toolbar">
             <Surface variant="soft" padding="md" className={styles.toolbarPanel}>
               <div className={styles.toolbarTop}>
                 <div className={styles.toolbarIntro}>
-                  <span className={styles.toolbarLabel}>Working set</span>
+                  <span className={styles.toolbarLabel}>{copy.page.toolbar.label}</span>
                   <strong className={styles.toolbarValue}>{workingSetSummary}</strong>
-                  <p className={styles.toolbarDescription}>
-                    Keep the list readable, then open detail only when a habit needs deeper inspection.
-                  </p>
+                  <p className={styles.toolbarDescription}>{copy.page.toolbar.description}</p>
                 </div>
 
                 <div className={styles.toolbarActions}>
@@ -282,10 +276,10 @@ export function HabitsPage({
                     }}
                     size="lg"
                   >
-                    New habit
+                    {copy.page.toolbar.newHabit}
                   </Button>
 
-                  <div className={styles.segmented} role="group" aria-label="Habit status">
+                  <div className={styles.segmented} role="group" aria-label={copy.page.toolbar.statusGroupLabel}>
                     {(["active", "archived"] as const).map((option) => (
                       <Button
                         key={option}
@@ -294,7 +288,7 @@ export function HabitsPage({
                         onClick={() => setStatus(option)}
                         aria-pressed={option === status}
                       >
-                        {option === "active" ? "Active" : "Archived"}
+                        {option === "active" ? copy.page.toolbar.active : copy.page.toolbar.archived}
                       </Button>
                     ))}
                   </div>
@@ -302,35 +296,35 @@ export function HabitsPage({
               </div>
 
               <div className={styles.filters} data-testid="habits-filters">
-                <Field label="Search" htmlFor="habit-search">
+                <Field label={copy.page.filters.search} htmlFor="habit-search">
                   <Input
                     id="habit-search"
                     type="text"
                     value={query}
                     onChange={(event) => setQuery(event.target.value)}
-                    placeholder="Search name or category"
+                    placeholder={copy.page.filters.searchPlaceholder}
                   />
                 </Field>
 
-                <Field label="Category" htmlFor="habit-category-filter">
+                <Field label={copy.page.filters.category} htmlFor="habit-category-filter">
                   <Input
                     id="habit-category-filter"
                     type="text"
                     value={category}
                     onChange={(event) => setCategory(event.target.value)}
-                    placeholder="Filter by category"
+                    placeholder={copy.page.filters.categoryPlaceholder}
                   />
                 </Field>
 
-                <Field label="Kind" htmlFor="habit-kind-filter">
+                <Field label={copy.page.filters.kind} htmlFor="habit-kind-filter">
                   <Select
                     id="habit-kind-filter"
                     value={kind}
                     onChange={(event) => setKind(event.target.value as HabitKindFilter)}
                   >
-                    <option value="all">All kinds</option>
-                    <option value="boolean">Boolean</option>
-                    <option value="quantity">Quantity</option>
+                    <option value="all">{copy.page.filters.kindOptions.all}</option>
+                    <option value="boolean">{copy.page.filters.kindOptions.boolean}</option>
+                    <option value="quantity">{copy.page.filters.kindOptions.quantity}</option>
                   </Select>
                 </Field>
               </div>
@@ -353,10 +347,12 @@ export function HabitsPage({
                 <div className={styles.cardTitle}>
                   <div className={styles.badgeRow}>
                     <h2 className={styles.heading}>{habit.name}</h2>
-                    <Badge tone="neutral">{habit.kind}</Badge>
+                    <Badge tone="neutral">
+                      {habit.kind === "quantity" ? copy.page.card.quantityKind : copy.page.card.booleanKind}
+                    </Badge>
                     {habit.category ? <Badge tone="info">{habit.category}</Badge> : null}
                   </div>
-                  <p className={styles.description}>{habit.description ?? "No description yet."}</p>
+                  <p className={styles.description}>{habit.description ?? copy.page.card.noDescription}</p>
                 </div>
 
                 <div className={styles.actions}>
@@ -365,7 +361,7 @@ export function HabitsPage({
                     className={styles.primaryAction}
                     data-testid="habit-card-primary-action"
                   >
-                    View details
+                    {copy.page.card.primaryAction}
                   </Link>
                   <div className={styles.secondaryActions}>
                     {status === "active" ? (
@@ -379,7 +375,7 @@ export function HabitsPage({
                           }}
                           disabled={isPending}
                         >
-                          Edit
+                          {copy.page.card.edit}
                         </Button>
                         <Button
                           type="button"
@@ -387,7 +383,7 @@ export function HabitsPage({
                           onClick={() => void handleArchive(habit.id)}
                           disabled={isPending}
                         >
-                          Archive
+                          {copy.page.card.archive}
                         </Button>
                       </>
                     ) : (
@@ -397,7 +393,7 @@ export function HabitsPage({
                         onClick={() => void handleRestore(habit.id)}
                         disabled={isPending}
                       >
-                        Restore
+                        {copy.page.card.restore}
                       </Button>
                     )}
                   </div>
@@ -406,31 +402,35 @@ export function HabitsPage({
 
               <div className={styles.metaGrid}>
                 <div>
-                  <strong className={styles.metaLabel}>Frequency</strong>
-                  {formatFrequency(habit)}
+                  <strong className={styles.metaLabel}>{copy.page.card.metaLabels.frequency}</strong>
+                  {formatFrequency(habit, copy)}
                 </div>
                 <div>
-                  <strong className={styles.metaLabel}>Target</strong>
-                  {formatMeta(habit)}
+                  <strong className={styles.metaLabel}>{copy.page.card.metaLabels.target}</strong>
+                  {formatMeta(habit, copy)}
                 </div>
                 <div>
-                  <strong className={styles.metaLabel}>Start date</strong>
+                  <strong className={styles.metaLabel}>{copy.page.card.metaLabels.startDate}</strong>
                   {habit.startDate}
                 </div>
                 <div>
-                  <strong className={styles.metaLabel}>State</strong>
-                  {habit.isActive ? "Active" : "Archived"}
+                  <strong className={styles.metaLabel}>{copy.page.card.metaLabels.state}</strong>
+                  {habit.isActive ? copy.page.card.state.active : copy.page.card.state.archived}
                 </div>
               </div>
             </article>
           ))
         ) : (
           <StatePanel
-            title={status === "active" ? "No active habits match these filters" : "No archived habits match these filters"}
+            title={
+              status === "active"
+                ? copy.page.card.emptyState.activeTitle
+                : copy.page.card.emptyState.archivedTitle
+            }
             description={
               status === "active"
-                ? "Adjust search, category, or kind to bring habits back into view."
-                : "Archived habits stay here until you restore them to the active list."
+                ? copy.page.card.emptyState.activeDescription
+                : copy.page.card.emptyState.archivedDescription
             }
           />
         )}
@@ -445,19 +445,20 @@ export function HabitsPage({
             }
           }}
           variant="dialog"
-          title={overlay.mode === "create" ? "Create habit" : `Edit ${overlay.habit.name}`}
+          title={overlay.mode === "create" ? copy.page.overlay.createTitle : copy.page.overlay.editTitle(overlay.habit.name)}
           description={
             overlay.mode === "create"
-              ? "Add a habit to the working set without leaving the management surface."
-              : "Refine future behavior here. Historical records stay untouched."
+              ? copy.page.overlay.createDescription
+              : copy.page.overlay.editDescription
           }
+          closeLabel={copy.page.overlay.closeLabel}
           testId="habit-form-overlay"
         >
           <HabitCreateForm
             key={overlay.mode === "create" ? "create" : overlay.habit.id}
             mode={overlay.mode}
             initialHabit={overlay.habit}
-            submitLabel={overlay.mode === "create" ? "Create habit" : "Save changes"}
+            submitLabel={overlay.mode === "create" ? copy.page.overlay.createSubmit : copy.page.overlay.editSubmit}
             onCancel={closeOverlayAndRestoreFocus}
             onSubmitted={async () => {
               const nextMode = overlay.mode;
@@ -469,15 +470,21 @@ export function HabitsPage({
               }
 
               await refreshCurrentList({
-                pendingTitle: nextMode === "create" ? "Saving new habit" : "Saving habit changes",
-                pendingMessage: "The list will refresh in place once the latest habit changes land.",
+                pendingTitle:
+                  nextMode === "create"
+                    ? copy.page.feedback.saveCreatePendingTitle
+                    : copy.page.feedback.saveEditPendingTitle,
+                pendingMessage: copy.page.feedback.savePendingMessage,
                 success: {
                   tone: "success",
-                  title: nextMode === "create" ? "Habit created" : "Habit updated",
+                  title:
+                    nextMode === "create"
+                      ? copy.page.feedback.createSuccessTitle
+                      : copy.page.feedback.editSuccessTitle,
                   message:
                     nextMode === "create"
-                      ? "The new habit is now part of the current working set."
-                      : "Future behavior has been updated without rewriting history.",
+                      ? copy.page.feedback.createSuccessMessage
+                      : copy.page.feedback.editSuccessMessage,
                 },
               });
             }}
