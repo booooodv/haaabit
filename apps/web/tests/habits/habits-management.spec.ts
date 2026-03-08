@@ -47,6 +47,8 @@ test("user can manage habits through search, edit, archive, and restore flows", 
 
   await page.goto("/habits");
   await expect(page.getByRole("heading", { name: "Habits" })).toBeVisible();
+  await expect(page.getByTestId("habits-toolbar")).toBeVisible();
+  await expect(page.getByTestId("habits-toolbar")).toContainText("New habit");
 
   await page.getByLabel("Search").fill("Read");
   await expect(page.locator("article").filter({ hasText: "Read pages" })).toBeVisible();
@@ -56,6 +58,7 @@ test("user can manage habits through search, edit, archive, and restore flows", 
   await page.getByLabel("Kind").selectOption("quantity");
   const readCard = page.locator("article").filter({ hasText: "Read pages" });
   await expect(readCard).toBeVisible();
+  await expect(readCard.getByTestId("habit-card-primary-action")).toBeVisible();
 
   await readCard.getByRole("button", { name: "Edit" }).click();
   await page.getByLabel("Habit name").fill("Read Deep Work");

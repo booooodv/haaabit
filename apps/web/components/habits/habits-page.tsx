@@ -70,6 +70,14 @@ function formatMeta(habit: HabitRecord) {
   return "Boolean";
 }
 
+function formatWorkingSetSummary(status: HabitStatus, count: number) {
+  if (count === 0) {
+    return status === "active" ? "No active habits in view" : "No archived habits in view";
+  }
+
+  return `${count} ${status === "active" ? "active" : "archived"} ${count === 1 ? "habit" : "habits"} in view`;
+}
+
 export function HabitsPage({
   initialItems,
   initialStatus = "active",
@@ -87,6 +95,7 @@ export function HabitsPage({
   const deferredQuery = useDeferredValue(query);
   const deferredCategory = useDeferredValue(category);
   const requestIdRef = useRef(0);
+  const workingSetSummary = formatWorkingSetSummary(status, items.length);
 
   async function fetchHabits(
     nextStatus: HabitStatus,
@@ -230,58 +239,74 @@ export function HabitsPage({
             eyebrow="Maintenance surface"
             title="Habits"
             description="Search, edit, archive, and restore habits without touching historical records."
-            actions={
-              <Button type="button" onClick={() => setOverlay({ mode: "create", habit: null })} size="lg">
-                New habit
-              </Button>
-            }
           />
 
-          <div className={styles.segmented}>
-            {(["active", "archived"] as const).map((option) => (
-              <Button
-                key={option}
-                type="button"
-                variant={option === status ? "primary" : "secondary"}
-                onClick={() => setStatus(option)}
-              >
-                {option === "active" ? "Active" : "Archived"}
-              </Button>
-            ))}
-          </div>
+          <div className={styles.toolbar} data-testid="habits-toolbar">
+            <Surface variant="soft" padding="md" className={styles.toolbarPanel}>
+              <div className={styles.toolbarTop}>
+                <div className={styles.toolbarIntro}>
+                  <span className={styles.toolbarLabel}>Working set</span>
+                  <strong className={styles.toolbarValue}>{workingSetSummary}</strong>
+                  <p className={styles.toolbarDescription}>
+                    Keep the list readable, then open detail only when a habit needs deeper inspection.
+                  </p>
+                </div>
 
-          <div className={styles.filters} data-testid="habits-filters">
-            <Field label="Search" htmlFor="habit-search">
-              <Input
-                id="habit-search"
-                type="text"
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search name or category"
-              />
-            </Field>
+                <div className={styles.toolbarActions}>
+                  <Button type="button" onClick={() => setOverlay({ mode: "create", habit: null })} size="lg">
+                    New habit
+                  </Button>
 
-            <Field label="Category" htmlFor="habit-category-filter">
-              <Input
-                id="habit-category-filter"
-                type="text"
-                value={category}
-                onChange={(event) => setCategory(event.target.value)}
-                placeholder="Filter by category"
-              />
-            </Field>
+                  <div className={styles.segmented} role="tablist" aria-label="Habit status">
+                    {(["active", "archived"] as const).map((option) => (
+                      <Button
+                        key={option}
+                        type="button"
+                        variant={option === status ? "primary" : "secondary"}
+                        onClick={() => setStatus(option)}
+                        aria-pressed={option === status}
+                      >
+                        {option === "active" ? "Active" : "Archived"}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              </div>
 
-            <Field label="Kind" htmlFor="habit-kind-filter">
-              <Select
-                id="habit-kind-filter"
-                value={kind}
-                onChange={(event) => setKind(event.target.value as HabitKindFilter)}
-              >
-                <option value="all">All kinds</option>
-                <option value="boolean">Boolean</option>
-                <option value="quantity">Quantity</option>
-              </Select>
-            </Field>
+              <div className={styles.filters} data-testid="habits-filters">
+                <Field label="Search" htmlFor="habit-search">
+                  <Input
+                    id="habit-search"
+                    type="text"
+                    value={query}
+                    onChange={(event) => setQuery(event.target.value)}
+                    placeholder="Search name or category"
+                  />
+                </Field>
+
+                <Field label="Category" htmlFor="habit-category-filter">
+                  <Input
+                    id="habit-category-filter"
+                    type="text"
+                    value={category}
+                    onChange={(event) => setCategory(event.target.value)}
+                    placeholder="Filter by category"
+                  />
+                </Field>
+
+                <Field label="Kind" htmlFor="habit-kind-filter">
+                  <Select
+                    id="habit-kind-filter"
+                    value={kind}
+                    onChange={(event) => setKind(event.target.value as HabitKindFilter)}
+                  >
+                    <option value="all">All kinds</option>
+                    <option value="boolean">Boolean</option>
+                    <option value="quantity">Quantity</option>
+                  </Select>
+                </Field>
+              </div>
+            </Surface>
           </div>
 
           {feedback ? (
@@ -307,38 +332,44 @@ export function HabitsPage({
                 </div>
 
                 <div className={styles.actions}>
-                  <Link href={routes.habitDetail(habit.id)} className={styles.linkAction}>
+                  <Link
+                    href={routes.habitDetail(habit.id)}
+                    className={styles.primaryAction}
+                    data-testid="habit-card-primary-action"
+                  >
                     View details
                   </Link>
-                  {status === "active" ? (
-                    <>
+                  <div className={styles.secondaryActions}>
+                    {status === "active" ? (
+                      <>
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          onClick={() => setOverlay({ mode: "edit", habit })}
+                          disabled={isPending}
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          onClick={() => void handleArchive(habit.id)}
+                          disabled={isPending}
+                        >
+                          Archive
+                        </Button>
+                      </>
+                    ) : (
                       <Button
                         type="button"
                         variant="secondary"
-                        onClick={() => setOverlay({ mode: "edit", habit })}
+                        onClick={() => void handleRestore(habit.id)}
                         disabled={isPending}
                       >
-                        Edit
+                        Restore
                       </Button>
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        onClick={() => void handleArchive(habit.id)}
-                        disabled={isPending}
-                      >
-                        Archive
-                      </Button>
-                    </>
-                  ) : (
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      onClick={() => void handleRestore(habit.id)}
-                      disabled={isPending}
-                    >
-                      Restore
-                    </Button>
-                  )}
+                    )}
+                  </div>
                 </div>
               </div>
 
