@@ -1,0 +1,122 @@
+.surface {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(18px);
+}
+
+.panel {
+  background: var(--color-surface);
+}
+
+.hero {
+  background:
+    linear-gradient(140deg, rgba(255, 255, 255, 0.94) 0%, rgba(240, 246, 247, 0.92) 72%),
+    linear-gradient(120deg, rgba(219, 232, 238, 0.48) 0%, transparent 58%);
+  border-color: var(--color-border-accent);
+  box-shadow: var(--shadow-panel);
+}
+
+.soft {
+  background: rgba(245, 248, 248, 0.84);
+}
+
+.paddingMd {
+  padding: var(--space-5);
+}
+
+.paddingLg {
+  padding: var(--space-6);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 1.85rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.toneNeutral {
+  color: var(--color-neutral);
+  background: var(--color-neutral-soft);
+}
+
+.toneSuccess {
+  color: var(--color-success);
+  background: var(--color-success-soft);
+}
+
+.toneWarning {
+  color: var(--color-warning);
+  background: var(--color-warning-soft);
+}
+
+.toneDanger {
+  color: var(--color-danger);
+  background: var(--color-danger-soft);
+}
+
+.toneInfo {
+  color: var(--color-info);
+  background: var(--color-info-soft);
+}
+
+.notice {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.95rem 1rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+}
+
+.noticeTitle {
+  font-weight: 700;
+}
+
+.pageFrame {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.pageHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.pageHeaderCopy {
+  display: grid;
+  gap: 0.45rem;
+  max-width: 40rem;
+}
+
+.eyebrow {
+  color: var(--color-text-soft);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.title {
+  font-size: clamp(2rem, 1.45rem + 2vw, 3rem);
+}
+
+.description {
+  color: var(--color-text-muted);
+  font-size: 1rem;
+}
+
+.section {
+  display: grid;
+  gap: 1rem;
+}

@@ -64,7 +64,7 @@ export function TodayItemCard(props: TodayItemProps) {
 
   return (
     <article
-      data-testid={`today-item-${item.name}`}
+      data-testid={`today-item-${item.habitId}`}
       style={{
         padding: "1.25rem",
         borderRadius: "1.25rem",

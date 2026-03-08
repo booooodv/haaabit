@@ -128,7 +128,7 @@ export function OverviewSection({
               overview.stabilityRanking.slice(0, 5).map((entry, index) => (
                 <div
                   key={entry.habitId}
-                  data-testid={`overview-ranking-item-${index}`}
+                  data-testid={`overview-ranking-item-${entry.habitId}`}
                   style={{
                     display: "grid",
                     gap: "0.2rem",

@@ -1,9 +1,25 @@
 import { expect, test } from "@playwright/test";
 
+async function listHabitIds(page: import("@playwright/test").Page) {
+  return page.evaluate(async () => {
+    const response = await fetch("http://127.0.0.1:3001/api/habits", {
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      throw new Error(await response.text());
+    }
+
+    const result = (await response.json()) as { items: Array<{ id: string; name: string }> };
+    return Object.fromEntries(result.items.map((item) => [item.name, item.id]));
+  });
+}
+
 test("dashboard shows pending/completed groups and stays in sync through complete, set-total, and undo", async ({
   page,
 }) => {
   const email = `today-user-${Date.now()}@example.com`;
+  const startDate = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
   await page.goto("/");
   await page.getByRole("button", { name: "Create account" }).click();
@@ -14,12 +30,13 @@ test("dashboard shows pending/completed groups and stays in sync through complet
   await page.getByRole("button", { name: "Create account" }).click();
 
   await page.getByLabel("Habit name").fill("Morning walk");
+  await page.getByLabel("Start date").fill(startDate);
   await page.getByLabel("Frequency").selectOption("daily");
-  await page.getByRole("button", { name: "Save habit" }).click();
+  await page.getByRole("button", { name: "Create first habit" }).click();
 
   await expect(page).toHaveURL(/\/dashboard$/);
 
-  await page.evaluate(async () => {
+  await page.evaluate(async ({ startDate: seededStartDate }) => {
     const response = await fetch("http://127.0.0.1:3001/api/habits", {
       method: "POST",
       credentials: "include",
@@ -31,6 +48,7 @@ test("dashboard shows pending/completed groups and stays in sync through complet
         kind: "quantity",
         targetValue: 10,
         unit: "pages",
+        startDate: seededStartDate,
         frequency: {
           type: "daily",
         },
@@ -40,7 +58,9 @@ test("dashboard shows pending/completed groups and stays in sync through complet
     if (!response.ok) {
       throw new Error(await response.text());
     }
-  });
+  }, { startDate });
+
+  const habitIds = await listHabitIds(page);
 
   await page.goto("/dashboard");
 
@@ -50,8 +70,8 @@ test("dashboard shows pending/completed groups and stays in sync through complet
   await expect(page.getByRole("heading", { name: "Pending" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Completed" })).toBeVisible();
 
-  const walkCard = page.getByTestId("today-item-Morning walk");
-  const readCard = page.getByTestId("today-item-Read pages");
+  const walkCard = page.getByTestId(`today-item-${habitIds["Morning walk"]}`);
+  const readCard = page.getByTestId(`today-item-${habitIds["Read pages"]}`);
 
   await expect(walkCard).toContainText("Morning walk");
   await expect(readCard).toContainText("Read pages");
@@ -61,8 +81,10 @@ test("dashboard shows pending/completed groups and stays in sync through complet
 
   await expect(page.getByText(/^1 pending$/)).toBeVisible();
   await expect(page.getByText(/^1 completed$/)).toBeVisible();
-  await expect(page.getByTestId("today-item-Morning walk")).toContainText("completed");
-  await expect(page.getByTestId("today-item-Morning walk").getByRole("button", { name: "Undo" })).toBeVisible();
+  await expect(page.getByTestId(`today-item-${habitIds["Morning walk"]}`)).toContainText("completed");
+  await expect(
+    page.getByTestId(`today-item-${habitIds["Morning walk"]}`).getByRole("button", { name: "Undo" }),
+  ).toBeVisible();
 
   await readCard.getByLabel("Today's total").fill("5");
   await readCard.getByRole("button", { name: "Save total" }).click();
@@ -76,9 +98,9 @@ test("dashboard shows pending/completed groups and stays in sync through complet
 
   await expect(page.getByText(/^0 pending$/)).toBeVisible();
   await expect(page.getByText(/^2 completed$/)).toBeVisible();
-  await expect(page.getByTestId("today-item-Read pages")).toContainText("completed");
+  await expect(page.getByTestId(`today-item-${habitIds["Read pages"]}`)).toContainText("completed");
 
-  await page.getByTestId("today-item-Read pages").getByRole("button", { name: "Undo" }).click();
+  await page.getByTestId(`today-item-${habitIds["Read pages"]}`).getByRole("button", { name: "Undo" }).click();
 
   await expect(page.getByText(/^1 pending$/)).toBeVisible();
   await expect(page.getByText(/^1 completed$/)).toBeVisible();
