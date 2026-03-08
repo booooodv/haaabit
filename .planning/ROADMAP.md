@@ -12,6 +12,11 @@
   - `milestones/v1.1-ROADMAP.md`
   - `milestones/v1.1-REQUIREMENTS.md`
   - `milestones/v1.1-MILESTONE-AUDIT.md`
+- ✅ **v1.2 Chinese and English Localization** — Phases 12-14, 8/8 plans complete, shipped 2026-03-08 and archived 2026-03-08.
+  Archive:
+  - `milestones/v1.2-ROADMAP.md`
+  - `milestones/v1.2-REQUIREMENTS.md`
+  - `milestones/v1.2-MILESTONE-AUDIT.md`
 
 ## Current Status
 
