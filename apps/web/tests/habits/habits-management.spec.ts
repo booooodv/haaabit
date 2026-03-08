@@ -114,3 +114,37 @@ test("habit action failures stay in context", async ({ page }) => {
   );
   await expect(card).toBeVisible();
 });
+
+test.describe("mobile habits layout", () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test("mobile habits surface stacks filters into a single-column priority flow", async ({ page }) => {
+    const email = `habits-mobile-${Date.now()}@example.com`;
+
+    await page.goto("/");
+    await page.getByRole("button", { name: "Create account" }).click();
+    await page.getByLabel("Name").fill("Habit Mobile User");
+    await page.getByLabel("Email").fill(email);
+    await page.getByLabel("Password").fill("password123");
+    await page.getByRole("button", { name: "Create account" }).click();
+    await page.getByLabel("Habit name").fill("Morning walk");
+    await page.getByRole("button", { name: "Create first habit" }).click();
+    await expect(page).toHaveURL(/\/dashboard$/);
+
+    await page.goto("/habits");
+
+    await expect(page.getByTestId("habits-filters")).toBeVisible();
+
+    const searchBox = await page.getByLabel("Search").boundingBox();
+    const categoryBox = await page.getByLabel("Category").boundingBox();
+    const kindBox = await page.getByLabel("Kind").boundingBox();
+
+    expect(searchBox).not.toBeNull();
+    expect(categoryBox).not.toBeNull();
+    expect(kindBox).not.toBeNull();
+    expect(Math.abs((searchBox?.x ?? 0) - (categoryBox?.x ?? 0))).toBeLessThan(6);
+    expect(Math.abs((categoryBox?.x ?? 0) - (kindBox?.x ?? 0))).toBeLessThan(6);
+    expect((categoryBox?.y ?? 0) > (searchBox?.y ?? 0)).toBeTruthy();
+    expect((kindBox?.y ?? 0) > (categoryBox?.y ?? 0)).toBeTruthy();
+  });
+});

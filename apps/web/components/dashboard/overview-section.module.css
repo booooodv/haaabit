@@ -1,0 +1,173 @@
+.section {
+  display: grid;
+  gap: 1.1rem;
+  padding: 1.35rem;
+  border-radius: var(--radius-xl);
+  background: linear-gradient(135deg, rgba(248, 251, 246, 0.94) 0%, rgba(238, 245, 241, 0.92) 100%);
+  border: 1px solid color-mix(in srgb, var(--color-border-accent) 68%, white);
+  box-shadow: var(--shadow-soft);
+}
+
+.header {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--color-text-soft);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.title {
+  margin: 0;
+  font-size: 2rem;
+}
+
+.description {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.metrics {
+  display: grid;
+  gap: 0.9rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.metricCard {
+  display: grid;
+  gap: 0.35rem;
+  padding: 1rem 1.05rem;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid var(--color-border);
+}
+
+.metricLabel {
+  color: var(--color-text-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.metricValue {
+  font-size: 1.65rem;
+  color: var(--color-accent-strong);
+  font-weight: 800;
+}
+
+.metricHint {
+  color: var(--color-text-muted);
+  font-size: 0.92rem;
+}
+
+.detailGrid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1.15fr) minmax(15rem, 0.9fr);
+}
+
+.ranking {
+  display: grid;
+  gap: 0.8rem;
+  padding: 1rem;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid var(--color-border);
+}
+
+.rankingHeader {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.rankingHeader h3,
+.rankingHeader p {
+  margin: 0;
+}
+
+.rankingHeader p {
+  color: var(--color-text-muted);
+  font-size: 0.92rem;
+}
+
+.rankingItems {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.rankingItem {
+  display: grid;
+  gap: 0.2rem;
+  padding-bottom: 0.7rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border) 78%, white);
+}
+
+.rankingTop {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.rankingRate {
+  color: var(--color-accent-strong);
+  font-weight: 700;
+}
+
+.rankingMeta {
+  color: var(--color-text-soft);
+  font-size: 0.88rem;
+}
+
+.refreshing {
+  margin: 0;
+  color: var(--color-text-soft);
+  font-size: 0.92rem;
+}
+
+@media (max-width: 720px) {
+  .section {
+    gap: 0.95rem;
+    padding: 1rem;
+  }
+
+  .title {
+    font-size: 1.55rem;
+  }
+
+  .description {
+    font-size: 0.92rem;
+  }
+
+  .metrics {
+    gap: 0.65rem;
+  }
+
+  .metricCard {
+    gap: 0.2rem;
+    padding: 0.8rem 0.75rem;
+  }
+
+  .metricValue {
+    font-size: 1.2rem;
+  }
+
+  .metricHint {
+    display: none;
+  }
+
+  .detailGrid {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+
+  .ranking {
+    gap: 0.65rem;
+    padding: 0.9rem;
+  }
+}

@@ -22,10 +22,9 @@ test("archiving the last active habit redirects dashboard back to habits and res
   await walkCard.getByRole("button", { name: "Archive" }).click();
 
   await page.goto("/dashboard");
-  await expect(page).toHaveURL(/\/habits$/);
-  await expect(page.getByRole("heading", { name: "Habits" })).toBeVisible();
+  await expect(page).toHaveURL(/\/habits\?status=archived$/);
+  await expect(page.getByRole("heading", { name: "Habits", exact: true })).toBeVisible();
 
-  await page.getByRole("button", { name: "Archived" }).click();
   const archivedCard = page.locator("article").filter({ hasText: "Morning walk" });
   await expect(archivedCard).toBeVisible();
   await archivedCard.getByRole("button", { name: "Restore" }).click();

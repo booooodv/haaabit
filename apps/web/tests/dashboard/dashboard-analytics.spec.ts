@@ -83,3 +83,45 @@ test("dashboard analytics stays above today and refreshes after today actions", 
   await expect(page.getByTestId(`overview-ranking-item-${habitIds["Morning walk"]}`)).toContainText("50%");
   await expect(page.getByTestId(`overview-ranking-item-${habitIds["Morning walk"]}`)).toContainText("1/2 recent due days");
 });
+
+test.describe("mobile dashboard", () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test("mobile dashboard keeps overview above today while compressing analytics", async ({ page }) => {
+    const email = `dashboard-mobile-${Date.now()}@example.com`;
+    const startDate = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
+    await page.goto("/");
+    await page.getByRole("button", { name: "Create account" }).click();
+    await page.getByLabel("Name").fill("Dashboard Mobile User");
+    await page.getByLabel("Email").fill(email);
+    await page.getByLabel("Password").fill("password123");
+    await page.getByRole("button", { name: "Create account" }).click();
+    await page.getByLabel("Habit name").fill("Morning walk");
+    await page.getByRole("button", { name: "Create first habit" }).click();
+
+    await createHabitViaApi(page, {
+      name: "Read pages",
+      kind: "quantity",
+      targetValue: 10,
+      unit: "pages",
+      startDate,
+      frequency: {
+        type: "daily",
+      },
+    });
+
+    await page.goto("/dashboard");
+
+    await expect(page.getByTestId("app-shell-mobile-nav")).toBeVisible();
+    await expect(page.getByTestId("overview-metrics")).toBeVisible();
+
+    const overviewBox = await page.getByTestId("dashboard-overview").boundingBox();
+    const todayBox = await page.getByTestId("today-dashboard").boundingBox();
+
+    expect(overviewBox).not.toBeNull();
+    expect(todayBox).not.toBeNull();
+    expect((overviewBox?.y ?? 0) < (todayBox?.y ?? 0)).toBeTruthy();
+    expect((overviewBox?.height ?? 0) < (todayBox?.height ?? Number.POSITIVE_INFINITY)).toBeTruthy();
+  });
+});

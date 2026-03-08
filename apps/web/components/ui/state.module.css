@@ -50,6 +50,7 @@
   padding: 0.85rem 0.95rem;
   border: 1px solid transparent;
   border-radius: var(--radius-md);
+  animation: statusIn 180ms ease;
 }
 
 .inlineStatusTitle {
@@ -117,8 +118,24 @@
   }
 }
 
+@keyframes statusIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .skeleton {
+    animation: none;
+  }
+
+  .inlineStatus {
     animation: none;
   }
 }

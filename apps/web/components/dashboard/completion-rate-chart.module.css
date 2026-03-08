@@ -1,0 +1,79 @@
+.chart {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1.15rem;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid var(--color-border);
+}
+
+.header {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.title {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.92rem;
+}
+
+.plot {
+  display: grid;
+  align-items: end;
+  gap: 0.45rem;
+  min-height: 7rem;
+}
+
+.point {
+  display: grid;
+  gap: 0.4rem;
+  align-items: end;
+}
+
+.bar {
+  border-radius: 999px;
+  transition:
+    height 180ms ease,
+    opacity 180ms ease,
+    background-color 180ms ease;
+}
+
+.label {
+  font-size: 0.68rem;
+  color: var(--color-text-soft);
+  transform: rotate(-28deg);
+  transform-origin: left top;
+  white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+  .chart {
+    gap: 0.75rem;
+    padding: 0.95rem;
+  }
+
+  .subtitle {
+    font-size: 0.86rem;
+  }
+
+  .plot {
+    min-height: 5.25rem;
+    gap: 0.3rem;
+  }
+
+  .label {
+    font-size: 0.58rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar {
+    transition: none;
+  }
+}

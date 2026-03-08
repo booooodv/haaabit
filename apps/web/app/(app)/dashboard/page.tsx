@@ -42,7 +42,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   }
 
   if (activeHabits.length === 0) {
-    redirect(routes.habits);
+    redirect(archivedHabits.length > 0 ? `${routes.habits}?status=archived` : routes.habits);
   }
 
   return (

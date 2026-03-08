@@ -1,6 +1,8 @@
 import type { HabitTrendPoint } from "@haaabit/contracts/habits";
 import type { OverviewTrendPoint } from "@haaabit/contracts/stats";
 
+import styles from "./completion-rate-chart.module.css";
+
 type ChartPoint = OverviewTrendPoint | HabitTrendPoint;
 
 function getPointLabel(point: ChartPoint) {
@@ -49,60 +51,33 @@ export function CompletionRateChart({
   testId?: string;
 }) {
   return (
-    <section
-      data-testid={testId}
-      style={{
-        display: "grid",
-        gap: "0.9rem",
-        padding: "1.15rem",
-        borderRadius: "1.25rem",
-        background: "#fffdf8",
-        border: "1px solid #d9cdb8",
-      }}
-    >
-      <div style={{ display: "grid", gap: "0.25rem" }}>
-        <h3 style={{ margin: 0, fontSize: "1rem" }}>{title}</h3>
-        <p style={{ margin: 0, color: "#67594d", fontSize: "0.92rem" }}>{subtitle}</p>
+    <section data-testid={testId} className={styles.chart}>
+      <div className={styles.header}>
+        <h3 className={styles.title}>{title}</h3>
+        <p className={styles.subtitle}>{subtitle}</p>
       </div>
 
       <div
+        className={styles.plot}
         style={{
-          display: "grid",
           gridTemplateColumns: `repeat(${points.length}, minmax(0, 1fr))`,
-          gap: "0.45rem",
-          alignItems: "end",
-          minHeight: "7rem",
         }}
       >
         {points.map((point) => (
           <div
             key={point.date}
             title={`${point.date} · ${getPointLabel(point)}`}
-            style={{
-              display: "grid",
-              gap: "0.4rem",
-              alignItems: "end",
-            }}
+            className={styles.point}
           >
             <div
+              className={styles.bar}
               style={{
                 height: `${getPointHeight(point)}px`,
-                borderRadius: "999px",
                 background: getPointColor(point),
                 opacity: point.completionRate === null ? 0.45 : 1,
               }}
             />
-            <span
-              style={{
-                fontSize: "0.68rem",
-                color: "#7c6d5d",
-                transform: "rotate(-28deg)",
-                transformOrigin: "left top",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {point.date.slice(5)}
-            </span>
+            <span className={styles.label}>{point.date.slice(5)}</span>
           </div>
         ))}
       </div>

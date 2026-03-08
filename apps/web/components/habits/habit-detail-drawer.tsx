@@ -8,9 +8,9 @@ import { CompletionRateChart } from "../dashboard/completion-rate-chart";
 import { HabitHistoryList } from "./habit-history-list";
 import styles from "./habit-detail-drawer.module.css";
 
-function StatCard({ label, value }: { label: string; value: number }) {
+function StatCard({ label, value, testId }: { label: string; value: number; testId: string }) {
   return (
-    <div className={styles.statCard}>
+    <div className={styles.statCard} data-testid={testId}>
       <span className={styles.statLabel}>{label}</span>
       <strong className={styles.statValue}>{value}</strong>
     </div>
@@ -67,11 +67,11 @@ export function HabitDetailDrawer({
           </span>
         </div>
 
-        <div className={styles.stats}>
-          <StatCard label="Current streak" value={detail.stats.currentStreak} />
-          <StatCard label="Longest streak" value={detail.stats.longestStreak} />
-          <StatCard label="Total completions" value={detail.stats.totalCompletions} />
-          <StatCard label="Interruptions" value={detail.stats.interruptionCount} />
+        <div className={styles.stats} data-testid="habit-detail-stats">
+          <StatCard label="Current streak" value={detail.stats.currentStreak} testId="habit-detail-stat-current-streak" />
+          <StatCard label="Longest streak" value={detail.stats.longestStreak} testId="habit-detail-stat-longest-streak" />
+          <StatCard label="Total completions" value={detail.stats.totalCompletions} testId="habit-detail-stat-total-completions" />
+          <StatCard label="Interruptions" value={detail.stats.interruptionCount} testId="habit-detail-stat-interruptions" />
         </div>
 
         <div className={styles.section}>

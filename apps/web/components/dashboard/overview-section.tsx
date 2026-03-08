@@ -1,6 +1,7 @@
 import type { OverviewStats } from "@haaabit/contracts/stats";
 
 import { CompletionRateChart } from "./completion-rate-chart";
+import styles from "./overview-section.module.css";
 
 function MetricCard({
   label,
@@ -14,22 +15,10 @@ function MetricCard({
   testId: string;
 }) {
   return (
-    <div
-      data-testid={testId}
-      style={{
-        display: "grid",
-        gap: "0.35rem",
-        padding: "1rem 1.1rem",
-        borderRadius: "1.2rem",
-        background: "#fffdf8",
-        border: "1px solid #d9cfbf",
-      }}
-    >
-      <span style={{ color: "#7b6e60", textTransform: "uppercase", letterSpacing: "0.08em", fontSize: "0.76rem" }}>
-        {label}
-      </span>
-      <strong style={{ fontSize: "1.65rem", color: "#1c4038" }}>{value}</strong>
-      <span style={{ color: "#66584b", fontSize: "0.92rem" }}>{hint}</span>
+    <div data-testid={testId} className={styles.metricCard}>
+      <span className={styles.metricLabel}>{label}</span>
+      <strong className={styles.metricValue}>{value}</strong>
+      <span className={styles.metricHint}>{hint}</span>
     </div>
   );
 }
@@ -42,35 +31,16 @@ export function OverviewSection({
   isRefreshing?: boolean;
 }) {
   return (
-    <section
-      data-testid="dashboard-overview"
-      style={{
-        display: "grid",
-        gap: "1.25rem",
-        padding: "1.5rem",
-        borderRadius: "1.75rem",
-        background: "linear-gradient(135deg, #f7f3e8 0%, #efe4d1 100%)",
-        border: "1px solid #d8c6ad",
-        boxShadow: "0 18px 60px rgba(40, 28, 15, 0.08)",
-      }}
-    >
-      <div style={{ display: "grid", gap: "0.35rem" }}>
-        <p style={{ margin: 0, color: "#756858", letterSpacing: "0.08em", textTransform: "uppercase", fontSize: "0.8rem" }}>
-          Overview
-        </p>
-        <h1 style={{ margin: 0, fontSize: "2rem" }}>Analytics</h1>
-        <p style={{ margin: 0, color: "#5c5145" }}>
+    <section data-testid="dashboard-overview" className={styles.section}>
+      <div className={styles.header}>
+        <p className={styles.eyebrow}>Overview</p>
+        <h1 className={styles.title}>Analytics</h1>
+        <p className={styles.description}>
           Account-level completion trends and active habit stability before you drop into today's list.
         </p>
       </div>
 
-      <div
-        style={{
-          display: "grid",
-          gap: "0.9rem",
-          gridTemplateColumns: "repeat(auto-fit, minmax(11rem, 1fr))",
-        }}
-      >
+      <div data-testid="overview-metrics" className={styles.metrics}>
         <MetricCard
           label="Completed today"
           value={String(overview.metrics.todayCompletedCount)}
@@ -91,13 +61,7 @@ export function OverviewSection({
         />
       </div>
 
-      <div
-        style={{
-          display: "grid",
-          gap: "1rem",
-          gridTemplateColumns: "minmax(0, 1.35fr) minmax(16rem, 0.9fr)",
-        }}
-      >
+      <div className={styles.detailGrid}>
         <CompletionRateChart
           title="30-day completion rate"
           subtitle="Daily-granularity account trend"
@@ -105,60 +69,39 @@ export function OverviewSection({
           testId="overview-trend-chart"
         />
 
-        <section
-          data-testid="overview-ranking"
-          style={{
-            display: "grid",
-            gap: "0.8rem",
-            padding: "1.15rem",
-            borderRadius: "1.25rem",
-            background: "#fffdf8",
-            border: "1px solid #d9cdb8",
-          }}
-        >
-          <div style={{ display: "grid", gap: "0.2rem" }}>
-            <h3 style={{ margin: 0, fontSize: "1rem" }}>Stability ranking</h3>
-            <p style={{ margin: 0, color: "#67594d", fontSize: "0.92rem" }}>
+        <section data-testid="overview-ranking" className={styles.ranking}>
+          <div className={styles.rankingHeader}>
+            <h3>Stability ranking</h3>
+            <p>
               Active habits ranked by recent completion rate.
             </p>
           </div>
 
-          <div style={{ display: "grid", gap: "0.7rem" }}>
+          <div className={styles.rankingItems}>
             {overview.stabilityRanking.length > 0 ? (
               overview.stabilityRanking.slice(0, 5).map((entry, index) => (
-                <div
-                  key={entry.habitId}
-                  data-testid={`overview-ranking-item-${entry.habitId}`}
-                  style={{
-                    display: "grid",
-                    gap: "0.2rem",
-                    paddingBottom: "0.7rem",
-                    borderBottom: "1px solid #ece2d2",
-                  }}
-                >
-                  <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem" }}>
-                    <strong style={{ color: "#2a2017" }}>
+                <div key={entry.habitId} data-testid={`overview-ranking-item-${entry.habitId}`} className={styles.rankingItem}>
+                  <div className={styles.rankingTop}>
+                    <strong>
                       {index + 1}. {entry.name}
                     </strong>
-                    <span style={{ color: "#173d35", fontWeight: 700 }}>
+                    <span className={styles.rankingRate}>
                       {Math.round(entry.completionRate * 100)}%
                     </span>
                   </div>
-                  <span style={{ color: "#756756", fontSize: "0.88rem" }}>
+                  <span className={styles.rankingMeta}>
                     {entry.completedCount}/{entry.totalCount} recent due days
                   </span>
                 </div>
               ))
             ) : (
-              <p style={{ margin: 0, color: "#756756" }}>No active habits with recent due history yet.</p>
+              <p className={styles.rankingMeta}>No active habits with recent due history yet.</p>
             )}
           </div>
         </section>
       </div>
 
-      {isRefreshing ? (
-        <p style={{ margin: 0, color: "#67594d", fontSize: "0.92rem" }}>Refreshing overview…</p>
-      ) : null}
+      {isRefreshing ? <p className={styles.refreshing}>Refreshing overview…</p> : null}
     </section>
   );
 }
