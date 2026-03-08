@@ -22,12 +22,14 @@ test("reduced-motion mode flattens overlay and shell transition timing", async (
   await page.emulateMedia({ reducedMotion: "reduce" });
   await signUpAndCreateFirstHabit(page, email, "Reduced Motion User");
 
-  const habitsLink = page.getByTestId("app-shell-primary-nav").getByRole("link", { name: "Habits" });
+  await page.getByTestId("locale-switch").getByRole("button", { name: "中文" }).click();
+
+  const habitsLink = page.getByTestId("app-shell-primary-nav").getByRole("link", { name: "习惯" });
   const navTransitionDuration = await habitsLink.evaluate((node) => getComputedStyle(node).transitionDuration);
   expect(parseDurationSeconds(navTransitionDuration)).toBeLessThanOrEqual(0.00001);
 
   await habitsLink.click();
-  const editButton = page.locator("article").filter({ hasText: "Morning walk" }).getByRole("button", { name: "Edit" });
+  const editButton = page.locator("article").filter({ hasText: "Morning walk" }).getByRole("button", { name: "编辑" });
   await editButton.click();
 
   const overlay = page.getByTestId("habit-form-overlay");

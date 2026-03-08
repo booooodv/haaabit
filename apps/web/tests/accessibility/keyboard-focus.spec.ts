@@ -30,6 +30,18 @@ test("auth validation moves focus to the first invalid field and links the error
   await expect(password).toHaveAttribute("aria-describedby", /auth-password/);
 });
 
+test("keyboard locale switch keeps focus continuity on auth", async ({ page }) => {
+  await page.goto("/");
+
+  const chineseButton = page.getByTestId("locale-switch").getByRole("button", { name: "中文" });
+  await chineseButton.focus();
+  await chineseButton.press("Enter");
+
+  await expect(page.locator("html")).toHaveAttribute("lang", "zh-CN");
+  await expect(chineseButton).toBeFocused();
+  await expect(page.getByRole("heading", { name: "登录 Haaabit" })).toBeVisible();
+});
+
 test("keyboard closing an edit overlay returns focus to the invoking trigger", async ({ page }) => {
   const email = `focus-overlay-${Date.now()}@example.com`;
 

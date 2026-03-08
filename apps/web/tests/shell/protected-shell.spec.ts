@@ -70,22 +70,24 @@ test.describe("mobile shell", () => {
       "page",
     );
 
-    const mobileHabitsLink = mobileNav.getByRole("link", { name: /Habits/i });
+    await page.getByTestId("locale-switch").getByRole("button", { name: "中文" }).click();
+    await expect(page).toHaveURL(/\/dashboard$/);
+    await expect(page.getByTestId("app-shell-utility-nav").getByRole("link", { name: "API 访问" })).toBeVisible();
+    await expect(mobileNav.getByRole("link", { name: "今天" })).toHaveAttribute("aria-current", "page");
+
+    const mobileHabitsLink = mobileNav.getByRole("link", { name: "习惯" });
     await mobileHabitsLink.focus();
     await mobileHabitsLink.press("Enter");
     await expect(page).toHaveURL(/\/habits$/);
-    await expect(mobileNav.getByRole("link", { name: /Habits/i })).toBeFocused();
-    await expect(mobileNav.getByRole("link", { name: /Habits/i })).toHaveAttribute(
-      "aria-current",
-      "page",
-    );
+    await expect(mobileNav.getByRole("link", { name: "习惯" })).toBeFocused();
+    await expect(mobileNav.getByRole("link", { name: "习惯" })).toHaveAttribute("aria-current", "page");
 
     const mobileApiAccessLink = page
       .getByTestId("app-shell-utility-nav")
-      .getByRole("link", { name: "API Access" });
+      .getByRole("link", { name: "API 访问" });
     await mobileApiAccessLink.focus();
     await mobileApiAccessLink.press("Enter");
     await expect(page).toHaveURL(/\/api-access$/);
-    await expect(page.getByTestId("app-shell-utility-nav").getByRole("link", { name: "API Access" })).toBeFocused();
+    await expect(page.getByTestId("app-shell-utility-nav").getByRole("link", { name: "API 访问" })).toBeFocused();
   });
 });
