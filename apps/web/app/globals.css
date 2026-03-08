@@ -13,11 +13,11 @@
 
   --color-text: #192127;
   --color-text-muted: #5a6670;
-  --color-text-soft: #74818a;
+  --color-text-soft: #69757e;
   --color-heading: #10181e;
 
-  --color-border: rgba(100, 118, 128, 0.22);
-  --color-border-strong: rgba(65, 83, 94, 0.28);
+  --color-border: rgba(100, 118, 128, 0.28);
+  --color-border-strong: rgba(65, 83, 94, 0.34);
   --color-border-accent: rgba(36, 72, 89, 0.28);
 
   --color-accent: #2f5f73;
@@ -33,7 +33,7 @@
   --color-danger-soft: #f5dde0;
   --color-info: #346079;
   --color-info-soft: #dce7ef;
-  --color-neutral: #66737b;
+  --color-neutral: #5b6871;
   --color-neutral-soft: #e8edf0;
 
   --shadow-soft: 0 20px 60px rgba(18, 27, 33, 0.08);
