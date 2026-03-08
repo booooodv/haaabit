@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { getApiAccessToken, resetApiAccessToken } from "../../lib/auth-client";
 import { createApiUrl } from "../../lib/api";
+import { getApiAccessCopy } from "../../lib/i18n/api-access";
 import {
   Button,
   DisabledHint,
@@ -16,6 +17,7 @@ import {
   StatePanel,
   Surface,
 } from "../ui";
+import { useLocale } from "../locale";
 import styles from "./api-access-panel.module.css";
 
 type Feedback = {
@@ -47,6 +49,8 @@ export function ApiAccessPanel({
 }: {
   initialTokenState: ApiAccessTokenResponse;
 }) {
+  const { locale } = useLocale();
+  const copy = getApiAccessCopy(locale);
   const [tokenState, setTokenState] = useState(initialTokenState);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [isPending, setIsPending] = useState(false);
@@ -58,8 +62,8 @@ export function ApiAccessPanel({
   async function refreshToken(generateNew: boolean, trigger?: HTMLButtonElement | null) {
     setFeedback({
       tone: "neutral",
-      title: generateNew ? (tokenState.token ? "Rotating token" : "Generating token") : "Refreshing token",
-      message: "Token controls stay locked until the current request finishes.",
+      title: generateNew ? copy.feedback.rotatePendingTitle(Boolean(tokenState.token)) : copy.feedback.refreshPendingTitle,
+      message: copy.feedback.pendingMessage,
     });
     setIsPending(true);
 
@@ -69,14 +73,14 @@ export function ApiAccessPanel({
       setIsTokenRevealed(false);
       setFeedback({
         tone: "success",
-        title: generateNew ? (tokenState.token ? "Token rotated" : "Token generated") : "Token ready",
-        message: "Store this bearer token now. Replacing it invalidates the previous value immediately.",
+        title: generateNew ? copy.feedback.rotateSuccessTitle(Boolean(tokenState.token)) : copy.feedback.rotateSuccessTitle(Boolean(tokenState.token)),
+        message: copy.feedback.rotateSuccessMessage,
       });
     } catch (refreshError) {
       setFeedback({
         tone: "danger",
-        title: "Unable to update API access",
-        message: refreshError instanceof Error ? refreshError.message : "Unable to update API access",
+        title: copy.feedback.updateErrorTitle,
+        message: refreshError instanceof Error ? refreshError.message : copy.feedback.updateErrorTitle,
       });
     } finally {
       setIsPending(false);
@@ -97,14 +101,14 @@ export function ApiAccessPanel({
       }
       setFeedback({
         tone: "success",
-        title: "Token copied",
-        message: "The token is in your clipboard. Paste it only into a trusted client or secret store.",
+        title: copy.feedback.copySuccessTitle,
+        message: copy.feedback.copySuccessMessage,
       });
     } catch (copyError) {
       setFeedback({
         tone: "danger",
-        title: "Unable to copy token",
-        message: copyError instanceof Error ? copyError.message : "Unable to copy token",
+        title: copy.feedback.copyErrorTitle,
+        message: copyError instanceof Error ? copyError.message : copy.feedback.copyErrorTitle,
       });
     }
   }
@@ -114,9 +118,9 @@ export function ApiAccessPanel({
       <Surface variant="hero">
         <PageFrame>
           <PageHeader
-            eyebrow="AI integration"
-            title="API access"
-            description="Manage the personal bearer token your scripts and assistants should use when calling Haaabit."
+            eyebrow={copy.page.eyebrow}
+            title={copy.page.title}
+            description={copy.page.description}
           />
 
           {feedback ? (
@@ -127,23 +131,24 @@ export function ApiAccessPanel({
 
           <Surface variant="soft" className={styles.tokenSurface} padding="md">
             <Field
-              label="Personal API token"
+              label={copy.page.tokenLabel}
               htmlFor="api-access-token"
-              description="Hidden by default. Reveal it only when you need to copy it into a trusted client."
+              description={copy.page.tokenDescription}
             >
-              <Input id="api-access-token" aria-label="Personal API token" readOnly value={tokenValue} />
+              <Input id="api-access-token" aria-label={copy.page.tokenLabel} readOnly value={tokenValue} />
             </Field>
 
             {tokenState.token ? (
               <div className={styles.guidance}>
-                <p className={styles.guidanceTitle}>Treat this token like a password.</p>
-                <p>Store it in a trusted secret store or private environment file.</p>
-                <p>Rotation invalidates the previous token immediately.</p>
+                <p className={styles.guidanceTitle}>{copy.page.guidanceTitle}</p>
+                {copy.page.guidanceLines.map((line) => (
+                  <p key={line}>{line}</p>
+                ))}
               </div>
             ) : (
               <StatePanel
-                title="No personal API token yet"
-                description="No personal API token has been generated yet."
+                title={copy.page.emptyStateTitle}
+                description={copy.page.emptyStateDescription}
                 compact
               />
             )}
@@ -154,7 +159,7 @@ export function ApiAccessPanel({
                 onClick={(event) => void refreshToken(true, event.currentTarget)}
                 disabled={isPending}
               >
-                {tokenState.token ? "Rotate token" : "Generate token"}
+                {tokenState.token ? copy.page.actions.rotate : copy.page.actions.generate}
               </Button>
               {tokenState.token ? (
                 <>
@@ -164,7 +169,7 @@ export function ApiAccessPanel({
                     onClick={() => setIsTokenRevealed((current) => !current)}
                     disabled={isPending}
                   >
-                    {isTokenRevealed ? "Hide token" : "Reveal token"}
+                    {isTokenRevealed ? copy.page.actions.hide : copy.page.actions.reveal}
                   </Button>
                   <Button
                     type="button"
@@ -172,21 +177,21 @@ export function ApiAccessPanel({
                     onClick={() => void copyToken()}
                     disabled={isPending || !isTokenRevealed}
                   >
-                    Copy token
+                    {copy.page.actions.copy}
                   </Button>
                 </>
               ) : null}
               {isPending ? (
-                <DisabledHint>Token controls unlock after the current request settles.</DisabledHint>
+                <DisabledHint>{copy.page.disabledHint}</DisabledHint>
               ) : null}
             </div>
           </Surface>
 
           <Surface variant="soft" className={styles.quickstart} padding="md">
             <div className={styles.quickstartCopy}>
-              <span className={styles.kicker}>Quickstart</span>
-              <h2>First call</h2>
-              <p>Start with the bearer header, then verify the connection against today&apos;s summary endpoint.</p>
+              <span className={styles.kicker}>{copy.page.quickstart.eyebrow}</span>
+              <h2>{copy.page.quickstart.title}</h2>
+              <p>{copy.page.quickstart.description}</p>
             </div>
 
             <pre className={styles.codeBlock}>
@@ -195,10 +200,10 @@ export function ApiAccessPanel({
 
             <div className={styles.links}>
               <a href={createApiUrl(tokenState.docsPath)} className={styles.link}>
-                Open API docs
+                {copy.page.quickstart.docsLink}
               </a>
               <a href={createApiUrl(tokenState.specPath)} className={`${styles.link} ${styles.secondaryLink}`}>
-                OpenAPI JSON
+                {copy.page.quickstart.specLink}
               </a>
             </div>
           </Surface>
