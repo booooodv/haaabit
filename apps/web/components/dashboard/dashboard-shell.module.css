@@ -1,0 +1,14 @@
+.stack {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.fallback {
+  display: grid;
+  gap: 0.9rem;
+  max-width: 34rem;
+}
+
+.loadingText {
+  color: var(--color-text-muted);
+}

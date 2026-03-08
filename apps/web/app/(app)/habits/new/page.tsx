@@ -1,22 +1,22 @@
 import { HabitCreateForm } from "../../../../components/habits/habit-create-form";
+import { Notice, PageFrame, PageHeader, Surface } from "../../../../components/ui";
+import styles from "./page.module.css";
 
 export default function NewHabitPage() {
   return (
-    <section
-      style={{
-        background: "#fffdf8",
-        border: "1px solid #d8d0c4",
-        borderRadius: "1.5rem",
-        padding: "2rem",
-        boxShadow: "0 20px 60px rgba(40, 28, 15, 0.08)",
-      }}
-    >
-      <h1 style={{ marginTop: 0 }}>Create your first habit</h1>
-      <p style={{ color: "#6b5e50", marginBottom: "1.5rem" }}>
-        Your account is ready. Add the first habit now so future logins can route straight into your
-        dashboard.
-      </p>
-      <HabitCreateForm submitLabel="Create first habit" />
-    </section>
+    <Surface variant="hero" className={styles.shell}>
+      <PageFrame>
+        <PageHeader
+          eyebrow="Onboarding"
+          title="Create your first habit"
+          description="Your account is ready. Add one clear habit now so later logins can route straight into a useful dashboard."
+        />
+        <Notice tone="info" title="Start simple">
+          You can refine categories, targets, and scheduling patterns later. Right now, aim for one habit you
+          genuinely expect to check today.
+        </Notice>
+        <HabitCreateForm submitLabel="Create first habit" />
+      </PageFrame>
+    </Surface>
   );
 }

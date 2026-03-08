@@ -1,0 +1,28 @@
+.form {
+  display: grid;
+  gap: 1.2rem;
+  container-type: inline-size;
+}
+
+.split {
+  display: grid;
+  gap: 1rem;
+}
+
+.fieldNote {
+  color: var(--color-text-soft);
+  font-size: 0.9rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+@container (min-width: 36rem) {
+  .split {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

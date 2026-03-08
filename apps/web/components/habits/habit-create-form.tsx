@@ -10,6 +10,8 @@ import { useState, useTransition } from "react";
 
 import { createHabit, updateHabit, type HabitRecord } from "../../lib/auth-client";
 import { routes } from "../../lib/navigation";
+import { Button, CheckboxGroup, Field, Input, Notice, Select } from "../ui";
+import styles from "./habit-create-form.module.css";
 
 const weekdayOptions: Array<{ label: string; value: Weekday }> = [
   { label: "Monday", value: "monday" },
@@ -123,129 +125,143 @@ export function HabitCreateForm({
     });
   }
 
-  const resolvedSubmitLabel = submitLabel ?? (mode === "edit" ? "Save changes" : "Save habit");
+  const resolvedSubmitLabel = submitLabel ?? (mode === "edit" ? "Save changes" : "Create habit");
 
   return (
-    <form
-      action={handleSubmit}
-      style={{
-        display: "grid",
-        gap: "1rem",
-      }}
-    >
-      <div style={{ display: "grid", gap: "0.4rem" }}>
-        <label htmlFor="habit-name">Habit name</label>
-        <input id="habit-name" name="name" type="text" required defaultValue={initialHabit?.name ?? ""} />
-      </div>
+    <form action={handleSubmit} className={styles.form}>
+      {mode === "edit" ? (
+        <Notice tone="info" title="Future-only edits">
+          Changes update future behavior without rewriting historical records.
+        </Notice>
+      ) : null}
 
-      <div style={{ display: "grid", gap: "0.4rem" }}>
-        <label htmlFor="habit-kind">Habit type</label>
-        <select
-          id="habit-kind"
-          name="kind"
-          defaultValue={initialHabit?.kind ?? "boolean"}
-          disabled={mode === "edit"}
-          onChange={(event) => setKind(event.target.value as HabitRecord["kind"])}
+      <div className={styles.split}>
+        <Field label="Habit name" htmlFor="habit-name" required>
+          <Input id="habit-name" name="name" type="text" required defaultValue={initialHabit?.name ?? ""} />
+        </Field>
+
+        <Field
+          label="Habit type"
+          htmlFor="habit-kind"
+          description={mode === "edit" ? "Locked after creation." : "Choose whether the habit is binary or quantity-based."}
         >
-          <option value="boolean">Boolean</option>
-          <option value="quantity">Quantity</option>
-        </select>
-        {mode === "edit" ? <span style={{ color: "#76685a", fontSize: "0.9rem" }}>Kind is locked after creation.</span> : null}
+          <Select
+            id="habit-kind"
+            name="kind"
+            defaultValue={initialHabit?.kind ?? "boolean"}
+            disabled={mode === "edit"}
+            onChange={(event) => setKind(event.target.value as HabitRecord["kind"])}
+          >
+            <option value="boolean">Boolean</option>
+            <option value="quantity">Quantity</option>
+          </Select>
+        </Field>
       </div>
 
-      <div style={{ display: "grid", gap: "0.4rem" }}>
-        <label htmlFor="habit-start-date">Start date</label>
-        <input id="habit-start-date" name="startDate" type="date" defaultValue={initialHabit?.startDate ?? ""} />
-      </div>
+      <div className={styles.split}>
+        <Field label="Start date" htmlFor="habit-start-date" description="Leave blank to start today.">
+          <Input id="habit-start-date" name="startDate" type="date" defaultValue={initialHabit?.startDate ?? ""} />
+        </Field>
 
-      <div style={{ display: "grid", gap: "0.4rem" }}>
-        <label htmlFor="habit-frequency">Frequency</label>
-        <select
-          id="habit-frequency"
-          name="frequencyType"
-          value={frequencyType}
-          onChange={(event) => setFrequencyType(event.target.value as HabitRecord["frequencyType"])}
-        >
-          <option value="daily">daily</option>
-          <option value="weekly_count">weekly_count</option>
-          <option value="weekdays">weekdays</option>
-          <option value="monthly_count">monthly_count</option>
-        </select>
+        <Field label="Frequency" htmlFor="habit-frequency" required>
+          <Select
+            id="habit-frequency"
+            name="frequencyType"
+            value={frequencyType}
+            onChange={(event) => setFrequencyType(event.target.value as HabitRecord["frequencyType"])}
+          >
+            <option value="daily">Daily</option>
+            <option value="weekly_count">Weekly count</option>
+            <option value="weekdays">Selected weekdays</option>
+            <option value="monthly_count">Monthly count</option>
+          </Select>
+        </Field>
       </div>
 
       {frequencyType === "weekly_count" || frequencyType === "monthly_count" ? (
-        <div style={{ display: "grid", gap: "0.4rem" }}>
-          <label htmlFor="habit-frequency-count">Count target</label>
-          <input
+        <Field
+          label="Count target"
+          htmlFor="habit-frequency-count"
+          description={frequencyType === "weekly_count" ? "How many times per week?" : "How many times per month?"}
+        >
+          <Input
             id="habit-frequency-count"
             name="frequencyCount"
             type="number"
             min={1}
             defaultValue={getFrequencyCount(initialHabit)}
           />
-        </div>
+        </Field>
       ) : null}
 
       {frequencyType === "weekdays" ? (
-        <fieldset style={{ border: "1px solid #d7cdbf", borderRadius: "1rem", padding: "1rem" }}>
-          <legend>Weekdays</legend>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem 1rem" }}>
-            {weekdayOptions.map((weekday) => (
-              <label key={weekday.value} style={{ display: "flex", gap: "0.45rem", alignItems: "center" }}>
-                <input
-                  name="weekdays"
-                  type="checkbox"
-                  value={weekday.value}
-                  defaultChecked={getWeekdays(initialHabit).includes(weekday.value)}
-                />
-                {weekday.label}
-              </label>
-            ))}
-          </div>
-        </fieldset>
+        <CheckboxGroup
+          legend="Weekdays"
+          name="weekdays"
+          options={weekdayOptions.map((weekday) => ({
+            label: weekday.label,
+            value: weekday.value,
+            defaultChecked: getWeekdays(initialHabit).includes(weekday.value),
+          }))}
+        />
       ) : null}
 
-      <div style={{ display: "grid", gap: "0.4rem" }}>
-        <label htmlFor="habit-description">Description</label>
-        <input id="habit-description" name="description" type="text" defaultValue={initialHabit?.description ?? ""} />
-      </div>
+      <div className={styles.split}>
+        <Field
+          label="Description"
+          htmlFor="habit-description"
+          description="Optional context for you or the AI assistant."
+        >
+          <Input
+            id="habit-description"
+            name="description"
+            type="text"
+            defaultValue={initialHabit?.description ?? ""}
+          />
+        </Field>
 
-      <div style={{ display: "grid", gap: "0.4rem" }}>
-        <label htmlFor="habit-category">Category</label>
-        <input id="habit-category" name="category" type="text" defaultValue={initialHabit?.category ?? ""} />
+        <Field label="Category" htmlFor="habit-category" description="Useful for grouping and search later.">
+          <Input id="habit-category" name="category" type="text" defaultValue={initialHabit?.category ?? ""} />
+        </Field>
       </div>
 
       {kind === "quantity" ? (
-        <>
-          <div style={{ display: "grid", gap: "0.4rem" }}>
-            <label htmlFor="habit-target">Target value</label>
-            <input
+        <div className={styles.split}>
+          <Field label="Target value" htmlFor="habit-target">
+            <Input
               id="habit-target"
               name="targetValue"
               type="number"
               min={1}
               defaultValue={initialHabit?.targetValue ?? ""}
             />
-          </div>
+          </Field>
 
-          <div style={{ display: "grid", gap: "0.4rem" }}>
-            <label htmlFor="habit-unit">Unit</label>
-            <input id="habit-unit" name="unit" type="text" defaultValue={initialHabit?.unit ?? ""} />
-          </div>
-        </>
+          <Field
+            label="Unit"
+            htmlFor="habit-unit"
+            description="Examples: pages, glasses, kilometers."
+          >
+            <Input id="habit-unit" name="unit" type="text" defaultValue={initialHabit?.unit ?? ""} />
+          </Field>
+        </div>
       ) : null}
 
-      {error ? <p style={{ margin: 0, color: "#9b2d30" }}>{error}</p> : null}
+      {error ? (
+        <Notice tone="danger" title="Unable to save habit">
+          {error}
+        </Notice>
+      ) : null}
 
-      <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end", flexWrap: "wrap" }}>
+      <div className={styles.actions}>
         {onCancel ? (
-          <button type="button" onClick={onCancel} disabled={isPending}>
+          <Button type="button" variant="secondary" onClick={onCancel} disabled={isPending}>
             Cancel
-          </button>
+          </Button>
         ) : null}
-        <button type="submit" disabled={isPending}>
+        <Button type="submit" disabled={isPending} size="lg">
           {isPending ? "Saving..." : resolvedSubmitLabel}
-        </button>
+        </Button>
       </div>
     </form>
   );

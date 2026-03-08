@@ -1,0 +1,41 @@
+.canvas {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: clamp(1.5rem, 4vw, 3rem);
+}
+
+.shell {
+  width: min(34rem, 100%);
+}
+
+.valueStrip {
+  display: grid;
+  gap: 0.9rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.valueGrid {
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+}
+
+.valueItem {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.valueLabel {
+  color: var(--color-text-soft);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.valueText {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}

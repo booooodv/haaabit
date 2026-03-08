@@ -3,8 +3,10 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
+import { Button, Field, Input, Notice } from "../ui";
 import { listHabits, signIn, signUp } from "../../lib/auth-client";
 import { routes } from "../../lib/navigation";
+import styles from "./auth-form.module.css";
 
 type Mode = "sign-in" | "sign-up";
 
@@ -40,40 +42,71 @@ export function AuthForm() {
     });
   }
 
+  const submitLabel =
+    mode === "sign-up"
+      ? isPending
+        ? "Creating account..."
+        : "Create account"
+      : isPending
+        ? "Signing in..."
+        : "Sign in";
+
   return (
-    <form action={handleSubmit}>
-      {mode === "sign-up" ? (
-        <label>
-          Name
-          <input name="name" type="text" required />
-        </label>
+    <form action={handleSubmit} className={styles.form}>
+      <div className={styles.fields}>
+        {mode === "sign-up" ? (
+          <Field label="Name" htmlFor="auth-name" required>
+            <Input id="auth-name" name="name" type="text" required autoComplete="name" />
+          </Field>
+        ) : null}
+
+        <Field label="Email" htmlFor="auth-email" required>
+          <Input id="auth-email" name="email" type="email" required autoComplete="email" />
+        </Field>
+
+        <Field
+          label="Password"
+          htmlFor="auth-password"
+          description={mode === "sign-up" ? "Use at least 8 characters." : undefined}
+          required
+        >
+          <Input
+            id="auth-password"
+            name="password"
+            type="password"
+            minLength={8}
+            required
+            autoComplete={mode === "sign-up" ? "new-password" : "current-password"}
+          />
+        </Field>
+      </div>
+
+      {error ? (
+        <Notice tone="danger" title="Unable to continue">
+          {error}
+        </Notice>
       ) : null}
 
-      <label>
-        Email
-        <input name="email" type="email" required />
-      </label>
+      <div className={styles.actions}>
+        <div className={styles.switcher}>
+          <span className={styles.switchLabel}>
+            {mode === "sign-up" ? "Already have an account?" : "Need a new account?"}
+          </span>
+          {mode === "sign-up" ? (
+            <Button type="button" variant="ghost" onClick={() => setMode("sign-in")}>
+              Back to sign in
+            </Button>
+          ) : (
+            <Button type="button" variant="ghost" onClick={() => setMode("sign-up")}>
+              Create account
+            </Button>
+          )}
+        </div>
 
-      <label>
-        Password
-        <input name="password" type="password" minLength={8} required />
-      </label>
-
-      {error ? <p>{error}</p> : null}
-
-      <button type="submit" disabled={isPending}>
-        {mode === "sign-up" ? "Create account" : "Sign in"}
-      </button>
-
-      {mode === "sign-up" ? (
-        <button type="button" onClick={() => setMode("sign-in")}>
-          Back to sign in
-        </button>
-      ) : (
-        <button type="button" onClick={() => setMode("sign-up")}>
-          Create account
-        </button>
-      )}
+        <Button type="submit" disabled={isPending} size="lg">
+          {submitLabel}
+        </Button>
+      </div>
     </form>
   );
 }

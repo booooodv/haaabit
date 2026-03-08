@@ -11,13 +11,16 @@ import {
 
 export default async function DashboardPage() {
   const cookieHeader = await buildCookieHeader();
-  const [activeHabits, archivedHabits, todaySummary, overview] = await Promise.all([
+  const [activeHabits, archivedHabits] = await Promise.all([
     listHabitsFromCookieHeader(cookieHeader, {
       status: "active",
     }),
     listHabitsFromCookieHeader(cookieHeader, {
       status: "archived",
     }),
+  ]);
+
+  const [todaySummaryResult, overviewResult] = await Promise.allSettled([
     getTodaySummaryFromCookieHeader(cookieHeader),
     getOverviewStatsFromCookieHeader(cookieHeader),
   ]);
@@ -31,6 +34,9 @@ export default async function DashboardPage() {
   }
 
   return (
-    <DashboardShell initialOverview={overview} initialSummary={todaySummary} />
+    <DashboardShell
+      initialOverview={overviewResult.status === "fulfilled" ? overviewResult.value : null}
+      initialSummary={todaySummaryResult.status === "fulfilled" ? todaySummaryResult.value : null}
+    />
   );
 }

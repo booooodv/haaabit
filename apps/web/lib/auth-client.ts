@@ -183,9 +183,11 @@ export async function restoreHabit(habitId: string) {
 }
 
 export async function getTodaySummary() {
-  return requestJson<TodaySummaryResponse>("/api/today", {
+  const body = await requestJson<TodaySummaryResponse>("/api/today", {
     method: "GET",
   });
+
+  return body.summary;
 }
 
 export async function getOverviewStats() {
