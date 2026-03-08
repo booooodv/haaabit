@@ -23,6 +23,8 @@
 
 .button:disabled {
   opacity: 0.62;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 .primary {

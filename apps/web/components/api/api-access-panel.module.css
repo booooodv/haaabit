@@ -1,0 +1,32 @@
+.panel {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.tokenSurface {
+  display: grid;
+  gap: 1rem;
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+}
+
+.link {
+  color: var(--color-accent-strong);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.secondaryLink {
+  color: var(--color-text-muted);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}

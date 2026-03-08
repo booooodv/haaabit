@@ -1,0 +1,56 @@
+.card {
+  display: grid;
+  gap: 0.95rem;
+  padding: 1.25rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: var(--shadow-soft);
+}
+
+.completed {
+  border-color: color-mix(in srgb, var(--color-success) 24%, white);
+  background: color-mix(in srgb, var(--color-success-soft) 40%, white);
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.copy {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.progress {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.field {
+  max-width: 8rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
+}
+
+.quantityRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
+}

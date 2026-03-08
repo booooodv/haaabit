@@ -20,10 +20,6 @@
   grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
 }
 
-.statusText {
-  color: var(--color-text-muted);
-}
-
 .list {
   display: grid;
   gap: 1rem;

@@ -77,3 +77,40 @@ test("user can manage habits through search, edit, archive, and restore flows", 
   await page.getByLabel("Kind").selectOption("all");
   await expect(page.locator("article").filter({ hasText: "Read Deep Work" })).toBeVisible();
 });
+
+test("habit action failures stay in context", async ({ page }) => {
+  const email = `habits-error-${Date.now()}@example.com`;
+
+  await page.goto("/");
+  await page.getByRole("button", { name: "Create account" }).click();
+  await page.getByLabel("Name").fill("Habit Error User");
+  await page.getByLabel("Email").fill(email);
+  await page.getByLabel("Password").fill("password123");
+  await page.getByRole("button", { name: "Create account" }).click();
+  await page.getByLabel("Habit name").fill("Morning walk");
+  await page.getByRole("button", { name: "Create first habit" }).click();
+  await expect(page).toHaveURL(/\/dashboard$/);
+
+  await page.goto("/habits");
+  await expect(page.getByTestId("habits-page")).toBeVisible();
+
+  await page.route("**/api/habits/*/archive", async (route) => {
+    await route.fulfill({
+      status: 500,
+      contentType: "application/json",
+      body: JSON.stringify({
+        message: "Archive is temporarily unavailable",
+      }),
+    });
+  });
+
+  const card = page.locator("article").filter({ hasText: "Morning walk" });
+  await card.getByRole("button", { name: "Archive" }).click();
+
+  await expect(page.getByTestId("habits-feedback")).toBeVisible();
+  await expect(page.getByTestId("habits-feedback")).toContainText("Unable to update habits");
+  await expect(page.getByTestId("habits-feedback")).toContainText(
+    "Archive is temporarily unavailable",
+  );
+  await expect(card).toBeVisible();
+});

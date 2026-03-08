@@ -1,13 +1,17 @@
 "use client";
 
 import type { TodayItem } from "@haaabit/contracts/today";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState } from "react";
+
+import { Badge, Button, DisabledHint, Field, Input, cn } from "../ui";
+import styles from "./today-item.module.css";
 
 type TodayItemProps = {
   item: TodayItem;
-  onComplete: (habitId: string) => void;
-  onSetTotal: (habitId: string, total: number) => void;
-  onUndo: (habitId: string) => void;
+  isPending?: boolean;
+  onComplete: (habitId: string) => Promise<void>;
+  onSetTotal: (habitId: string, total: number) => Promise<void>;
+  onUndo: (habitId: string) => Promise<void>;
 };
 
 function formatProgress(item: TodayItem) {
@@ -28,8 +32,7 @@ function formatProgress(item: TodayItem) {
 }
 
 export function TodayItemCard(props: TodayItemProps) {
-  const { item, onComplete, onSetTotal, onUndo } = props;
-  const [isPending, startTransition] = useTransition();
+  const { item, isPending = false, onComplete, onSetTotal, onUndo } = props;
   const [draftTotal, setDraftTotal] = useState(String(item.progress.currentValue ?? 0));
 
   useEffect(() => {
@@ -37,9 +40,7 @@ export function TodayItemCard(props: TodayItemProps) {
   }, [item.progress.currentValue, item.habitId]);
 
   function handleComplete() {
-    startTransition(async () => {
-      onComplete(item.habitId);
-    });
+    void onComplete(item.habitId);
   }
 
   function handleSetTotal() {
@@ -49,15 +50,11 @@ export function TodayItemCard(props: TodayItemProps) {
       return;
     }
 
-    startTransition(async () => {
-      onSetTotal(item.habitId, total);
-    });
+    void onSetTotal(item.habitId, total);
   }
 
   function handleUndo() {
-    startTransition(async () => {
-      onUndo(item.habitId);
-    });
+    void onUndo(item.habitId);
   }
 
   const showUndo = item.status === "completed" || (item.progress.currentValue ?? 0) > 0;
@@ -65,128 +62,62 @@ export function TodayItemCard(props: TodayItemProps) {
   return (
     <article
       data-testid={`today-item-${item.habitId}`}
-      style={{
-        padding: "1.25rem",
-        borderRadius: "1.25rem",
-        border: item.status === "completed" ? "1px solid #b7cfbf" : "1px solid #d6cbb8",
-        background: item.status === "completed" ? "#edf7ef" : "#fffdf8",
-        boxShadow: "0 14px 32px rgba(55, 43, 28, 0.08)",
-        display: "grid",
-        gap: "0.9rem",
-      }}
+      className={cn(styles.card, item.status === "completed" && styles.completed)}
     >
-      <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem", alignItems: "start" }}>
-        <div style={{ display: "grid", gap: "0.25rem" }}>
-          <h3 style={{ margin: 0, fontSize: "1.05rem" }}>{item.name}</h3>
-          <p style={{ margin: 0, color: "#6d6255" }}>{formatProgress(item)}</p>
+      <div className={styles.header}>
+        <div className={styles.copy}>
+          <h3 className={styles.title}>{item.name}</h3>
+          <p className={styles.progress}>{formatProgress(item)}</p>
         </div>
-        <span
-          style={{
-            fontSize: "0.8rem",
-            fontWeight: 700,
-            letterSpacing: "0.08em",
-            textTransform: "uppercase",
-            color: item.status === "completed" ? "#356245" : "#7a5c2d",
-          }}
-        >
+        <Badge tone={item.status === "completed" ? "success" : "warning"}>
           {item.status}
-        </span>
+        </Badge>
       </div>
 
       {item.kind === "quantity" ? (
-        <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", alignItems: "center" }}>
-          <label style={{ display: "grid", gap: "0.35rem", color: "#5e5346", fontSize: "0.9rem" }}>
-            Today&apos;s total
-            <input
-              aria-label="Today's total"
+        <div className={styles.quantityRow}>
+          <Field label="Today's total" htmlFor={`today-total-${item.habitId}`} className={styles.field}>
+            <Input
+              id={`today-total-${item.habitId}`}
               type="number"
               min={0}
               value={draftTotal}
               onChange={(event) => setDraftTotal(event.target.value)}
               disabled={isPending}
-              style={{
-                width: "7rem",
-                borderRadius: "0.8rem",
-                border: "1px solid #cbbca5",
-                padding: "0.65rem 0.75rem",
-                background: "#fff",
-              }}
             />
-          </label>
+          </Field>
 
-          <button
-            type="button"
-            onClick={handleSetTotal}
-            disabled={isPending}
-            style={{
-              border: "none",
-              borderRadius: "999px",
-              padding: "0.8rem 1rem",
-              background: "#1f5c4d",
-              color: "#fff",
-              fontWeight: 700,
-            }}
-          >
-            Save total
-          </button>
+          <div className={styles.actions}>
+            <Button type="button" onClick={handleSetTotal} disabled={isPending} size="sm">
+              Save total
+            </Button>
 
-          {showUndo ? (
-            <button
-              type="button"
-              onClick={handleUndo}
-              disabled={isPending}
-              style={{
-                borderRadius: "999px",
-                padding: "0.8rem 1rem",
-                border: "1px solid #a99a83",
-                background: "transparent",
-                color: "#453b2f",
-                fontWeight: 700,
-              }}
-            >
-              Undo
-            </button>
-          ) : null}
+            {showUndo ? (
+              <Button type="button" variant="secondary" onClick={handleUndo} disabled={isPending} size="sm">
+                Undo
+              </Button>
+            ) : null}
+          </div>
         </div>
       ) : (
-        <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+        <div className={styles.actions}>
           {item.status === "pending" ? (
-            <button
-              type="button"
-              onClick={handleComplete}
-              disabled={isPending}
-              style={{
-                border: "none",
-                borderRadius: "999px",
-                padding: "0.8rem 1rem",
-                background: "#1f5c4d",
-                color: "#fff",
-                fontWeight: 700,
-              }}
-            >
+            <Button type="button" onClick={handleComplete} disabled={isPending} size="sm">
               Complete
-            </button>
+            </Button>
           ) : null}
 
           {showUndo ? (
-            <button
-              type="button"
-              onClick={handleUndo}
-              disabled={isPending}
-              style={{
-                borderRadius: "999px",
-                padding: "0.8rem 1rem",
-                border: "1px solid #a99a83",
-                background: "transparent",
-                color: "#453b2f",
-                fontWeight: 700,
-              }}
-            >
+            <Button type="button" variant="secondary" onClick={handleUndo} disabled={isPending} size="sm">
               Undo
-            </button>
+            </Button>
           ) : null}
         </div>
       )}
+
+      {isPending ? (
+        <DisabledHint>Controls will unlock when this habit finishes syncing with today.</DisabledHint>
+      ) : null}
     </article>
   );
 }

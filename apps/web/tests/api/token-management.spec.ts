@@ -38,6 +38,7 @@ test("signed-in users can generate and view their personal api token", async ({ 
 
   await page.goto("/api-access");
 
+  await expect(page.getByTestId("api-access-panel")).toBeVisible();
   await expect(page.getByRole("heading", { name: "API access" })).toBeVisible();
   await expect(page.getByText("No personal API token has been generated yet.")).toBeVisible();
 
@@ -53,4 +54,27 @@ test("signed-in users can generate and view their personal api token", async ({ 
 
   await expect(tokenField).toHaveValue(/haaabit_/);
   await expect(tokenField).not.toHaveValue(firstToken);
+});
+
+test("api access keeps token rotation failures in context", async ({ page, request, context }) => {
+  const email = `api-access-error-${Date.now()}@example.com`;
+
+  await signUpThroughApi(request, context, email, "API Access Error User");
+
+  await page.route("**/api/api-access/token/reset", async (route) => {
+    await route.fulfill({
+      status: 500,
+      contentType: "application/json",
+      body: JSON.stringify({
+        message: "Token rotation failed",
+      }),
+    });
+  });
+
+  await page.goto("/api-access");
+  await page.getByRole("button", { name: "Generate token" }).click();
+
+  await expect(page.getByTestId("api-access-feedback")).toBeVisible();
+  await expect(page.getByTestId("api-access-feedback")).toContainText("Unable to update API access");
+  await expect(page.getByTestId("api-access-feedback")).toContainText("Token rotation failed");
 });

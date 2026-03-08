@@ -9,7 +9,19 @@ import {
   listHabitsFromCookieHeader,
 } from "../../../lib/server-auth";
 
-export default async function DashboardPage() {
+type DashboardPageProps = {
+  searchParams?: Promise<{
+    simulateLoading?: string;
+  }>;
+};
+
+export default async function DashboardPage({ searchParams }: DashboardPageProps) {
+  const params = searchParams ? await searchParams : undefined;
+
+  if (params?.simulateLoading === "1") {
+    await new Promise((resolve) => setTimeout(resolve, 1200));
+  }
+
   const cookieHeader = await buildCookieHeader();
   const [activeHabits, archivedHabits] = await Promise.all([
     listHabitsFromCookieHeader(cookieHeader, {

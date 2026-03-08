@@ -1,0 +1,124 @@
+.statePanel {
+  display: grid;
+  gap: 1rem;
+  border-width: 1px;
+}
+
+.panelCompact {
+  gap: 0.85rem;
+}
+
+.panelHeader {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.eyebrow {
+  color: var(--color-text-soft);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0;
+  color: var(--color-heading);
+  font-size: 1.15rem;
+}
+
+.description {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.96rem;
+}
+
+.panelBody {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.panelActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.inlineStatus {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.85rem 0.95rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+}
+
+.inlineStatusTitle {
+  font-weight: 700;
+}
+
+.inlineStatusMessage {
+  color: var(--color-text-muted);
+  font-size: 0.94rem;
+}
+
+.disabledHint {
+  margin: 0;
+  color: var(--color-text-soft);
+  font-size: 0.88rem;
+}
+
+.toneNeutral {
+  background: rgba(245, 248, 248, 0.9);
+  border-color: var(--color-border);
+}
+
+.toneInfo {
+  background: color-mix(in srgb, var(--color-info-soft) 82%, white);
+  border-color: color-mix(in srgb, var(--color-info) 28%, white);
+}
+
+.toneSuccess {
+  background: color-mix(in srgb, var(--color-success-soft) 84%, white);
+  border-color: color-mix(in srgb, var(--color-success) 30%, white);
+}
+
+.toneWarning {
+  background: color-mix(in srgb, var(--color-warning-soft) 82%, white);
+  border-color: color-mix(in srgb, var(--color-warning) 30%, white);
+}
+
+.toneDanger {
+  background: color-mix(in srgb, var(--color-danger-soft) 84%, white);
+  border-color: color-mix(in srgb, var(--color-danger) 26%, white);
+}
+
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  display: block;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(
+    90deg,
+    rgba(219, 230, 233, 0.58) 0%,
+    rgba(255, 255, 255, 0.72) 50%,
+    rgba(219, 230, 233, 0.58) 100%
+  );
+  background-size: 220% 100%;
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes skeletonPulse {
+  0% {
+    background-position: 100% 0;
+  }
+
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}

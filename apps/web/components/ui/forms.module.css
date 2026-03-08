@@ -50,6 +50,12 @@
   border-color: var(--color-accent);
 }
 
+.control:disabled {
+  background: rgba(240, 244, 245, 0.88);
+  color: var(--color-text-soft);
+  cursor: not-allowed;
+}
+
 .select {
   appearance: none;
   background-image:

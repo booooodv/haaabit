@@ -11,7 +11,7 @@
 .actions {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 0.9rem;
   padding-top: 0.25rem;
@@ -25,4 +25,20 @@
 .switchLabel {
   color: var(--color-text-soft);
   font-size: 0.88rem;
+}
+
+.submitCluster {
+  display: grid;
+  justify-items: end;
+  gap: 0.35rem;
+}
+
+@media (max-width: 720px) {
+  .actions {
+    display: grid;
+  }
+
+  .submitCluster {
+    justify-items: stretch;
+  }
 }

@@ -17,6 +17,8 @@ test("signed-in user can reach dashboard after creating the first habit", async 
   await page.getByRole("button", { name: "Create first habit" }).click();
 
   await expect(page).toHaveURL(/\/dashboard$/);
+  await expect(page.getByTestId("dashboard-overview")).toBeVisible();
+  await expect(page.getByTestId("today-dashboard")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Analytics" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Today" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Morning walk" })).toBeVisible();

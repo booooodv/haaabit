@@ -2,7 +2,7 @@
 
 import type { HabitDetail } from "@haaabit/contracts/habits";
 import Link from "next/link";
-import { useDeferredValue, useEffect, useState, useTransition } from "react";
+import { useDeferredValue, useEffect, useState } from "react";
 
 import {
   archiveHabit,
@@ -11,7 +11,20 @@ import {
   type HabitRecord,
 } from "../../lib/auth-client";
 import { routes } from "../../lib/navigation";
-import { Badge, Button, Field, Input, Notice, OverlayPanel, PageFrame, PageHeader, Select, Surface } from "../ui";
+import {
+  Badge,
+  Button,
+  DisabledHint,
+  Field,
+  InlineStatus,
+  Input,
+  OverlayPanel,
+  PageFrame,
+  PageHeader,
+  Select,
+  StatePanel,
+  Surface,
+} from "../ui";
 import { HabitCreateForm } from "./habit-create-form";
 import { HabitDetailDrawer } from "./habit-detail-drawer";
 import styles from "./habits-page.module.css";
@@ -29,6 +42,11 @@ type OverlayState =
   | { mode: "create"; habit: null }
   | { mode: "edit"; habit: HabitRecord }
   | null;
+type Feedback = {
+  tone: "neutral" | "success" | "danger";
+  title: string;
+  message: string;
+};
 
 function formatFrequency(habit: HabitRecord) {
   switch (habit.frequencyType) {
@@ -65,70 +83,120 @@ export function HabitsPage({
   const [kind, setKind] = useState<HabitKindFilter>("all");
   const [items, setItems] = useState(initialItems);
   const [overlay, setOverlay] = useState<OverlayState>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const [feedback, setFeedback] = useState<Feedback | null>(null);
+  const [isPending, setIsPending] = useState(false);
   const deferredQuery = useDeferredValue(query);
   const deferredCategory = useDeferredValue(category);
 
-  async function loadHabits(nextStatus: HabitStatus, nextQuery: string, nextCategory: string, nextKind: HabitKindFilter) {
-    const nextItems = await listHabits({
+  async function fetchHabits(
+    nextStatus: HabitStatus,
+    nextQuery: string,
+    nextCategory: string,
+    nextKind: HabitKindFilter,
+  ) {
+    return listHabits({
       status: nextStatus,
       query: nextQuery.trim() || undefined,
       category: nextCategory.trim() || undefined,
       kind: nextKind === "all" ? undefined : nextKind,
     });
+  }
 
-    setItems(nextItems);
+  async function refreshCurrentList(options?: {
+    pendingTitle?: string;
+    pendingMessage?: string;
+    success?: Feedback | null;
+  }) {
+    setIsPending(true);
+
+    if (options?.pendingTitle && options.pendingMessage) {
+      setFeedback({
+        tone: "neutral",
+        title: options.pendingTitle,
+        message: options.pendingMessage,
+      });
+    }
+
+    try {
+      const nextItems = await fetchHabits(status, deferredQuery, deferredCategory, kind);
+      setItems(nextItems);
+      setFeedback(options?.success ?? null);
+    } catch (loadError) {
+      setFeedback({
+        tone: "danger",
+        title: "Unable to update habits",
+        message: loadError instanceof Error ? loadError.message : "Unable to update habits",
+      });
+    } finally {
+      setIsPending(false);
+    }
   }
 
   useEffect(() => {
-    startTransition(async () => {
-      try {
-        setError(null);
-        await loadHabits(status, deferredQuery, deferredCategory, kind);
-      } catch (loadError) {
-        setError(loadError instanceof Error ? loadError.message : "Unable to load habits");
-      }
+    void refreshCurrentList({
+      pendingTitle: "Refreshing habits",
+      pendingMessage: "Filters and saved changes stay in place while this list updates.",
     });
   }, [deferredCategory, deferredQuery, kind, status]);
 
-  function refreshCurrentList() {
-    startTransition(async () => {
-      try {
-        setError(null);
-        await loadHabits(status, deferredQuery, deferredCategory, kind);
-      } catch (loadError) {
-        setError(loadError instanceof Error ? loadError.message : "Unable to refresh habits");
-      }
+  async function handleArchive(habitId: string) {
+    setIsPending(true);
+    setFeedback({
+      tone: "neutral",
+      title: "Archiving habit",
+      message: "The list will refresh in place when this update settles.",
     });
+
+    try {
+      await archiveHabit(habitId);
+      const nextItems = await fetchHabits(status, deferredQuery, deferredCategory, kind);
+      setItems(nextItems);
+      setFeedback({
+        tone: "success",
+        title: "Habit archived",
+        message: "Archived habits move out of the active list without losing history.",
+      });
+    } catch (actionError) {
+      setFeedback({
+        tone: "danger",
+        title: "Unable to update habits",
+        message: actionError instanceof Error ? actionError.message : "Unable to archive habit",
+      });
+    } finally {
+      setIsPending(false);
+    }
   }
 
-  function handleArchive(habitId: string) {
-    startTransition(async () => {
-      try {
-        setError(null);
-        await archiveHabit(habitId);
-        await loadHabits(status, deferredQuery, deferredCategory, kind);
-      } catch (actionError) {
-        setError(actionError instanceof Error ? actionError.message : "Unable to archive habit");
-      }
+  async function handleRestore(habitId: string) {
+    setIsPending(true);
+    setFeedback({
+      tone: "neutral",
+      title: "Restoring habit",
+      message: "The archived list will refresh in place when this update settles.",
     });
-  }
 
-  function handleRestore(habitId: string) {
-    startTransition(async () => {
-      try {
-        setError(null);
-        await restoreHabit(habitId);
-        await loadHabits(status, deferredQuery, deferredCategory, kind);
-      } catch (actionError) {
-        setError(actionError instanceof Error ? actionError.message : "Unable to restore habit");
-      }
-    });
+    try {
+      await restoreHabit(habitId);
+      const nextItems = await fetchHabits(status, deferredQuery, deferredCategory, kind);
+      setItems(nextItems);
+      setFeedback({
+        tone: "success",
+        title: "Habit restored",
+        message: "The habit is back in the active working set and keeps its history.",
+      });
+    } catch (actionError) {
+      setFeedback({
+        tone: "danger",
+        title: "Unable to update habits",
+        message: actionError instanceof Error ? actionError.message : "Unable to restore habit",
+      });
+    } finally {
+      setIsPending(false);
+    }
   }
 
   return (
-    <div className={styles.stack}>
+    <div className={styles.stack} data-testid="habits-page">
       <Surface variant="hero">
         <PageFrame>
           <PageHeader
@@ -136,7 +204,12 @@ export function HabitsPage({
             title="Habits"
             description="Search, edit, archive, and restore habits without touching historical records."
             actions={
-              <Button type="button" onClick={() => setOverlay({ mode: "create", habit: null })} size="lg">
+              <Button
+                type="button"
+                onClick={() => setOverlay({ mode: "create", habit: null })}
+                size="lg"
+                disabled={isPending}
+              >
                 New habit
               </Button>
             }
@@ -149,6 +222,7 @@ export function HabitsPage({
                 type="button"
                 variant={option === status ? "primary" : "secondary"}
                 onClick={() => setStatus(option)}
+                disabled={isPending}
               >
                 {option === "active" ? "Active" : "Archived"}
               </Button>
@@ -163,6 +237,7 @@ export function HabitsPage({
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Search name or category"
+                disabled={isPending}
               />
             </Field>
 
@@ -173,11 +248,17 @@ export function HabitsPage({
                 value={category}
                 onChange={(event) => setCategory(event.target.value)}
                 placeholder="Filter by category"
+                disabled={isPending}
               />
             </Field>
 
             <Field label="Kind" htmlFor="habit-kind-filter">
-              <Select id="habit-kind-filter" value={kind} onChange={(event) => setKind(event.target.value as HabitKindFilter)}>
+              <Select
+                id="habit-kind-filter"
+                value={kind}
+                onChange={(event) => setKind(event.target.value as HabitKindFilter)}
+                disabled={isPending}
+              >
                 <option value="all">All kinds</option>
                 <option value="boolean">Boolean</option>
                 <option value="quantity">Quantity</option>
@@ -185,12 +266,13 @@ export function HabitsPage({
             </Field>
           </div>
 
-          {error ? (
-            <Notice tone="danger" title="Unable to update habits">
-              {error}
-            </Notice>
-          ) : isPending ? (
-            <p className={styles.statusText}>Updating habits...</p>
+          {feedback ? (
+            <InlineStatus tone={feedback.tone} title={feedback.title} testId="habits-feedback">
+              {feedback.message}
+            </InlineStatus>
+          ) : null}
+          {isPending ? (
+            <DisabledHint>Filters and habit actions unlock when the current refresh finishes.</DisabledHint>
           ) : null}
         </PageFrame>
       </Surface>
@@ -215,15 +297,30 @@ export function HabitsPage({
                   </Link>
                   {status === "active" ? (
                     <>
-                      <Button type="button" variant="secondary" onClick={() => setOverlay({ mode: "edit", habit })}>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => setOverlay({ mode: "edit", habit })}
+                        disabled={isPending}
+                      >
                         Edit
                       </Button>
-                      <Button type="button" variant="secondary" onClick={() => handleArchive(habit.id)}>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => void handleArchive(habit.id)}
+                        disabled={isPending}
+                      >
                         Archive
                       </Button>
                     </>
                   ) : (
-                    <Button type="button" variant="secondary" onClick={() => handleRestore(habit.id)}>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={() => void handleRestore(habit.id)}
+                      disabled={isPending}
+                    >
                       Restore
                     </Button>
                   )}
@@ -251,13 +348,14 @@ export function HabitsPage({
             </article>
           ))
         ) : (
-          <Surface variant="soft" padding="md">
-            <p className={styles.emptyState}>
-              {status === "active"
-                ? "No active habits match the current filters."
-                : "No archived habits match the current filters."}
-            </p>
-          </Surface>
+          <StatePanel
+            title={status === "active" ? "No active habits match these filters" : "No archived habits match these filters"}
+            description={
+              status === "active"
+                ? "Adjust search, category, or kind to bring habits back into view."
+                : "Archived habits stay here until you restore them to the active list."
+            }
+          />
         )}
       </div>
 
@@ -285,13 +383,25 @@ export function HabitsPage({
             submitLabel={overlay.mode === "create" ? "Create habit" : "Save changes"}
             onCancel={() => setOverlay(null)}
             onSubmitted={async () => {
+              const nextMode = overlay.mode;
               setOverlay(null);
               if (overlay.mode === "create" && status !== "active") {
                 setStatus("active");
                 return;
               }
 
-              refreshCurrentList();
+              await refreshCurrentList({
+                pendingTitle: nextMode === "create" ? "Saving new habit" : "Saving habit changes",
+                pendingMessage: "The list will refresh in place once the latest habit changes land.",
+                success: {
+                  tone: "success",
+                  title: nextMode === "create" ? "Habit created" : "Habit updated",
+                  message:
+                    nextMode === "create"
+                      ? "The new habit is now part of the current working set."
+                      : "Future behavior has been updated without rewriting history.",
+                },
+              });
             }}
           />
         </OverlayPanel>

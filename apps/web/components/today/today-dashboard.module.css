@@ -1,0 +1,90 @@
+.stack {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.heroFrame {
+  display: grid;
+  gap: 1rem;
+}
+
+.summaryRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.summaryCopy {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--color-text-soft);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.summaryDescription {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.rateCard {
+  min-width: 12rem;
+  display: grid;
+  gap: 0.2rem;
+  padding: 1rem 1.15rem;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, var(--color-accent-strong) 0%, var(--color-accent) 100%);
+  color: rgba(248, 251, 252, 0.96);
+}
+
+.rateLabel {
+  font-size: 0.85rem;
+  opacity: 0.78;
+}
+
+.rateValue {
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+.sections {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.group {
+  display: grid;
+  gap: 1rem;
+}
+
+.groupHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.groupCount {
+  color: var(--color-text-muted);
+}
+
+.cards {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (max-width: 720px) {
+  .rateCard {
+    min-width: 0;
+    width: 100%;
+  }
+}

@@ -67,6 +67,7 @@ test("dashboard analytics stays above today and refreshes after today actions", 
 
   await page.goto("/dashboard");
 
+  await expect(page.getByTestId("today-dashboard")).toBeVisible();
   await expect(page.locator("h1").first()).toHaveText("Analytics");
   await expect(page.locator("h1").nth(1)).toHaveText("Today");
   await expect(page.getByTestId("overview-metric-today-completed")).toContainText("0");

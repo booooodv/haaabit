@@ -64,11 +64,12 @@ test("dashboard shows pending/completed groups and stays in sync through complet
 
   await page.goto("/dashboard");
 
+  await expect(page.getByTestId("today-dashboard")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Today" })).toBeVisible();
   await expect(page.getByText(/^2 pending$/)).toBeVisible();
   await expect(page.getByText(/^0 completed$/)).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Pending" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Completed" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Pending", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Completed", exact: true })).toBeVisible();
 
   const walkCard = page.getByTestId(`today-item-${habitIds["Morning walk"]}`);
   const readCard = page.getByTestId(`today-item-${habitIds["Read pages"]}`);
@@ -105,4 +106,38 @@ test("dashboard shows pending/completed groups and stays in sync through complet
   await expect(page.getByText(/^1 pending$/)).toBeVisible();
   await expect(page.getByText(/^1 completed$/)).toBeVisible();
   await expect(page.getByText("5 / 10 pages")).toBeVisible();
+});
+
+test("today action failures stay in context", async ({ page }) => {
+  const email = `today-error-${Date.now()}@example.com`;
+
+  await page.goto("/");
+  await page.getByRole("button", { name: "Create account" }).click();
+  await page.getByLabel("Name").fill("Today Error User");
+  await page.getByLabel("Email").fill(email);
+  await page.getByLabel("Password").fill("password123");
+  await page.getByRole("button", { name: "Create account" }).click();
+  await page.getByLabel("Habit name").fill("Morning walk");
+  await page.getByRole("button", { name: "Create first habit" }).click();
+  await expect(page).toHaveURL(/\/dashboard$/);
+
+  await page.route("**/api/today/complete", async (route) => {
+    await route.fulfill({
+      status: 500,
+      contentType: "application/json",
+      body: JSON.stringify({
+        message: "Unable to mark habit complete right now",
+      }),
+    });
+  });
+
+  const walkCard = page.locator("[data-testid^='today-item-']").first();
+  await walkCard.getByRole("button", { name: "Complete" }).click();
+
+  await expect(page.getByTestId("today-feedback")).toBeVisible();
+  await expect(page.getByTestId("today-feedback")).toContainText("Unable to update today");
+  await expect(page.getByTestId("today-feedback")).toContainText(
+    "Unable to mark habit complete right now",
+  );
+  await expect(page).toHaveURL(/\/dashboard$/);
 });
