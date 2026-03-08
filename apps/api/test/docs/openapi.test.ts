@@ -73,8 +73,42 @@ describe("openapi docs", () => {
 
     expect(response.statusCode).toBe(200);
     expect(response.headers["content-type"]).toContain("text/html");
+    expect(response.body).toContain('<html lang="en">');
     expect(response.body).toContain("Haaabit API");
+    expect(response.body).toContain("This page follows your current app language.");
     expect(response.body).toContain("/api/openapi.json");
     expect(response.body).toContain("/api/habits");
+  });
+
+  it("serves chinese api docs chrome when locale cookie or browser language requests chinese", async () => {
+    context = await createTestContext();
+    const { cookie } = await signUp(context.app);
+
+    const cookieResponse = await context.app.inject({
+      method: "GET",
+      url: "/api/docs",
+      headers: {
+        cookie: `${cookie}; haaabit-locale=zh-CN`,
+      },
+    });
+
+    expect(cookieResponse.statusCode).toBe(200);
+    expect(cookieResponse.body).toContain('<html lang="zh-CN">');
+    expect(cookieResponse.body).toContain("OpenAPI + 交互式参考");
+    expect(cookieResponse.body).toContain("当前页面会跟随你在应用中的语言。");
+    expect(cookieResponse.body).toContain("Authorization: Bearer");
+    expect(cookieResponse.body).toContain("/api/openapi.json");
+
+    const headerResponse = await context.app.inject({
+      method: "GET",
+      url: "/api/docs",
+      headers: {
+        "accept-language": "zh-CN,zh;q=0.9,en;q=0.8",
+      },
+    });
+
+    expect(headerResponse.statusCode).toBe(200);
+    expect(headerResponse.body).toContain('<html lang="zh-CN">');
+    expect(headerResponse.body).toContain("当前页面会跟随你在应用中的语言。");
   });
 });

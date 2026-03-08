@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { FastifyInstance } from "fastify";
+import type { FastifyInstance, FastifyRequest } from "fastify";
 
 import { API_DOCS_PATH, API_SPEC_PATH } from "../auth/api-token";
 import { habitApiRouteDefinitions } from "../modules/habits/habit.routes";
@@ -7,6 +7,7 @@ import { statsApiRouteDefinitions } from "../modules/stats/stats.routes";
 import { todayApiRouteDefinitions } from "../modules/today/today.routes";
 
 type HttpMethod = "GET" | "POST" | "PATCH";
+type SupportedLocale = "en" | "zh-CN";
 
 type ExampleDefinition = {
   summary: string;
@@ -41,6 +42,111 @@ const publicApiRouteDefinitions: PublicApiRouteDefinition[] = [
   ...todayApiRouteDefinitions,
   ...statsApiRouteDefinitions,
 ];
+
+const localeCookieName = "haaabit-locale";
+const defaultLocale: SupportedLocale = "en";
+
+type ApiDocsCopy = {
+  title: string;
+  eyebrow: string;
+  localeHint: string;
+  intro: string;
+  operationIdLabel: string;
+  requestExampleLabel: string;
+  responseExampleLabel: (statusCode: string) => string;
+  specLinkLabel: string;
+};
+
+const apiDocsCopy: Record<SupportedLocale, ApiDocsCopy> = {
+  en: {
+    title: "Haaabit API Docs",
+    eyebrow: "OpenAPI + Interactive Reference",
+    localeHint: "This page follows your current app language. API contract items stay in English.",
+    intro: "This reference is generated from the same route metadata that powers the bearer-authenticated habits, today, and stats runtime.",
+    operationIdLabel: "Operation ID",
+    requestExampleLabel: "Request Example",
+    responseExampleLabel: (statusCode) => `${statusCode} Example`,
+    specLinkLabel: "OpenAPI JSON",
+  },
+  "zh-CN": {
+    title: "Haaabit API 文档",
+    eyebrow: "OpenAPI + 交互式参考",
+    localeHint: "当前页面会跟随你在应用中的语言。API 合同项保持英文。",
+    intro: "这份参考页由同一套路由元数据生成，而这些元数据也驱动着 bearer-authenticated 的 habits、today 和 stats 运行时。",
+    operationIdLabel: "Operation ID",
+    requestExampleLabel: "请求示例",
+    responseExampleLabel: (statusCode) => `${statusCode} 示例`,
+    specLinkLabel: "OpenAPI JSON",
+  },
+};
+
+function normalizeLocale(value: string | null | undefined): SupportedLocale | null {
+  if (!value) {
+    return null;
+  }
+
+  const normalized = value.toLowerCase();
+
+  if (normalized.startsWith("zh")) {
+    return "zh-CN";
+  }
+
+  if (normalized.startsWith("en")) {
+    return "en";
+  }
+
+  return null;
+}
+
+function resolveLocaleFromAcceptLanguage(value: string | null | undefined): SupportedLocale | null {
+  if (!value) {
+    return null;
+  }
+
+  for (const part of value.split(",")) {
+    const candidate = normalizeLocale(part.split(";")[0]?.trim());
+
+    if (candidate) {
+      return candidate;
+    }
+  }
+
+  return null;
+}
+
+function getHeaderValue(value: string | string[] | undefined) {
+  if (Array.isArray(value)) {
+    return value[0] ?? null;
+  }
+
+  return value ?? null;
+}
+
+function getCookieValue(header: string | null, name: string) {
+  if (!header) {
+    return null;
+  }
+
+  for (const part of header.split(";")) {
+    const [key, ...rest] = part.trim().split("=");
+
+    if (key === name) {
+      return decodeURIComponent(rest.join("="));
+    }
+  }
+
+  return null;
+}
+
+function resolveDocsLocale(request: FastifyRequest): SupportedLocale {
+  const preferredLocale = normalizeLocale(getCookieValue(getHeaderValue(request.headers.cookie), localeCookieName));
+
+  if (preferredLocale) {
+    return preferredLocale;
+  }
+
+  return resolveLocaleFromAcceptLanguage(getHeaderValue(request.headers["accept-language"])) ?? defaultLocale;
+}
 
 function escapeHtml(value: string) {
   return value
@@ -174,7 +280,7 @@ function buildOpenApiDocument() {
   };
 }
 
-function renderRequestExamples(route: PublicApiRouteDefinition) {
+function renderRequestExamples(route: PublicApiRouteDefinition, copy: ApiDocsCopy) {
   if (!route.request?.bodyExamples) {
     return "";
   }
@@ -183,7 +289,7 @@ function renderRequestExamples(route: PublicApiRouteDefinition) {
     .map(
       (example) => `
         <div class="example-block">
-          <h4>Request Example: ${escapeHtml(example.summary)}</h4>
+          <h4>${escapeHtml(copy.requestExampleLabel)}: ${escapeHtml(example.summary)}</h4>
           <pre>${escapeHtml(JSON.stringify(example.value, null, 2))}</pre>
         </div>
       `,
@@ -191,7 +297,7 @@ function renderRequestExamples(route: PublicApiRouteDefinition) {
     .join("");
 }
 
-function renderResponseExamples(route: PublicApiRouteDefinition) {
+function renderResponseExamples(route: PublicApiRouteDefinition, copy: ApiDocsCopy) {
   return Object.entries(route.responses)
     .map(([statusCode, response]) => {
       const examples = response.examples
@@ -199,7 +305,7 @@ function renderResponseExamples(route: PublicApiRouteDefinition) {
             .map(
               (example) => `
                 <div class="example-block">
-                  <h4>${statusCode} Example: ${escapeHtml(example.summary)}</h4>
+                  <h4>${escapeHtml(copy.responseExampleLabel(statusCode))}: ${escapeHtml(example.summary)}</h4>
                   <pre>${escapeHtml(JSON.stringify(example.value, null, 2))}</pre>
                 </div>
               `,
@@ -217,7 +323,8 @@ function renderResponseExamples(route: PublicApiRouteDefinition) {
     .join("");
 }
 
-function renderDocsPage() {
+function renderDocsPage(locale: SupportedLocale) {
+  const copy = apiDocsCopy[locale];
   const operations = publicApiRouteDefinitions
     .map(
       (route) => `
@@ -229,9 +336,9 @@ function renderDocsPage() {
           </summary>
           <div class="operation-body">
             <p>${escapeHtml(route.description)}</p>
-            <p><strong>Operation ID:</strong> ${escapeHtml(route.operationId)}</p>
-            ${renderRequestExamples(route)}
-            ${renderResponseExamples(route)}
+            <p><strong>${escapeHtml(copy.operationIdLabel)}:</strong> ${escapeHtml(route.operationId)}</p>
+            ${renderRequestExamples(route, copy)}
+            ${renderResponseExamples(route, copy)}
           </div>
         </details>
       `,
@@ -239,11 +346,11 @@ function renderDocsPage() {
     .join("");
 
   return `<!doctype html>
-<html lang="en">
+<html lang="${locale}">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Haaabit API Docs</title>
+    <title>${escapeHtml(copy.title)}</title>
     <style>
       :root {
         color-scheme: light;
@@ -336,12 +443,13 @@ function renderDocsPage() {
   <body>
     <main>
       <section class="hero">
-        <p style="margin:0; letter-spacing:0.08em; text-transform:uppercase; color:#756858; font-size:0.8rem;">OpenAPI + Interactive Reference</p>
+        <p style="margin:0; letter-spacing:0.08em; text-transform:uppercase; color:#756858; font-size:0.8rem;">${escapeHtml(copy.eyebrow)}</p>
         <h1 style="margin:0.4rem 0 0; font-size:2.4rem;">Haaabit API</h1>
         <p>Authorization: Bearer <code>&lt;personal-token&gt;</code></p>
-        <p>This reference is generated from the same route metadata that powers the bearer-authenticated habits, today, and stats runtime.</p>
+        <p>${escapeHtml(copy.localeHint)}</p>
+        <p>${escapeHtml(copy.intro)}</p>
         <div class="meta-links">
-          <a href="${API_SPEC_PATH}">${API_SPEC_PATH}</a>
+          <a href="${API_SPEC_PATH}">${escapeHtml(copy.specLinkLabel)}: ${API_SPEC_PATH}</a>
         </div>
       </section>
       <section style="margin-top:1.5rem;">
@@ -354,8 +462,11 @@ function renderDocsPage() {
 
 export async function registerOpenApi(app: FastifyInstance) {
   app.get(API_SPEC_PATH, async () => buildOpenApiDocument());
-  app.get(API_DOCS_PATH, async (_, reply) => {
+  app.get(API_DOCS_PATH, async (request, reply) => {
+    const locale = resolveDocsLocale(request);
+
     reply.type("text/html; charset=utf-8");
-    return renderDocsPage();
+    reply.header("Vary", "Accept-Language, Cookie");
+    return renderDocsPage(locale);
   });
 }
