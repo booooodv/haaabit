@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { getOverviewStats, getTodaySummary } from "../../lib/auth-client";
+import { useLocale } from "../locale";
 import { Button, SkeletonBlock, StatePanel } from "../ui";
 import { routes } from "../../lib/navigation";
 import { TodayDashboard } from "../today/today-dashboard";
@@ -24,6 +25,7 @@ export function DashboardShell({
   initialSummary: TodaySummary | null;
 }) {
   const router = useRouter();
+  const { copy } = useLocale();
   const [overview, setOverview] = useState(initialOverview);
   const [summary, setSummary] = useState(initialSummary);
   const [loadError, setLoadError] = useState<string | null>(initialLoadError);
@@ -103,12 +105,12 @@ export function DashboardShell({
       <div className={styles.stack}>
         <StatePanel
           testId="dashboard-primary-state"
-          eyebrow="Today"
-          title="No habits yet"
-          description="Create your first habit to turn this dashboard into a useful today view."
+          eyebrow={copy.dashboard.emptyStates.noHabits.eyebrow}
+          title={copy.dashboard.emptyStates.noHabits.title}
+          description={copy.dashboard.emptyStates.noHabits.description}
           actions={
             <Button type="button" onClick={() => router.push(routes.newHabit)}>
-              Create first habit
+              {copy.dashboard.emptyStates.noHabits.action}
             </Button>
           }
         />
@@ -121,16 +123,16 @@ export function DashboardShell({
       <div className={styles.stack}>
         <StatePanel
           testId="dashboard-primary-state"
-          eyebrow="Today"
-          title="No active habits right now"
-          description="Your archived habits are preserved. Restore one or create a new habit to bring today back online."
+          eyebrow={copy.dashboard.emptyStates.archivedOnly.eyebrow}
+          title={copy.dashboard.emptyStates.archivedOnly.title}
+          description={copy.dashboard.emptyStates.archivedOnly.description}
           actions={
             <div className={styles.actionRow}>
               <Button type="button" onClick={() => router.push(`${routes.habits}?status=archived`)}>
-                Review archived habits
+                {copy.dashboard.emptyStates.archivedOnly.reviewArchived}
               </Button>
               <Button type="button" variant="secondary" onClick={() => router.push(routes.newHabit)}>
-                Create a new habit
+                {copy.dashboard.emptyStates.archivedOnly.createHabit}
               </Button>
             </div>
           }
@@ -144,20 +146,20 @@ export function DashboardShell({
       <div className={styles.stack}>
         <StatePanel
           testId="dashboard-bootstrap-state"
-          eyebrow="Dashboard"
-          title={loadError ? "Dashboard needs another try" : "Preparing dashboard"}
+          eyebrow={copy.dashboard.loading.eyebrow}
+          title={loadError ? copy.dashboard.loading.errorTitle : copy.dashboard.loading.title}
           description={
             loadError
               ? loadError
               : isBootstrapping
-                ? "Loading today data and overview metrics inside the protected shell."
-                : "Dashboard data is still warming up."
+                ? copy.dashboard.loading.descriptionLoading
+                : copy.dashboard.loading.descriptionIdle
           }
           tone={loadError ? "warning" : "neutral"}
           actions={
             loadError ? (
               <Button type="button" variant="secondary" onClick={handleRetryDashboard}>
-                Retry dashboard
+                {copy.dashboard.loading.retry}
               </Button>
             ) : null
           }

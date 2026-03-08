@@ -76,6 +76,143 @@ export type LocaleMessages = {
     };
     signOut: string;
   };
+  dashboard: {
+    emptyStates: {
+      noHabits: {
+        eyebrow: string;
+        title: string;
+        description: string;
+        action: string;
+      };
+      archivedOnly: {
+        eyebrow: string;
+        title: string;
+        description: string;
+        reviewArchived: string;
+        createHabit: string;
+      };
+    };
+    loading: {
+      eyebrow: string;
+      title: string;
+      errorTitle: string;
+      descriptionLoading: string;
+      descriptionIdle: string;
+      retry: string;
+      routeEyebrow: string;
+      routeTitle: string;
+      routeDescription: string;
+    };
+    overview: {
+      eyebrow: string;
+      title: string;
+      description: string;
+      metrics: {
+        todayCompleted: string;
+        todayCompletedHint: (ratePercent: number) => string;
+        thisWeek: string;
+        thisWeekHint: string;
+        activeHabits: string;
+        activeHabitsHint: string;
+      };
+      trend: {
+        title: string;
+        subtitle: string;
+      };
+      ranking: {
+        title: string;
+        description: string;
+        recentDays: (completedCount: number, totalCount: number) => string;
+        empty: string;
+      };
+      refreshing: string;
+      chart: {
+        notDue: string;
+      };
+    };
+  };
+  today: {
+    hero: {
+      eyebrow: string;
+      title: string;
+      summary: (pendingCount: number, completedCount: number) => string;
+      completionRate: string;
+    };
+    feedback: {
+      updatingTitle: string;
+      updatingMessage: string;
+      updatedTitle: string;
+      retryTitle: string;
+      updateErrorTitle: string;
+    };
+    states: {
+      nothingDue: {
+        title: string;
+        description: string;
+      };
+      allDone: {
+        title: string;
+        description: string;
+      };
+      nothingPending: {
+        title: string;
+        description: string;
+      };
+      nothingCompleted: {
+        title: string;
+        description: string;
+      };
+    };
+    groups: {
+      pending: {
+        title: string;
+        count: (count: number) => string;
+      };
+      completed: {
+        title: string;
+        count: (count: number) => string;
+      };
+    };
+    actions: {
+      complete: {
+        label: string;
+        pendingTitle: string;
+        successTitle: string;
+        successMessage: string;
+        cardSuccessMessage: string;
+      };
+      setTotal: {
+        label: string;
+        pendingTitle: string;
+        successTitle: string;
+        successMessagePending: string;
+        successMessageCompleted: string;
+        cardSuccessMessage: string;
+      };
+      undo: {
+        label: string;
+        pendingTitle: string;
+        successTitle: string;
+        successMessagePending: string;
+        successMessageCompleted: string;
+        cardSuccessMessage: string;
+      };
+    };
+    item: {
+      status: {
+        pending: string;
+        completed: string;
+      };
+      totalLabel: string;
+      saveTotal: string;
+      progress: {
+        period: (current: number, target: number, scope: "week" | "month") => string;
+        doneToday: string;
+        readyToday: string;
+      };
+      disabledHint: string;
+    };
+  };
 };
 
 export const messages: Record<SupportedLocale, LocaleMessages> = {
@@ -168,6 +305,143 @@ export const messages: Record<SupportedLocale, LocaleMessages> = {
       },
       signOut: "Log out",
     },
+    dashboard: {
+      emptyStates: {
+        noHabits: {
+          eyebrow: "Today",
+          title: "No habits yet",
+          description: "Create your first habit to turn this dashboard into a useful today view.",
+          action: "Create first habit",
+        },
+        archivedOnly: {
+          eyebrow: "Today",
+          title: "No active habits right now",
+          description: "Your archived habits are preserved. Restore one or create a new habit to bring today back online.",
+          reviewArchived: "Review archived habits",
+          createHabit: "Create a new habit",
+        },
+      },
+      loading: {
+        eyebrow: "Dashboard",
+        title: "Preparing dashboard",
+        errorTitle: "Dashboard needs another try",
+        descriptionLoading: "Loading today data and overview metrics inside the protected shell.",
+        descriptionIdle: "Dashboard data is still warming up.",
+        retry: "Retry dashboard",
+        routeEyebrow: "Dashboard",
+        routeTitle: "Preparing dashboard",
+        routeDescription: "Analytics and today data are loading without dropping you out of the protected shell.",
+      },
+      overview: {
+        eyebrow: "Supporting overview",
+        title: "Overview",
+        description: "Supporting account trends and stability after you have scanned today's work.",
+        metrics: {
+          todayCompleted: "Completed today",
+          todayCompletedHint: (ratePercent) => `${ratePercent}% of due habits`,
+          thisWeek: "This week",
+          thisWeekHint: "Natural calendar week",
+          activeHabits: "Active habits",
+          activeHabitsHint: "Current working set",
+        },
+        trend: {
+          title: "30-day completion rate",
+          subtitle: "Daily-granularity account trend",
+        },
+        ranking: {
+          title: "Stability ranking",
+          description: "Active habits ranked by recent completion rate.",
+          recentDays: (completedCount, totalCount) => `${completedCount}/${totalCount} recent due days`,
+          empty: "No active habits with recent due history yet.",
+        },
+        refreshing: "Refreshing overview...",
+        chart: {
+          notDue: "Not due",
+        },
+      },
+    },
+    today: {
+      hero: {
+        eyebrow: "Daily focus",
+        title: "Today",
+        summary: (pendingCount, completedCount) => `${pendingCount} pending · ${completedCount} completed`,
+        completionRate: "Completion rate",
+      },
+      feedback: {
+        updatingTitle: "Updating today",
+        updatingMessage: "Your lists and summary will stay in sync when this update settles.",
+        updatedTitle: "Today updated",
+        retryTitle: "Today needs another try",
+        updateErrorTitle: "Unable to update today",
+      },
+      states: {
+        nothingDue: {
+          title: "Nothing due today",
+          description: "Today's list is clear for now. Future or off-cycle habits will show up here when they become actionable.",
+        },
+        allDone: {
+          title: "All done for today",
+          description: "Everything due today is already complete. Finished habits stay visible below in case you need to review or undo.",
+        },
+        nothingPending: {
+          title: "Nothing pending right now",
+          description: "New or incomplete habits will stay here until you finish them.",
+        },
+        nothingCompleted: {
+          title: "Nothing completed yet",
+          description: "Finished habits stay visible so you can undo or inspect today's result without leaving context.",
+        },
+      },
+      groups: {
+        pending: {
+          title: "Pending",
+          count: (count) => `${count} pending`,
+        },
+        completed: {
+          title: "Completed",
+          count: (count) => `${count} completed`,
+        },
+      },
+      actions: {
+        complete: {
+          label: "Complete",
+          pendingTitle: "Marking habit complete",
+          successTitle: "Habit updated",
+          successMessage: "The pending list and completion totals are now in sync.",
+          cardSuccessMessage: "Marked complete. You can undo from this card if needed.",
+        },
+        setTotal: {
+          label: "Save total",
+          pendingTitle: "Saving today total",
+          successTitle: "Total saved",
+          successMessagePending: "The updated quantity now counts toward today's completion status.",
+          successMessageCompleted: "The completed list now reflects the latest quantity value.",
+          cardSuccessMessage: "Saved in place. Today's quantity is now up to date.",
+        },
+        undo: {
+          label: "Undo",
+          pendingTitle: "Reverting latest update",
+          successTitle: "Update reverted",
+          successMessagePending: "Today's totals now reflect the previous saved value.",
+          successMessageCompleted: "This habit has moved back to the appropriate today state.",
+          cardSuccessMessage: "Reverted to the previous saved value.",
+        },
+      },
+      item: {
+        status: {
+          pending: "pending",
+          completed: "completed",
+        },
+        totalLabel: "Today's total",
+        saveTotal: "Save total",
+        progress: {
+          period: (current, target, scope) => `${current} / ${target} this ${scope}`,
+          doneToday: "Done today",
+          readyToday: "Ready for today",
+        },
+        disabledHint: "Controls will unlock when this habit finishes syncing with today.",
+      },
+    },
   },
   "zh-CN": {
     meta: {
@@ -255,6 +529,143 @@ export const messages: Record<SupportedLocale, LocaleMessages> = {
         apiAccess: "API 访问",
       },
       signOut: "退出登录",
+    },
+    dashboard: {
+      emptyStates: {
+        noHabits: {
+          eyebrow: "今天",
+          title: "还没有习惯",
+          description: "先创建第一个习惯，这个页面才会真正成为你今天的行动视图。",
+          action: "创建第一个习惯",
+        },
+        archivedOnly: {
+          eyebrow: "今天",
+          title: "当前没有启用中的习惯",
+          description: "已归档的习惯仍然保留着。恢复一个，或者新建一个习惯，就能让今天重新开始运转。",
+          reviewArchived: "查看已归档习惯",
+          createHabit: "创建新习惯",
+        },
+      },
+      loading: {
+        eyebrow: "仪表盘",
+        title: "正在准备仪表盘",
+        errorTitle: "仪表盘需要再试一次",
+        descriptionLoading: "正在受保护区域内加载 today 数据和概览指标。",
+        descriptionIdle: "仪表盘数据仍在预热。",
+        retry: "重试仪表盘",
+        routeEyebrow: "仪表盘",
+        routeTitle: "正在准备仪表盘",
+        routeDescription: "分析数据和 today 内容正在加载，但不会把你带离当前受保护区域。",
+      },
+      overview: {
+        eyebrow: "辅助概览",
+        title: "概览",
+        description: "先看完今天要做的事，再用这些账户级趋势和稳定性信息做辅助判断。",
+        metrics: {
+          todayCompleted: "今日已完成",
+          todayCompletedHint: (ratePercent) => `占今日应完成习惯的 ${ratePercent}%`,
+          thisWeek: "本周完成率",
+          thisWeekHint: "按自然周统计",
+          activeHabits: "启用中的习惯",
+          activeHabitsHint: "当前工作集合",
+        },
+        trend: {
+          title: "近 30 天完成率",
+          subtitle: "按天展示的账户趋势",
+        },
+        ranking: {
+          title: "稳定度排序",
+          description: "按近期完成率对启用中的习惯排序。",
+          recentDays: (completedCount, totalCount) => `最近应完成日 ${completedCount}/${totalCount}`,
+          empty: "目前还没有带近期应完成记录的启用中习惯。",
+        },
+        refreshing: "正在刷新概览...",
+        chart: {
+          notDue: "当天无任务",
+        },
+      },
+    },
+    today: {
+      hero: {
+        eyebrow: "今日重点",
+        title: "今天",
+        summary: (pendingCount, completedCount) => `${pendingCount} 个待完成 · ${completedCount} 个已完成`,
+        completionRate: "完成率",
+      },
+      feedback: {
+        updatingTitle: "正在更新今天",
+        updatingMessage: "这次更新完成后，列表和汇总会保持同步。",
+        updatedTitle: "今天已更新",
+        retryTitle: "今天需要再试一次",
+        updateErrorTitle: "暂时无法更新今天",
+      },
+      states: {
+        nothingDue: {
+          title: "今天没有到期事项",
+          description: "当前今天列表是空的。等未来开始或进入周期的习惯出现后，它们会显示在这里。",
+        },
+        allDone: {
+          title: "今天已全部完成",
+          description: "今天应做的内容都已经完成。已完成的习惯会继续留在下方，方便你回看或撤销。",
+        },
+        nothingPending: {
+          title: "当前没有待完成事项",
+          description: "新的或尚未完成的习惯会一直留在这里，直到你处理完。",
+        },
+        nothingCompleted: {
+          title: "还没有已完成事项",
+          description: "已完成的习惯会继续显示在这里，方便你不离开当前上下文就能查看或撤销。",
+        },
+      },
+      groups: {
+        pending: {
+          title: "待完成",
+          count: (count) => `${count} 个待完成`,
+        },
+        completed: {
+          title: "已完成",
+          count: (count) => `${count} 个已完成`,
+        },
+      },
+      actions: {
+        complete: {
+          label: "完成",
+          pendingTitle: "正在标记完成",
+          successTitle: "习惯已更新",
+          successMessage: "待完成列表和完成汇总现在已经同步。",
+          cardSuccessMessage: "已标记完成。如有需要，你可以直接在这张卡片里撤销。",
+        },
+        setTotal: {
+          label: "更新总量",
+          pendingTitle: "正在保存今天总量",
+          successTitle: "总量已保存",
+          successMessagePending: "更新后的数量现在会计入今天的完成状态。",
+          successMessageCompleted: "已完成列表现在反映的是最新数量。",
+          cardSuccessMessage: "已在当前位置保存，今天的数量已更新。",
+        },
+        undo: {
+          label: "撤销",
+          pendingTitle: "正在撤销刚才的更新",
+          successTitle: "已撤销更新",
+          successMessagePending: "今天的汇总现在反映的是上一次保存的值。",
+          successMessageCompleted: "这个习惯已经回到它当前应在的 today 状态。",
+          cardSuccessMessage: "已恢复到上一次保存的值。",
+        },
+      },
+      item: {
+        status: {
+          pending: "待完成",
+          completed: "已完成",
+        },
+        totalLabel: "今天总量",
+        saveTotal: "更新总量",
+        progress: {
+          period: (current, target, scope) => `${scope === "week" ? "本周" : "本月"} ${current} / ${target}`,
+          doneToday: "今天已完成",
+          readyToday: "今天待处理",
+        },
+        disabledHint: "等这个习惯和今天的数据同步完成后，控件就会恢复可用。",
+      },
     },
   },
 };

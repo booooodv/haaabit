@@ -3,6 +3,7 @@
 import type { TodayItem } from "@haaabit/contracts/today";
 import { useEffect, useState } from "react";
 
+import { useLocale } from "../locale";
 import { Badge, Button, DisabledHint, Field, InlineStatus, Input, cn } from "../ui";
 import styles from "./today-item.module.css";
 
@@ -21,7 +22,7 @@ type TodayItemProps = {
   onUndo: (habitId: string) => Promise<void>;
 };
 
-function formatProgress(item: TodayItem) {
+function formatProgress(item: TodayItem, copy: ReturnType<typeof useLocale>["copy"]["today"]["item"]) {
   if (item.kind === "quantity") {
     const current = item.progress.currentValue ?? 0;
     const target = item.progress.targetValue ?? 0;
@@ -32,14 +33,15 @@ function formatProgress(item: TodayItem) {
   if (item.frequencyType === "weekly_count" || item.frequencyType === "monthly_count") {
     const current = item.progress.periodCompletions ?? 0;
     const target = item.progress.periodTarget ?? 0;
-    return `${current} / ${target} this ${item.frequencyType === "weekly_count" ? "week" : "month"}`;
+    return copy.progress.period(current, target, item.frequencyType === "weekly_count" ? "week" : "month");
   }
 
-  return item.status === "completed" ? "Done today" : "Ready for today";
+  return item.status === "completed" ? copy.progress.doneToday : copy.progress.readyToday;
 }
 
 export function TodayItemCard(props: TodayItemProps) {
   const { item, feedback = null, isPending = false, onComplete, onSetTotal, onUndo } = props;
+  const { copy } = useLocale();
   const [draftTotal, setDraftTotal] = useState(String(item.progress.currentValue ?? 0));
 
   useEffect(() => {
@@ -74,16 +76,16 @@ export function TodayItemCard(props: TodayItemProps) {
       <div className={styles.header}>
         <div className={styles.copy}>
           <h3 className={styles.title}>{item.name}</h3>
-          <p className={styles.progress}>{formatProgress(item)}</p>
+          <p className={styles.progress}>{formatProgress(item, copy.today.item)}</p>
         </div>
         <Badge tone={item.status === "completed" ? "success" : "warning"}>
-          {item.status}
+          {copy.today.item.status[item.status]}
         </Badge>
       </div>
 
       {item.kind === "quantity" ? (
         <div className={styles.quantityRow}>
-          <Field label="Today's total" htmlFor={`today-total-${item.habitId}`} className={styles.field}>
+          <Field label={copy.today.item.totalLabel} htmlFor={`today-total-${item.habitId}`} className={styles.field}>
             <Input
               id={`today-total-${item.habitId}`}
               type="number"
@@ -96,12 +98,12 @@ export function TodayItemCard(props: TodayItemProps) {
 
           <div className={styles.actions}>
             <Button type="button" onClick={handleSetTotal} disabled={isPending} size="sm">
-              Save total
+              {copy.today.item.saveTotal}
             </Button>
 
             {showUndo ? (
               <Button type="button" variant="secondary" onClick={handleUndo} disabled={isPending} size="sm">
-                Undo
+                {copy.today.actions.undo.label}
               </Button>
             ) : null}
           </div>
@@ -110,13 +112,13 @@ export function TodayItemCard(props: TodayItemProps) {
         <div className={styles.actions}>
           {item.status === "pending" ? (
             <Button type="button" onClick={handleComplete} disabled={isPending} size="sm">
-              Complete
+              {copy.today.actions.complete.label}
             </Button>
           ) : null}
 
           {showUndo ? (
             <Button type="button" variant="secondary" onClick={handleUndo} disabled={isPending} size="sm">
-              Undo
+              {copy.today.actions.undo.label}
             </Button>
           ) : null}
         </div>
@@ -129,7 +131,7 @@ export function TodayItemCard(props: TodayItemProps) {
       ) : null}
 
       {isPending ? (
-        <DisabledHint>Controls will unlock when this habit finishes syncing with today.</DisabledHint>
+        <DisabledHint>{copy.today.item.disabledHint}</DisabledHint>
       ) : null}
     </article>
   );

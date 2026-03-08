@@ -86,9 +86,16 @@ test("dashboard distinguishes nothing due today from all done", async ({ page })
 
   const habitIds = await listHabitIds(page);
   await page.goto("/dashboard");
-  await page.getByTestId(`today-item-${habitIds["Today walk"]}`).getByRole("button", { name: "Complete" }).click();
+  await page.getByTestId("locale-switch").getByRole("button", { name: "中文" }).click();
 
-  await expect(page.getByText("All done for today")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "今天" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "概览" })).toBeVisible();
+  await expect(page.getByText(/^1 个待完成$/)).toBeVisible();
+  await expect(page.getByText(/^0 个已完成$/)).toBeVisible();
+
+  await page.getByTestId(`today-item-${habitIds["Today walk"]}`).getByRole("button", { name: "完成" }).click();
+
+  await expect(page.getByText("今天已全部完成")).toBeVisible();
 });
 
 test("dashboard keeps recoverable load errors inside the route shell", async ({ page }) => {

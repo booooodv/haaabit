@@ -1,5 +1,8 @@
+"use client";
+
 import type { OverviewStats } from "@haaabit/contracts/stats";
 
+import { useLocale } from "../locale";
 import { CompletionRateChart } from "./completion-rate-chart";
 import styles from "./overview-section.module.css";
 
@@ -30,51 +33,50 @@ export function OverviewSection({
   overview: OverviewStats;
   isRefreshing?: boolean;
 }) {
+  const { copy } = useLocale();
+
   return (
     <section data-testid="dashboard-overview" className={styles.section}>
       <div className={styles.header}>
-        <p className={styles.eyebrow}>Supporting overview</p>
-        <h2 className={styles.title}>Overview</h2>
-        <p className={styles.description}>
-          Supporting account trends and stability after you have scanned today's work.
-        </p>
+        <p className={styles.eyebrow}>{copy.dashboard.overview.eyebrow}</p>
+        <h2 className={styles.title}>{copy.dashboard.overview.title}</h2>
+        <p className={styles.description}>{copy.dashboard.overview.description}</p>
       </div>
 
       <div data-testid="overview-metrics" className={styles.metrics}>
         <MetricCard
-          label="Completed today"
+          label={copy.dashboard.overview.metrics.todayCompleted}
           value={String(overview.metrics.todayCompletedCount)}
-          hint={`${Math.round(overview.metrics.todayCompletionRate * 100)}% of due habits`}
+          hint={copy.dashboard.overview.metrics.todayCompletedHint(Math.round(overview.metrics.todayCompletionRate * 100))}
           testId="overview-metric-today-completed"
         />
         <MetricCard
-          label="This week"
+          label={copy.dashboard.overview.metrics.thisWeek}
           value={`${Math.round(overview.metrics.weeklyCompletionRate * 100)}%`}
-          hint="Natural calendar week"
+          hint={copy.dashboard.overview.metrics.thisWeekHint}
           testId="overview-metric-this-week"
         />
         <MetricCard
-          label="Active habits"
+          label={copy.dashboard.overview.metrics.activeHabits}
           value={String(overview.metrics.activeHabitCount)}
-          hint="Current working set"
+          hint={copy.dashboard.overview.metrics.activeHabitsHint}
           testId="overview-metric-active-habits"
         />
       </div>
 
       <div className={styles.detailGrid}>
         <CompletionRateChart
-          title="30-day completion rate"
-          subtitle="Daily-granularity account trend"
+          title={copy.dashboard.overview.trend.title}
+          subtitle={copy.dashboard.overview.trend.subtitle}
+          notDueLabel={copy.dashboard.overview.chart.notDue}
           points={overview.trends.last30Days}
           testId="overview-trend-chart"
         />
 
         <section data-testid="overview-ranking" className={styles.ranking}>
           <div className={styles.rankingHeader}>
-            <h3>Stability ranking</h3>
-            <p>
-              Active habits ranked by recent completion rate.
-            </p>
+            <h3>{copy.dashboard.overview.ranking.title}</h3>
+            <p>{copy.dashboard.overview.ranking.description}</p>
           </div>
 
           <div className={styles.rankingItems}>
@@ -90,18 +92,18 @@ export function OverviewSection({
                     </span>
                   </div>
                   <span className={styles.rankingMeta}>
-                    {entry.completedCount}/{entry.totalCount} recent due days
+                    {copy.dashboard.overview.ranking.recentDays(entry.completedCount, entry.totalCount)}
                   </span>
                 </div>
               ))
             ) : (
-              <p className={styles.rankingMeta}>No active habits with recent due history yet.</p>
+              <p className={styles.rankingMeta}>{copy.dashboard.overview.ranking.empty}</p>
             )}
           </div>
         </section>
       </div>
 
-      {isRefreshing ? <p className={styles.refreshing}>Refreshing overview…</p> : null}
+      {isRefreshing ? <p className={styles.refreshing}>{copy.dashboard.overview.refreshing}</p> : null}
     </section>
   );
 }

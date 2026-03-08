@@ -5,13 +5,13 @@ import styles from "./completion-rate-chart.module.css";
 
 type ChartPoint = OverviewTrendPoint | HabitTrendPoint;
 
-function getPointLabel(point: ChartPoint) {
+function getPointLabel(point: ChartPoint, notDueLabel: string) {
   if ("totalCount" in point) {
     return `${point.completedCount}/${point.totalCount}`;
   }
 
   if (point.completionTarget === null) {
-    return "Not due";
+    return notDueLabel;
   }
 
   return `${point.completedCount}/${point.completionTarget}`;
@@ -42,11 +42,13 @@ function getPointHeight(point: ChartPoint) {
 export function CompletionRateChart({
   title,
   subtitle,
+  notDueLabel = "Not due",
   points,
   testId,
 }: {
   title: string;
   subtitle: string;
+  notDueLabel?: string;
   points: ChartPoint[];
   testId?: string;
 }) {
@@ -66,7 +68,7 @@ export function CompletionRateChart({
         {points.map((point) => (
           <div
             key={point.date}
-            title={`${point.date} · ${getPointLabel(point)}`}
+            title={`${point.date} · ${getPointLabel(point, notDueLabel)}`}
             className={styles.point}
           >
             <div

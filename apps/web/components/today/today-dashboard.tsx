@@ -8,6 +8,7 @@ import {
   setTodayHabitTotal,
   undoTodayHabit,
 } from "../../lib/auth-client";
+import { useLocale } from "../locale";
 import { InlineStatus, PageFrame, StatePanel, Surface } from "../ui";
 import { TodayItemCard } from "./today-item";
 import styles from "./today-dashboard.module.css";
@@ -28,6 +29,7 @@ type CardFeedback = Feedback & {
 };
 
 export function TodayDashboard({ initialSummary, onActionSettled }: TodayDashboardProps) {
+  const { copy } = useLocale();
   const [summary, setSummary] = useState(initialSummary);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [cardFeedback, setCardFeedback] = useState<CardFeedback | null>(null);
@@ -44,14 +46,14 @@ export function TodayDashboard({ initialSummary, onActionSettled }: TodayDashboa
   ) {
     setFeedback({
       tone: "neutral",
-      title: "Updating today",
-      message: "Your lists and summary will stay in sync when this update settles.",
+      title: copy.today.feedback.updatingTitle,
+      message: copy.today.feedback.updatingMessage,
     });
     setCardFeedback({
       habitId,
       tone: "neutral",
       title: pendingTitle,
-      message: "Saving this update without leaving the card.",
+      message: copy.today.feedback.updatingMessage,
     });
     setActiveHabitId(habitId);
     setIsMutating(true);
@@ -62,7 +64,7 @@ export function TodayDashboard({ initialSummary, onActionSettled }: TodayDashboa
       await onActionSettled?.();
       setFeedback({
         tone: "success",
-        title: "Today updated",
+        title: copy.today.feedback.updatedTitle,
         message: successMessage,
       });
       setCardFeedback({
@@ -72,17 +74,18 @@ export function TodayDashboard({ initialSummary, onActionSettled }: TodayDashboa
         message: cardSuccessMessage,
       });
     } catch (submissionError) {
-      const message = submissionError instanceof Error ? submissionError.message : "Unable to update today";
+      const message =
+        submissionError instanceof Error ? submissionError.message : copy.today.feedback.updateErrorTitle;
 
       setFeedback({
         tone: "danger",
-        title: "Today needs another try",
+        title: copy.today.feedback.retryTitle,
         message,
       });
       setCardFeedback({
         habitId,
         tone: "danger",
-        title: "Unable to update today",
+        title: copy.today.feedback.updateErrorTitle,
         message,
       });
     } finally {
@@ -100,15 +103,15 @@ export function TodayDashboard({ initialSummary, onActionSettled }: TodayDashboa
         <PageFrame className={styles.heroFrame}>
           <div className={styles.summaryRow}>
             <div className={styles.summaryCopy}>
-              <p className={styles.eyebrow}>Daily focus</p>
-              <h1>Today</h1>
+              <p className={styles.eyebrow}>{copy.today.hero.eyebrow}</p>
+              <h1>{copy.today.hero.title}</h1>
               <p className={styles.summaryDescription}>
-                {summary.pendingCount} pending · {summary.completedCount} completed
+                {copy.today.hero.summary(summary.pendingCount, summary.completedCount)}
               </p>
             </div>
 
             <div className={styles.rateCard}>
-              <div className={styles.rateLabel}>Completion rate</div>
+              <div className={styles.rateLabel}>{copy.today.hero.completionRate}</div>
               <div className={styles.rateValue}>{Math.round(summary.completionRate * 100)}%</div>
             </div>
           </div>
@@ -124,8 +127,8 @@ export function TodayDashboard({ initialSummary, onActionSettled }: TodayDashboa
       {hasNothingDue ? (
         <StatePanel
           testId="today-primary-state"
-          title="Nothing due today"
-          description="Today's list is clear for now. Future or off-cycle habits will show up here when they become actionable."
+          title={copy.today.states.nothingDue.title}
+          description={copy.today.states.nothingDue.description}
         />
       ) : null}
 
@@ -133,16 +136,16 @@ export function TodayDashboard({ initialSummary, onActionSettled }: TodayDashboa
         <StatePanel
           testId="today-primary-state"
           tone="success"
-          title="All done for today"
-          description="Everything due today is already complete. Finished habits stay visible below in case you need to review or undo."
+          title={copy.today.states.allDone.title}
+          description={copy.today.states.allDone.description}
         />
       ) : null}
 
       <div className={styles.sections}>
         <section className={styles.group}>
           <div className={styles.groupHeader}>
-            <h2>Pending</h2>
-            <span className={styles.groupCount}>{summary.pendingCount} pending</span>
+            <h2>{copy.today.groups.pending.title}</h2>
+            <span className={styles.groupCount}>{copy.today.groups.pending.count(summary.pendingCount)}</span>
           </div>
           {summary.pendingItems.length > 0 ? (
             <div className={styles.cards}>
@@ -155,20 +158,20 @@ export function TodayDashboard({ initialSummary, onActionSettled }: TodayDashboa
                   onComplete={(habitId) =>
                     applyAction(
                       habitId,
-                      "Marking habit complete",
-                      "Habit updated",
-                      "The pending list and completion totals are now in sync.",
-                      "Marked complete. You can undo from this card if needed.",
+                      copy.today.actions.complete.pendingTitle,
+                      copy.today.actions.complete.successTitle,
+                      copy.today.actions.complete.successMessage,
+                      copy.today.actions.complete.cardSuccessMessage,
                       () => completeTodayHabit({ habitId, source: "web" }).then((result) => ({ summary: result.summary })),
                     )
                   }
                   onSetTotal={(habitId, total) =>
                     applyAction(
                       habitId,
-                      "Saving today total",
-                      "Total saved",
-                      "The updated quantity now counts toward today's completion status.",
-                      "Saved in place. Today's quantity is now up to date.",
+                      copy.today.actions.setTotal.pendingTitle,
+                      copy.today.actions.setTotal.successTitle,
+                      copy.today.actions.setTotal.successMessagePending,
+                      copy.today.actions.setTotal.cardSuccessMessage,
                       () =>
                         setTodayHabitTotal({ habitId, total, source: "web" }).then((result) => ({
                           summary: result.summary,
@@ -178,10 +181,10 @@ export function TodayDashboard({ initialSummary, onActionSettled }: TodayDashboa
                   onUndo={(habitId) =>
                     applyAction(
                       habitId,
-                      "Reverting latest update",
-                      "Update reverted",
-                      "Today's totals now reflect the previous saved value.",
-                      "Reverted to the previous saved value.",
+                      copy.today.actions.undo.pendingTitle,
+                      copy.today.actions.undo.successTitle,
+                      copy.today.actions.undo.successMessagePending,
+                      copy.today.actions.undo.cardSuccessMessage,
                       () => undoTodayHabit({ habitId, source: "web" }).then((result) => ({ summary: result.summary })),
                     )
                   }
@@ -190,8 +193,8 @@ export function TodayDashboard({ initialSummary, onActionSettled }: TodayDashboa
             </div>
           ) : hasNothingDue || hasAllDone ? null : (
             <StatePanel
-              title="Nothing pending right now"
-              description="New or incomplete habits will stay here until you finish them."
+              title={copy.today.states.nothingPending.title}
+              description={copy.today.states.nothingPending.description}
               compact
             />
           )}
@@ -199,8 +202,8 @@ export function TodayDashboard({ initialSummary, onActionSettled }: TodayDashboa
 
         <section className={styles.group}>
           <div className={styles.groupHeader}>
-            <h2>Completed</h2>
-            <span className={styles.groupCount}>{summary.completedCount} completed</span>
+            <h2>{copy.today.groups.completed.title}</h2>
+            <span className={styles.groupCount}>{copy.today.groups.completed.count(summary.completedCount)}</span>
           </div>
           {summary.completedItems.length > 0 ? (
             <div className={styles.cards}>
@@ -213,20 +216,20 @@ export function TodayDashboard({ initialSummary, onActionSettled }: TodayDashboa
                   onComplete={(habitId) =>
                     applyAction(
                       habitId,
-                      "Marking habit complete",
-                      "Habit updated",
-                      "The completed list has been refreshed in place.",
-                      "Marked complete. You can undo from this card if needed.",
+                      copy.today.actions.complete.pendingTitle,
+                      copy.today.actions.complete.successTitle,
+                      copy.today.actions.complete.successMessage,
+                      copy.today.actions.complete.cardSuccessMessage,
                       () => completeTodayHabit({ habitId, source: "web" }).then((result) => ({ summary: result.summary })),
                     )
                   }
                   onSetTotal={(habitId, total) =>
                     applyAction(
                       habitId,
-                      "Saving today total",
-                      "Total saved",
-                      "The completed list now reflects the latest quantity value.",
-                      "Saved in place. Today's quantity is now up to date.",
+                      copy.today.actions.setTotal.pendingTitle,
+                      copy.today.actions.setTotal.successTitle,
+                      copy.today.actions.setTotal.successMessageCompleted,
+                      copy.today.actions.setTotal.cardSuccessMessage,
                       () =>
                         setTodayHabitTotal({ habitId, total, source: "web" }).then((result) => ({
                           summary: result.summary,
@@ -236,10 +239,10 @@ export function TodayDashboard({ initialSummary, onActionSettled }: TodayDashboa
                   onUndo={(habitId) =>
                     applyAction(
                       habitId,
-                      "Reverting latest update",
-                      "Update reverted",
-                      "This habit has moved back to the appropriate today state.",
-                      "Reverted to the previous saved value.",
+                      copy.today.actions.undo.pendingTitle,
+                      copy.today.actions.undo.successTitle,
+                      copy.today.actions.undo.successMessageCompleted,
+                      copy.today.actions.undo.cardSuccessMessage,
                       () => undoTodayHabit({ habitId, source: "web" }).then((result) => ({ summary: result.summary })),
                     )
                   }
@@ -248,8 +251,8 @@ export function TodayDashboard({ initialSummary, onActionSettled }: TodayDashboa
             </div>
           ) : hasNothingDue ? null : (
             <StatePanel
-              title="Nothing completed yet"
-              description="Finished habits stay visible so you can undo or inspect today's result without leaving context."
+              title={copy.today.states.nothingCompleted.title}
+              description={copy.today.states.nothingCompleted.description}
               compact
             />
           )}

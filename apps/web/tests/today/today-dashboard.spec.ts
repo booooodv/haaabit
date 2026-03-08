@@ -63,55 +63,60 @@ test("dashboard shows pending/completed groups and stays in sync through complet
   const habitIds = await listHabitIds(page);
 
   await page.goto("/dashboard");
+  await page.getByTestId("locale-switch").getByRole("button", { name: "中文" }).click();
+  const todayDashboard = page
+    .getByTestId("app-shell-content")
+    .locator('section[data-testid="today-dashboard"]')
+    .first();
 
-  await expect(page.getByTestId("today-dashboard")).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Today" })).toBeVisible();
-  await expect(page.getByText(/^2 pending$/)).toBeVisible();
-  await expect(page.getByText(/^0 completed$/)).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Pending", exact: true })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Completed", exact: true })).toBeVisible();
+  await expect(todayDashboard).toBeVisible();
+  await expect(page.getByRole("heading", { name: "今天" })).toBeVisible();
+  await expect(page.getByText(/^2 个待完成$/)).toBeVisible();
+  await expect(page.getByText(/^0 个已完成$/)).toBeVisible();
+  await expect(page.getByRole("heading", { name: "待完成", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "已完成", exact: true })).toBeVisible();
 
-  const walkCard = page.getByTestId(`today-item-${habitIds["Morning walk"]}`);
-  const readCard = page.getByTestId(`today-item-${habitIds["Read pages"]}`);
+  const walkCard = todayDashboard.getByTestId(`today-item-${habitIds["Morning walk"]}`);
+  const readCard = todayDashboard.getByTestId(`today-item-${habitIds["Read pages"]}`);
 
   await expect(walkCard).toContainText("Morning walk");
   await expect(readCard).toContainText("Read pages");
   await expect(readCard).toContainText("0 / 10 pages");
 
-  await walkCard.getByRole("button", { name: "Complete" }).click();
+  await walkCard.getByRole("button", { name: "完成" }).click();
 
-  await expect(page.getByText(/^1 pending$/)).toBeVisible();
-  await expect(page.getByText(/^1 completed$/)).toBeVisible();
-  await expect(page.getByTestId(`today-item-${habitIds["Morning walk"]}`)).toContainText("completed");
-  await expect(page.getByTestId(`today-item-${habitIds["Morning walk"]}`)).toContainText(
-    "Marked complete. You can undo from this card if needed.",
+  await expect(page.getByText(/^1 个待完成$/)).toBeVisible();
+  await expect(page.getByText(/^1 个已完成$/)).toBeVisible();
+  await expect(walkCard).toContainText("已完成");
+  await expect(walkCard).toContainText(
+    "已标记完成。如有需要，你可以直接在这张卡片里撤销。",
   );
   await expect(
-    page.getByTestId(`today-item-${habitIds["Morning walk"]}`).getByRole("button", { name: "Undo" }),
+    walkCard.getByRole("button", { name: "撤销" }),
   ).toBeVisible();
 
-  await readCard.getByLabel("Today's total").fill("5");
-  await readCard.getByRole("button", { name: "Save total" }).click();
+  await readCard.getByLabel("今天总量").fill("5");
+  await readCard.getByRole("button", { name: "更新总量" }).click();
 
   await expect(page.getByText("5 / 10 pages")).toBeVisible();
-  await expect(page.getByText(/^1 pending$/)).toBeVisible();
-  await expect(page.getByText(/^1 completed$/)).toBeVisible();
-  await expect(readCard).toContainText("Saved in place. Today's quantity is now up to date.");
+  await expect(page.getByText(/^1 个待完成$/)).toBeVisible();
+  await expect(page.getByText(/^1 个已完成$/)).toBeVisible();
+  await expect(readCard).toContainText("已在当前位置保存，今天的数量已更新。");
 
-  await readCard.getByLabel("Today's total").fill("10");
-  await readCard.getByRole("button", { name: "Save total" }).click();
+  await readCard.getByLabel("今天总量").fill("10");
+  await readCard.getByRole("button", { name: "更新总量" }).click();
 
-  await expect(page.getByText(/^0 pending$/)).toBeVisible();
-  await expect(page.getByText(/^2 completed$/)).toBeVisible();
-  await expect(page.getByTestId(`today-item-${habitIds["Read pages"]}`)).toContainText("completed");
-  await expect(readCard).toContainText("Saved in place. Today's quantity is now up to date.");
+  await expect(page.getByText(/^0 个待完成$/)).toBeVisible();
+  await expect(page.getByText(/^2 个已完成$/)).toBeVisible();
+  await expect(readCard).toContainText("已完成");
+  await expect(readCard).toContainText("已在当前位置保存，今天的数量已更新。");
 
-  await page.getByTestId(`today-item-${habitIds["Read pages"]}`).getByRole("button", { name: "Undo" }).click();
+  await readCard.getByRole("button", { name: "撤销" }).click();
 
-  await expect(page.getByText(/^1 pending$/)).toBeVisible();
-  await expect(page.getByText(/^1 completed$/)).toBeVisible();
+  await expect(page.getByText(/^1 个待完成$/)).toBeVisible();
+  await expect(page.getByText(/^1 个已完成$/)).toBeVisible();
   await expect(page.getByText("5 / 10 pages")).toBeVisible();
-  await expect(readCard).toContainText("Reverted to the previous saved value.");
+  await expect(readCard).toContainText("已恢复到上一次保存的值。");
 });
 
 test("today action failures stay in context", async ({ page }) => {
