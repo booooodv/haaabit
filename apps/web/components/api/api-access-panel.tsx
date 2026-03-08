@@ -55,7 +55,7 @@ export function ApiAccessPanel({
   const tokenValue =
     tokenState.token == null ? "" : isTokenRevealed ? tokenState.token : "••••••••••••••••••••••••";
 
-  async function refreshToken(generateNew: boolean) {
+  async function refreshToken(generateNew: boolean, trigger?: HTMLButtonElement | null) {
     setFeedback({
       tone: "neutral",
       title: generateNew ? (tokenState.token ? "Rotating token" : "Generating token") : "Refreshing token",
@@ -80,6 +80,7 @@ export function ApiAccessPanel({
       });
     } finally {
       setIsPending(false);
+      requestAnimationFrame(() => trigger?.focus());
     }
   }
 
@@ -148,7 +149,11 @@ export function ApiAccessPanel({
             )}
 
             <div className={styles.actions}>
-              <Button type="button" onClick={() => void refreshToken(true)} disabled={isPending}>
+              <Button
+                type="button"
+                onClick={(event) => void refreshToken(true, event.currentTarget)}
+                disabled={isPending}
+              >
                 {tokenState.token ? "Rotate token" : "Generate token"}
               </Button>
               {tokenState.token ? (

@@ -31,15 +31,21 @@ test("protected shell shows utility access and active desktop navigation", async
     "page",
   );
 
-  await primaryNav.getByRole("link", { name: "Habits" }).click();
+  const habitsLink = primaryNav.getByRole("link", { name: "Habits" });
+  await habitsLink.focus();
+  await habitsLink.press("Enter");
   await expect(page).toHaveURL(/\/habits$/);
+  await expect(primaryNav.getByRole("link", { name: "Habits" })).toBeFocused();
   await expect(primaryNav.getByRole("link", { name: "Habits" })).toHaveAttribute(
     "aria-current",
     "page",
   );
 
-  await utilityNav.getByRole("link", { name: "API Access" }).click();
+  const apiAccessLink = utilityNav.getByRole("link", { name: "API Access" });
+  await apiAccessLink.focus();
+  await apiAccessLink.press("Enter");
   await expect(page).toHaveURL(/\/api-access$/);
+  await expect(utilityNav.getByRole("link", { name: "API Access" })).toBeFocused();
   await expect(utilityNav.getByRole("link", { name: "API Access" })).toHaveAttribute(
     "aria-current",
     "page",
@@ -64,17 +70,22 @@ test.describe("mobile shell", () => {
       "page",
     );
 
-    await mobileNav.getByRole("link", { name: /Habits/i }).click();
+    const mobileHabitsLink = mobileNav.getByRole("link", { name: /Habits/i });
+    await mobileHabitsLink.focus();
+    await mobileHabitsLink.press("Enter");
     await expect(page).toHaveURL(/\/habits$/);
+    await expect(mobileNav.getByRole("link", { name: /Habits/i })).toBeFocused();
     await expect(mobileNav.getByRole("link", { name: /Habits/i })).toHaveAttribute(
       "aria-current",
       "page",
     );
 
-    await page
+    const mobileApiAccessLink = page
       .getByTestId("app-shell-utility-nav")
-      .getByRole("link", { name: "API Access" })
-      .click();
+      .getByRole("link", { name: "API Access" });
+    await mobileApiAccessLink.focus();
+    await mobileApiAccessLink.press("Enter");
     await expect(page).toHaveURL(/\/api-access$/);
+    await expect(page.getByTestId("app-shell-utility-nav").getByRole("link", { name: "API Access" })).toBeFocused();
   });
 });

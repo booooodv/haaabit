@@ -1,5 +1,5 @@
 import type { InputHTMLAttributes, ReactNode, SelectHTMLAttributes } from "react";
-import { forwardRef } from "react";
+import { cloneElement, forwardRef, isValidElement, useId } from "react";
 
 import { cn } from "./cn";
 import styles from "./forms.module.css";
@@ -40,6 +40,20 @@ export function Field({
   required = false,
   labelSuffix,
 }: FieldProps) {
+  const fallbackId = useId();
+  const fieldId = htmlFor ?? fallbackId;
+  const descriptionId = description ? `${fieldId}-description` : undefined;
+  const errorId = error ? `${fieldId}-error` : undefined;
+  const describedBy = [descriptionId, errorId].filter(Boolean).join(" ") || undefined;
+
+  const content = isValidElement(children)
+    ? cloneElement(children, {
+        ...children.props,
+        "aria-describedby": [children.props["aria-describedby"], describedBy].filter(Boolean).join(" ") || undefined,
+        "aria-errormessage": errorId ?? children.props["aria-errormessage"],
+      })
+    : children;
+
   return (
     <div className={cn(styles.field, className)}>
       {label ? (
@@ -51,9 +65,17 @@ export function Field({
           {labelSuffix}
         </div>
       ) : null}
-      {description ? <div className={styles.description}>{description}</div> : null}
-      {children}
-      {error ? <div className={styles.error}>{error}</div> : null}
+      {description ? (
+        <div id={descriptionId} className={styles.description}>
+          {description}
+        </div>
+      ) : null}
+      {content}
+      {error ? (
+        <div id={errorId} className={styles.error}>
+          {error}
+        </div>
+      ) : null}
     </div>
   );
 }

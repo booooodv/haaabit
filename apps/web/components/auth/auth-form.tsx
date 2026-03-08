@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Button, DisabledHint, Field, InlineStatus, Input } from "../ui";
 import { listHabits, signIn, signUp } from "../../lib/auth-client";
@@ -36,6 +36,23 @@ export function AuthForm() {
     password: "",
   });
   const [errors, setErrors] = useState<FormErrors>({});
+  const [focusTarget, setFocusTarget] = useState<keyof FormValues | null>(null);
+  const nameRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!focusTarget) {
+      return;
+    }
+
+    const handle = requestAnimationFrame(() => {
+      getFieldRef(focusTarget, nameRef, emailRef, passwordRef)?.current?.focus();
+      setFocusTarget(null);
+    });
+
+    return () => cancelAnimationFrame(handle);
+  }, [focusTarget, mode, errors]);
 
   function updateField<Key extends keyof FormValues>(field: Key, nextValue: FormValues[Key]) {
     setValues((current) => ({
@@ -57,6 +74,7 @@ export function AuthForm() {
     setMode(nextMode);
     setFeedback(null);
     setErrors({});
+    setFocusTarget(nextMode === "sign-up" ? "name" : "email");
   }
 
   function validate(currentMode: Mode, currentValues: FormValues) {
@@ -96,6 +114,7 @@ export function AuthForm() {
 
     if (!validation.isValid) {
       setErrors(validation.nextErrors);
+      setFocusTarget(firstInvalidField(mode, validation.nextErrors));
       setFeedback({
         tone: "danger",
         title: "Check these details",
@@ -134,6 +153,7 @@ export function AuthForm() {
         setErrors({
           password: "Check your email and password, then try again.",
         });
+        setFocusTarget("password");
       }
 
       setFeedback({
@@ -178,6 +198,7 @@ export function AuthForm() {
             required
           >
             <Input
+              ref={nameRef}
               id="auth-name"
               name="name"
               type="text"
@@ -199,6 +220,7 @@ export function AuthForm() {
           required
         >
           <Input
+            ref={emailRef}
             id="auth-email"
             name="email"
             type="email"
@@ -223,6 +245,7 @@ export function AuthForm() {
           required
         >
           <Input
+            ref={passwordRef}
             id="auth-password"
             name="password"
             type="password"
@@ -270,4 +293,27 @@ export function AuthForm() {
       </div>
     </form>
   );
+}
+
+function firstInvalidField(mode: Mode, errors: FormErrors) {
+  const order: Array<keyof FormValues> =
+    mode === "sign-up" ? ["name", "email", "password"] : ["email", "password"];
+
+  return order.find((field) => errors[field]) ?? order[0];
+}
+
+function getFieldRef(
+  field: keyof FormValues,
+  nameRef: React.RefObject<HTMLInputElement | null>,
+  emailRef: React.RefObject<HTMLInputElement | null>,
+  passwordRef: React.RefObject<HTMLInputElement | null>,
+) {
+  switch (field) {
+    case "name":
+      return nameRef;
+    case "email":
+      return emailRef;
+    case "password":
+      return passwordRef;
+  }
 }
