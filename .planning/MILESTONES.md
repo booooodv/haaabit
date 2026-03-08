@@ -15,3 +15,18 @@
 **Audit outcome:** `tech_debt` accepted for v1.0 archival. See `milestones/v1.0-MILESTONE-AUDIT.md`.
 
 ---
+
+## v1.1 milestone (Shipped: 2026-03-08)
+
+**Phases completed:** 5 phases, 15 plans, 32 tasks
+
+**Key accomplishments:**
+- Established shared design tokens, typography, primitives, overlays, and selector contracts across the web app.
+- Unified the signed-in shell, system-state grammar, responsive behavior, and restrained motion policy for desktop and mobile.
+- Refreshed auth and the dashboard/today loop into a trust-forward, Today-first experience with calmer in-place feedback.
+- Reworked habits, detail, and API Access into one consistent management-family surface with summary-first hierarchy and safer token handling.
+- Added accessibility release gates for axe smoke, keyboard/focus continuity, contrast, reduced motion, and explicit manual sign-off.
+
+**Audit outcome:** `tech_debt` accepted for v1.1 archival. See `milestones/v1.1-MILESTONE-AUDIT.md`.
+
+---

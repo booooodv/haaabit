@@ -7,19 +7,14 @@
   - `milestones/v1.0-ROADMAP.md`
   - `milestones/v1.0-REQUIREMENTS.md`
   - `milestones/v1.0-MILESTONE-AUDIT.md`
+- ✅ **v1.1 Impeccable UI Polish** — Phases 7-11, 15/15 plans complete, shipped 2026-03-08 and archived 2026-03-08.
+  Archive:
+  - `milestones/v1.1-ROADMAP.md`
+  - `milestones/v1.1-REQUIREMENTS.md`
+  - `milestones/v1.1-MILESTONE-AUDIT.md`
 
-## Active Roadmap
+## Current Status
 
-No active milestone is planned yet.
+No active milestone is open.
 
-Start the next planning cycle with `$gsd-new-milestone`.
-
-## Archived Milestone Summary
-
-v1.0 delivered the full personal self-host baseline: auth and onboarding, a trustworthy today/check-in engine, habit management and detail views, overview analytics, AI-facing REST/docs, and self-host deployment hardening.
-
-## Progress
-
-| Milestone | Phases | Plans Complete | Status | Archived |
-|-----------|--------|----------------|--------|----------|
-| v1.0 milestone | 1-6 | 16/16 | Complete | 2026-03-08 |
+Run `$gsd-new-milestone` to define the next set of requirements and roadmap phases.
