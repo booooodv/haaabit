@@ -285,7 +285,7 @@ export function HabitsPage({
                     New habit
                   </Button>
 
-                  <div className={styles.segmented} role="tablist" aria-label="Habit status">
+                  <div className={styles.segmented} role="group" aria-label="Habit status">
                     {(["active", "archived"] as const).map((option) => (
                       <Button
                         key={option}
