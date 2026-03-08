@@ -10,6 +10,7 @@
     "playwright": "playwright"
   },
   "dependencies": {
+    "@radix-ui/react-dialog": "^1.1.15",
     "@haaabit/contracts": "workspace:*",
     "better-auth": "^1.3.7",
     "next": "^16.1.6",

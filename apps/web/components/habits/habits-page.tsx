@@ -11,8 +11,10 @@ import {
   type HabitRecord,
 } from "../../lib/auth-client";
 import { routes } from "../../lib/navigation";
+import { Badge, Button, Field, Input, Notice, OverlayPanel, PageFrame, PageHeader, Select, Surface } from "../ui";
 import { HabitCreateForm } from "./habit-create-form";
 import { HabitDetailDrawer } from "./habit-detail-drawer";
+import styles from "./habits-page.module.css";
 
 type HabitsPageProps = {
   initialItems: HabitRecord[];
@@ -126,287 +128,176 @@ export function HabitsPage({
   }
 
   return (
-    <section
-      style={{
-        display: "grid",
-        gap: "1.5rem",
-      }}
-    >
-      <div
-        style={{
-          display: "grid",
-          gap: "1rem",
-          padding: "1.75rem",
-          borderRadius: "1.75rem",
-          background: "linear-gradient(135deg, #f7f0e6 0%, #efe2ce 100%)",
-          border: "1px solid #d9c5aa",
-          boxShadow: "0 20px 60px rgba(40, 28, 15, 0.08)",
-        }}
-      >
-        <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
-          <div style={{ display: "grid", gap: "0.35rem" }}>
-            <p style={{ margin: 0, color: "#7a5b33", letterSpacing: "0.08em", textTransform: "uppercase", fontSize: "0.8rem" }}>
-              Maintenance surface
-            </p>
-            <h1 style={{ margin: 0, fontSize: "2.1rem" }}>Habits</h1>
-            <p style={{ margin: 0, color: "#5f4e3e" }}>
-              Search, edit, archive, and restore habits without touching historical records.
-            </p>
+    <div className={styles.stack}>
+      <Surface variant="hero">
+        <PageFrame>
+          <PageHeader
+            eyebrow="Maintenance surface"
+            title="Habits"
+            description="Search, edit, archive, and restore habits without touching historical records."
+            actions={
+              <Button type="button" onClick={() => setOverlay({ mode: "create", habit: null })} size="lg">
+                New habit
+              </Button>
+            }
+          />
+
+          <div className={styles.segmented}>
+            {(["active", "archived"] as const).map((option) => (
+              <Button
+                key={option}
+                type="button"
+                variant={option === status ? "primary" : "secondary"}
+                onClick={() => setStatus(option)}
+              >
+                {option === "active" ? "Active" : "Archived"}
+              </Button>
+            ))}
           </div>
 
-          <button
-            type="button"
-            onClick={() => setOverlay({ mode: "create", habit: null })}
-            style={{
-              border: "none",
-              borderRadius: "999px",
-              background: "#173d35",
-              color: "#f7f3e8",
-              padding: "0.9rem 1.25rem",
-              fontWeight: 700,
-              cursor: "pointer",
-            }}
-          >
-            New habit
-          </button>
-        </div>
+          <div className={styles.filters}>
+            <Field label="Search" htmlFor="habit-search">
+              <Input
+                id="habit-search"
+                type="text"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Search name or category"
+              />
+            </Field>
 
-        <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
-          {(["active", "archived"] as const).map((option) => (
-            <button
-              key={option}
-              type="button"
-              onClick={() => setStatus(option)}
-              style={{
-                borderRadius: "999px",
-                border: option === status ? "1px solid #173d35" : "1px solid #cfbea8",
-                background: option === status ? "#173d35" : "#fff7eb",
-                color: option === status ? "#f7f3e8" : "#5d4e40",
-                padding: "0.6rem 1rem",
-                fontWeight: 600,
-                cursor: "pointer",
-              }}
-            >
-              {option === "active" ? "Active" : "Archived"}
-            </button>
-          ))}
-        </div>
+            <Field label="Category" htmlFor="habit-category-filter">
+              <Input
+                id="habit-category-filter"
+                type="text"
+                value={category}
+                onChange={(event) => setCategory(event.target.value)}
+                placeholder="Filter by category"
+              />
+            </Field>
 
-        <div
-          style={{
-            display: "grid",
-            gap: "0.9rem",
-            gridTemplateColumns: "repeat(auto-fit, minmax(12rem, 1fr))",
-          }}
-        >
-          <label style={{ display: "grid", gap: "0.35rem" }}>
-            Search
-            <input
-              type="text"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search name or category"
-            />
-          </label>
+            <Field label="Kind" htmlFor="habit-kind-filter">
+              <Select id="habit-kind-filter" value={kind} onChange={(event) => setKind(event.target.value as HabitKindFilter)}>
+                <option value="all">All kinds</option>
+                <option value="boolean">Boolean</option>
+                <option value="quantity">Quantity</option>
+              </Select>
+            </Field>
+          </div>
 
-          <label style={{ display: "grid", gap: "0.35rem" }}>
-            Category
-            <input
-              type="text"
-              value={category}
-              onChange={(event) => setCategory(event.target.value)}
-              placeholder="Filter by category"
-            />
-          </label>
+          {error ? (
+            <Notice tone="danger" title="Unable to update habits">
+              {error}
+            </Notice>
+          ) : isPending ? (
+            <p className={styles.statusText}>Updating habits...</p>
+          ) : null}
+        </PageFrame>
+      </Surface>
 
-          <label style={{ display: "grid", gap: "0.35rem" }}>
-            Kind
-            <select value={kind} onChange={(event) => setKind(event.target.value as HabitKindFilter)}>
-              <option value="all">All kinds</option>
-              <option value="boolean">Boolean</option>
-              <option value="quantity">Quantity</option>
-            </select>
-          </label>
-        </div>
-
-        {error ? (
-          <p style={{ margin: 0, color: "#9b2d30" }}>{error}</p>
-        ) : isPending ? (
-          <p style={{ margin: 0, color: "#6a5c4e" }}>Updating habits…</p>
-        ) : null}
-      </div>
-
-      <div style={{ display: "grid", gap: "1rem" }}>
+      <div className={styles.list}>
         {items.length > 0 ? (
           items.map((habit) => (
-            <article
-              key={habit.id}
-              style={{
-                display: "grid",
-                gap: "0.9rem",
-                padding: "1.35rem",
-                borderRadius: "1.35rem",
-                background: "#fffdf8",
-                border: "1px solid #d8d0c4",
-                boxShadow: "0 16px 40px rgba(40, 28, 15, 0.06)",
-              }}
-            >
-              <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
-                <div style={{ display: "grid", gap: "0.3rem" }}>
-                  <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
-                    <h2 style={{ margin: 0, fontSize: "1.2rem" }}>{habit.name}</h2>
-                    <span
-                      style={{
-                        display: "inline-flex",
-                        padding: "0.2rem 0.55rem",
-                        borderRadius: "999px",
-                        background: "#efe6d6",
-                        color: "#5b4c3e",
-                        fontSize: "0.85rem",
-                      }}
-                    >
-                      {habit.kind}
-                    </span>
-                    {habit.category ? (
-                      <span
-                        style={{
-                          display: "inline-flex",
-                          padding: "0.2rem 0.55rem",
-                          borderRadius: "999px",
-                          background: "#e3efe8",
-                          color: "#214f43",
-                          fontSize: "0.85rem",
-                        }}
-                      >
-                        {habit.category}
-                      </span>
-                    ) : null}
+            <article key={habit.id} className={styles.card}>
+              <div className={styles.cardHeader}>
+                <div className={styles.cardTitle}>
+                  <div className={styles.badgeRow}>
+                    <h2 className={styles.heading}>{habit.name}</h2>
+                    <Badge tone="neutral">{habit.kind}</Badge>
+                    {habit.category ? <Badge tone="info">{habit.category}</Badge> : null}
                   </div>
-                  <p style={{ margin: 0, color: "#5f5143" }}>{habit.description ?? "No description yet."}</p>
+                  <p className={styles.description}>{habit.description ?? "No description yet."}</p>
                 </div>
 
-                <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap", alignItems: "start" }}>
+                <div className={styles.actions}>
+                  <Link href={routes.habitDetail(habit.id)} className={styles.linkAction}>
+                    View details
+                  </Link>
                   {status === "active" ? (
                     <>
-                      <Link href={routes.habitDetail(habit.id)}>View details</Link>
-                      <button type="button" onClick={() => setOverlay({ mode: "edit", habit })}>
+                      <Button type="button" variant="secondary" onClick={() => setOverlay({ mode: "edit", habit })}>
                         Edit
-                      </button>
-                      <button type="button" onClick={() => handleArchive(habit.id)}>
+                      </Button>
+                      <Button type="button" variant="secondary" onClick={() => handleArchive(habit.id)}>
                         Archive
-                      </button>
+                      </Button>
                     </>
                   ) : (
-                    <>
-                      <Link href={routes.habitDetail(habit.id)}>View details</Link>
-                      <button type="button" onClick={() => handleRestore(habit.id)}>
-                        Restore
-                      </button>
-                    </>
+                    <Button type="button" variant="secondary" onClick={() => handleRestore(habit.id)}>
+                      Restore
+                    </Button>
                   )}
                 </div>
               </div>
 
-              <div
-                style={{
-                  display: "grid",
-                  gap: "0.5rem",
-                  gridTemplateColumns: "repeat(auto-fit, minmax(10rem, 1fr))",
-                  color: "#6b5e50",
-                }}
-              >
+              <div className={styles.metaGrid}>
                 <div>
-                  <strong style={{ display: "block", color: "#30251a" }}>Frequency</strong>
+                  <strong className={styles.metaLabel}>Frequency</strong>
                   {formatFrequency(habit)}
                 </div>
                 <div>
-                  <strong style={{ display: "block", color: "#30251a" }}>Target</strong>
+                  <strong className={styles.metaLabel}>Target</strong>
                   {formatMeta(habit)}
                 </div>
                 <div>
-                  <strong style={{ display: "block", color: "#30251a" }}>Start date</strong>
+                  <strong className={styles.metaLabel}>Start date</strong>
                   {habit.startDate}
                 </div>
                 <div>
-                  <strong style={{ display: "block", color: "#30251a" }}>State</strong>
+                  <strong className={styles.metaLabel}>State</strong>
                   {habit.isActive ? "Active" : "Archived"}
                 </div>
               </div>
             </article>
           ))
         ) : (
-          <div
-            style={{
-              borderRadius: "1.25rem",
-              border: "1px dashed #cdbfa9",
-              padding: "1.5rem",
-              color: "#6a5c4e",
-              background: "#fffcf5",
-            }}
-          >
-            {status === "active"
-              ? "No active habits match the current filters."
-              : "No archived habits match the current filters."}
-          </div>
+          <Surface variant="soft" padding="md">
+            <p className={styles.emptyState}>
+              {status === "active"
+                ? "No active habits match the current filters."
+                : "No archived habits match the current filters."}
+            </p>
+          </Surface>
         )}
       </div>
 
       {overlay ? (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(20, 18, 14, 0.42)",
-            display: "grid",
-            placeItems: "center",
-            padding: "1.5rem",
-            zIndex: 20,
+        <OverlayPanel
+          open
+          onOpenChange={(nextOpen) => {
+            if (!nextOpen) {
+              setOverlay(null);
+            }
           }}
+          variant="dialog"
+          title={overlay.mode === "create" ? "Create habit" : `Edit ${overlay.habit.name}`}
+          description={
+            overlay.mode === "create"
+              ? "Add a new habit without leaving the management list."
+              : "Update future behavior only. History remains unchanged."
+          }
+          testId="habit-form-overlay"
         >
-          <div
-            style={{
-              width: "min(42rem, 100%)",
-              maxHeight: "90vh",
-              overflow: "auto",
-              background: "#fffdf8",
-              borderRadius: "1.6rem",
-              border: "1px solid #d8d0c4",
-              boxShadow: "0 30px 80px rgba(30, 22, 14, 0.22)",
-              padding: "1.5rem",
-              display: "grid",
-              gap: "1rem",
+          <HabitCreateForm
+            key={overlay.mode === "create" ? "create" : overlay.habit.id}
+            mode={overlay.mode}
+            initialHabit={overlay.habit}
+            submitLabel={overlay.mode === "create" ? "Create habit" : "Save changes"}
+            onCancel={() => setOverlay(null)}
+            onSubmitted={async () => {
+              setOverlay(null);
+              if (overlay.mode === "create" && status !== "active") {
+                setStatus("active");
+                return;
+              }
+
+              refreshCurrentList();
             }}
-          >
-            <div style={{ display: "grid", gap: "0.3rem" }}>
-              <h2 style={{ margin: 0 }}>{overlay.mode === "create" ? "Create habit" : `Edit ${overlay.habit.name}`}</h2>
-              <p style={{ margin: 0, color: "#6f6255" }}>
-                {overlay.mode === "create"
-                  ? "Add a new habit without leaving the management list."
-                  : "Update future behavior only. History remains unchanged."}
-              </p>
-            </div>
-
-            <HabitCreateForm
-              key={overlay.mode === "create" ? "create" : overlay.habit.id}
-              mode={overlay.mode}
-              initialHabit={overlay.habit}
-              submitLabel={overlay.mode === "create" ? "Create habit" : "Save changes"}
-              onCancel={() => setOverlay(null)}
-              onSubmitted={async () => {
-                setOverlay(null);
-                if (overlay.mode === "create" && status !== "active") {
-                  setStatus("active");
-                  return;
-                }
-
-                refreshCurrentList();
-              }}
-            />
-          </div>
-        </div>
+          />
+        </OverlayPanel>
       ) : null}
 
       {initialDetail ? <HabitDetailDrawer detail={initialDetail} closeHref={closeDetailHref} /> : null}
-    </section>
+    </div>
   );
 }

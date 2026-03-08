@@ -1,0 +1,103 @@
+.stack {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.toolbar {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.segmented {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.filters {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+}
+
+.statusText {
+  color: var(--color-text-muted);
+}
+
+.list {
+  display: grid;
+  gap: 1rem;
+}
+
+.card {
+  display: grid;
+  gap: 1rem;
+  padding: 1.4rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: var(--shadow-soft);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.cardTitle {
+  display: grid;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.badgeRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.heading {
+  font-size: 1.45rem;
+}
+
+.description {
+  color: var(--color-text-muted);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: flex-start;
+}
+
+.linkAction {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.4rem;
+  color: var(--color-accent-strong);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.metaGrid {
+  display: grid;
+  gap: 0.8rem;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  color: var(--color-text-muted);
+}
+
+.metaLabel {
+  display: block;
+  margin-bottom: 0.2rem;
+  color: var(--color-heading);
+  font-weight: 700;
+}
+
+.emptyState {
+  color: var(--color-text-muted);
+}

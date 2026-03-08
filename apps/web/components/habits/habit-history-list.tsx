@@ -2,6 +2,9 @@
 
 import type { HabitDetailHistoryRow } from "@haaabit/contracts/habits";
 
+import { Badge } from "../ui";
+import styles from "./habit-history-list.module.css";
+
 function formatPeriod(row: HabitDetailHistoryRow) {
   if (row.periodType === "day") {
     return row.periodKey;
@@ -20,24 +23,17 @@ function formatOutcome(row: HabitDetailHistoryRow) {
 
 export function HabitHistoryList({ rows }: { rows: HabitDetailHistoryRow[] }) {
   return (
-    <div style={{ display: "grid", gap: "0.75rem" }}>
+    <div className={styles.rows}>
       {rows.map((row) => (
         <article
           key={`${row.periodType}-${row.periodKey}`}
-          style={{
-            display: "grid",
-            gap: "0.35rem",
-            padding: "0.9rem 1rem",
-            borderRadius: "1rem",
-            background: row.status === "completed" ? "#eef5ee" : "#f7efe7",
-            border: row.status === "completed" ? "1px solid #bad1ba" : "1px solid #d9c5aa",
-          }}
+          className={`${styles.row} ${row.status === "completed" ? styles.completed : styles.missed}`}
         >
-          <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
+          <div className={styles.rowHeader}>
             <strong>{formatPeriod(row)}</strong>
-            <span style={{ textTransform: "capitalize" }}>{row.status}</span>
+            <Badge tone={row.status === "completed" ? "success" : "warning"}>{row.status}</Badge>
           </div>
-          <span style={{ color: "#5e5247" }}>{formatOutcome(row)}</span>
+          <span className={styles.outcome}>{formatOutcome(row)}</span>
         </article>
       ))}
     </div>

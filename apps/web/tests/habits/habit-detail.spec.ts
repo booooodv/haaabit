@@ -51,7 +51,7 @@ test("habit detail supports list entry, direct link, and close back to the habit
   await readCard.getByRole("link", { name: "View details" }).click();
 
   await expect(page).toHaveURL(new RegExp(`/habits/${created.item.id}$`));
-  await expect(page.locator("aside").getByRole("heading", { name: "Read pages" })).toBeVisible();
+  await expect(page.getByTestId("habit-detail-overlay").getByRole("heading", { name: "Read pages" })).toBeVisible();
   await expect(page.getByText("Current streak")).toBeVisible();
   await expect(page.getByText("Recent history")).toBeVisible();
 
@@ -59,6 +59,6 @@ test("habit detail supports list entry, direct link, and close back to the habit
   await expect(page).toHaveURL(/\/habits$/);
 
   await page.goto(`/habits/${created.item.id}`);
-  await expect(page.locator("aside").getByRole("heading", { name: "Read pages" })).toBeVisible();
+  await expect(page.getByTestId("habit-detail-overlay").getByRole("heading", { name: "Read pages" })).toBeVisible();
   await expect(page.getByText("Total completions")).toBeVisible();
 });
