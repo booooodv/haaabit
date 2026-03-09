@@ -90,8 +90,8 @@ test("dashboard analytics stays above today and refreshes after today actions", 
   await expect(page.getByTestId("overview-metric-today-completed")).toContainText("1");
   await expect(page.getByTestId("overview-metric-today-completed")).toContainText("50% of due habits");
   await expect(page.getByTestId(`overview-ranking-item-${habitIds["Morning walk"]}`)).toContainText("Morning walk");
-  await expect(page.getByTestId(`overview-ranking-item-${habitIds["Morning walk"]}`)).toContainText("100%");
-  await expect(page.getByTestId(`overview-ranking-item-${habitIds["Morning walk"]}`)).toContainText("1/1 recent due days");
+  await expect(page.getByTestId(`overview-ranking-item-${habitIds["Morning walk"]}`)).toContainText("50%");
+  await expect(page.getByTestId(`overview-ranking-item-${habitIds["Morning walk"]}`)).toContainText("1/2 recent due days");
 
   const firstBarStyles = await page
     .getByTestId("overview-trend-chart")

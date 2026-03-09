@@ -3,7 +3,13 @@ import { pathToFileURL } from "node:url";
 import { z } from "zod";
 
 import type { PrismaClient } from "./generated/prisma/client";
-import { API_DOCS_PATH, API_SPEC_PATH, getPersonalApiToken, resetPersonalApiToken } from "./auth/api-token";
+import {
+  API_DOCS_PATH,
+  API_SPEC_PATH,
+  getPersonalApiToken,
+  migrateLegacyPersonalApiTokens,
+  resetPersonalApiToken,
+} from "./auth/api-token";
 import { registerAuth } from "./auth/auth";
 import {
   getRegistrationStatus,
@@ -20,19 +26,13 @@ import { registerCors } from "./plugins/cors";
 import { registerDb } from "./plugins/db";
 import { registerEnv } from "./plugins/env";
 import { registerOpenApi } from "./plugins/openapi";
+import { sendAuthError } from "./shared/controller-helpers";
 
 type CreateAppOptions = {
   env?: Partial<NodeJS.ProcessEnv>;
   logger?: boolean;
   prisma?: PrismaClient;
 };
-
-function sendAuthError(reply: FastifyReply, error: AuthSessionError): void {
-  reply.status(error.statusCode).send({
-    code: error.statusCode === 401 ? "UNAUTHORIZED" : "FORBIDDEN",
-    message: error.message,
-  });
-}
 
 function buildAuthProxyRequest(request: FastifyRequest) {
   const url = new URL(request.url, `http://${request.headers.host ?? "localhost"}`);
@@ -81,6 +81,7 @@ export async function createApp(options: CreateAppOptions = {}) {
 
   await registerEnv(app, options.env);
   await registerDb(app, options.prisma);
+  await migrateLegacyPersonalApiTokens(app.db);
   await registerCors(app);
   await registerAuth(app);
   await registerHabitRoutes(app);
@@ -262,7 +263,9 @@ export async function createApp(options: CreateAppOptions = {}) {
       const currentToken = await getPersonalApiToken(app.db, session.user.id);
 
       return {
-        token: currentToken?.token ?? null,
+        token: null,
+        hasToken: currentToken != null,
+        lastRotatedAt: currentToken?.updatedAt.toISOString() ?? null,
         docsPath: API_DOCS_PATH,
         specPath: API_SPEC_PATH,
       };
@@ -283,6 +286,8 @@ export async function createApp(options: CreateAppOptions = {}) {
 
       return {
         token: token.token,
+        hasToken: true,
+        lastRotatedAt: token.updatedAt.toISOString(),
         docsPath: API_DOCS_PATH,
         specPath: API_SPEC_PATH,
       };

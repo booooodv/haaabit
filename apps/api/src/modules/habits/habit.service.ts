@@ -7,6 +7,11 @@ import type {
   UpdateHabitInput,
 } from "@haaabit/contracts/habits";
 import type { PrismaClient } from "../../generated/prisma/client";
+import {
+  serializeContractFrequencyType,
+  serializeContractHabitKind,
+  serializeContractWeekdays,
+} from "../../shared/habit-contract-mappers";
 import { buildHabitTrendSlice } from "../stats/stats.shared";
 
 import { addDays, compareDateKeys, getMonthBounds, getWeekBounds, getWeekday, resolveHabitDay } from "../today/today-clock";
@@ -25,28 +30,6 @@ import {
   parseHabitListFilters,
   parseUpdateHabitInput,
 } from "./habit.schema";
-
-const reverseHabitKindMap = {
-  BOOLEAN: "boolean",
-  QUANTITY: "quantity",
-} as const;
-
-const reverseFrequencyTypeMap = {
-  DAILY: "daily",
-  WEEKLY_COUNT: "weekly_count",
-  WEEKDAYS: "weekdays",
-  MONTHLY_COUNT: "monthly_count",
-} as const;
-
-const reverseWeekdayMap = {
-  MONDAY: "monday",
-  TUESDAY: "tuesday",
-  WEDNESDAY: "wednesday",
-  THURSDAY: "thursday",
-  FRIDAY: "friday",
-  SATURDAY: "saturday",
-  SUNDAY: "sunday",
-} as const;
 
 const weekdayOrder = {
   monday: 1,
@@ -108,9 +91,7 @@ export class HabitInactiveError extends Error {
 }
 
 function getSerializedWeekdays(record: PersistedHabitRecord) {
-  return record.weekdays
-    .map((entry) => reverseWeekdayMap[entry.day as keyof typeof reverseWeekdayMap])
-    .sort((left, right) => weekdayOrder[left] - weekdayOrder[right]);
+  return serializeContractWeekdays(record.weekdays).sort((left, right) => weekdayOrder[left] - weekdayOrder[right]);
 }
 
 function serializeHabit(record: PersistedHabitRecord): HabitRecord {
@@ -118,14 +99,14 @@ function serializeHabit(record: PersistedHabitRecord): HabitRecord {
     id: record.id,
     userId: record.userId,
     name: record.name,
-    kind: reverseHabitKindMap[record.kind as keyof typeof reverseHabitKindMap],
+    kind: serializeContractHabitKind(record.kind),
     description: record.description,
     category: record.category,
     targetValue: record.targetValue,
     unit: record.unit,
     startDate: record.startDate,
     isActive: record.isActive,
-    frequencyType: reverseFrequencyTypeMap[record.frequencyType as keyof typeof reverseFrequencyTypeMap],
+    frequencyType: serializeContractFrequencyType(record.frequencyType),
     frequencyCount: record.frequencyCount,
     weekdays: getSerializedWeekdays(record),
     createdAt: record.createdAt,
@@ -170,7 +151,7 @@ function toFrequencyInput(record: PersistedHabitRecord): HabitFrequency {
 function toCreateHabitInput(record: PersistedHabitRecord): CreateHabitInput {
   return {
     name: record.name,
-    kind: reverseHabitKindMap[record.kind as keyof typeof reverseHabitKindMap],
+    kind: serializeContractHabitKind(record.kind),
     description: record.description ?? undefined,
     category: record.category ?? undefined,
     targetValue: record.targetValue ?? undefined,

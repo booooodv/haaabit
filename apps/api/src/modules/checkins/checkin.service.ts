@@ -1,4 +1,10 @@
 import type { PrismaClient } from "../../generated/prisma/client";
+import {
+  serializeContractFrequencyType,
+  serializeContractHabitKind,
+  serializeContractWeekday,
+  serializeContractWeekdays,
+} from "../../shared/habit-contract-mappers";
 
 import { HabitInactiveError } from "../habits/habit.service";
 import { resolveHabitDay } from "../today/today-clock";
@@ -17,28 +23,6 @@ import {
   parseUndoHabitInput,
   type CheckinSourceInput,
 } from "./checkin.schema";
-
-const reverseHabitKindMap = {
-  BOOLEAN: "boolean",
-  QUANTITY: "quantity",
-} as const;
-
-const reverseFrequencyTypeMap = {
-  DAILY: "daily",
-  WEEKLY_COUNT: "weekly_count",
-  WEEKDAYS: "weekdays",
-  MONTHLY_COUNT: "monthly_count",
-} as const;
-
-const reverseWeekdayMap = {
-  MONDAY: "monday",
-  TUESDAY: "tuesday",
-  WEDNESDAY: "wednesday",
-  THURSDAY: "thursday",
-  FRIDAY: "friday",
-  SATURDAY: "saturday",
-  SUNDAY: "sunday",
-} as const;
 
 const sourceMap = {
   web: "WEB",
@@ -89,13 +73,13 @@ function serializeHabit(habit: PersistedCheckinHabit) {
     id: habit.id,
     userId: habit.userId,
     name: habit.name,
-    kind: reverseHabitKindMap[habit.kind as keyof typeof reverseHabitKindMap],
-    frequencyType: reverseFrequencyTypeMap[habit.frequencyType as keyof typeof reverseFrequencyTypeMap],
+    kind: serializeContractHabitKind(habit.kind),
+    frequencyType: serializeContractFrequencyType(habit.frequencyType),
     frequencyCount: habit.frequencyCount,
     targetValue: habit.targetValue,
     unit: habit.unit,
     startDate: habit.startDate,
-    weekdays: habit.weekdays.map((entry) => reverseWeekdayMap[entry.day as keyof typeof reverseWeekdayMap]),
+    weekdays: serializeContractWeekdays(habit.weekdays),
   };
 }
 
@@ -116,9 +100,7 @@ function isHabitActionableToday(
   }
 
   if (habit.frequencyType === "WEEKDAYS") {
-    return habit.weekdays.some(
-      (entry) => reverseWeekdayMap[entry.day as keyof typeof reverseWeekdayMap] === day.weekday,
-    );
+    return habit.weekdays.some((entry) => serializeContractWeekday(entry.day) === day.weekday);
   }
 
   return true;

@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
 
+import { findUserByApiToken, migrateLegacyPersonalApiTokens } from "../../src/auth/api-token";
 import { createHabit } from "../../src/modules/habits/habit.service";
 import { createTestContext, signUp, type TestContext } from "../helpers/app";
 
@@ -52,11 +53,22 @@ describe("api token auth", () => {
     expect(issueResponse.statusCode).toBe(200);
     expect(issueResponse.json()).toMatchObject({
       token: expect.stringMatching(/^haaabit_/),
+      hasToken: true,
+      lastRotatedAt: expect.any(String),
       docsPath: "/api/docs",
       specPath: "/api/openapi.json",
     });
 
     const token = (issueResponse.json() as { token: string }).token;
+    const storedToken = await context.app.db.apiToken.findUnique({
+      where: {
+        userId: body.user.id,
+      },
+    });
+
+    expect(storedToken?.token).toBeTruthy();
+    expect(storedToken?.token).not.toBe(token);
+    expect(storedToken?.token.startsWith("haaabit_")).toBe(false);
 
     const habitsResponse = await context.app.inject({
       method: "GET",
@@ -153,9 +165,61 @@ describe("api token auth", () => {
 
     expect(readResponse.statusCode).toBe(200);
     expect(readResponse.json()).toMatchObject({
-      token: firstToken,
+      token: null,
+      hasToken: true,
+      lastRotatedAt: expect.any(String),
       docsPath: "/api/docs",
       specPath: "/api/openapi.json",
     });
+  });
+
+  it("migrates legacy plaintext tokens in place without breaking bearer auth", async () => {
+    context = await createTestContext();
+    const { body, cookie } = await signUp(context.app);
+
+    const resetResponse = await context.app.inject({
+      method: "POST",
+      url: "/api/api-access/token/reset",
+      headers: {
+        cookie,
+      },
+    });
+
+    expect(resetResponse.statusCode).toBe(200);
+    const issuedToken = (resetResponse.json() as { token: string }).token;
+
+    await context.app.db.apiToken.update({
+      where: {
+        userId: body.user.id,
+      },
+      data: {
+        token: issuedToken,
+      },
+    });
+
+    await migrateLegacyPersonalApiTokens(context.app.db);
+
+    const migratedRecord = await context.app.db.apiToken.findUnique({
+      where: {
+        userId: body.user.id,
+      },
+    });
+
+    expect(migratedRecord?.token).toBeTruthy();
+    expect(migratedRecord?.token).not.toBe(issuedToken);
+    expect(migratedRecord?.token.startsWith("haaabit_")).toBe(false);
+
+    const authenticatedUser = await findUserByApiToken(context.app.db, issuedToken);
+    expect(authenticatedUser?.id).toBe(body.user.id);
+
+    const habitsResponse = await context.app.inject({
+      method: "GET",
+      url: "/api/habits",
+      headers: {
+        authorization: `Bearer ${issuedToken}`,
+      },
+    });
+
+    expect(habitsResponse.statusCode).toBe(200);
   });
 });

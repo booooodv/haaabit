@@ -17,9 +17,35 @@
   - `milestones/v1.2-ROADMAP.md`
   - `milestones/v1.2-REQUIREMENTS.md`
   - `milestones/v1.2-MILESTONE-AUDIT.md`
+- ✅ **v1.3 Bug Fix Iteration** — shipped in the current code baseline on 2026-03-09; tracked planning archive was not preserved in this repository snapshot.
+- ✅ **v1.4 Open Source Readiness** — Phases 15-17, 7/7 plans complete, shipped and archived 2026-03-09.
+  Archive:
+  - `milestones/v1.4-ROADMAP.md`
+  - `milestones/v1.4-REQUIREMENTS.md`
+  Notes:
+  - No standalone `v1.4-MILESTONE-AUDIT.md` was recorded before archival.
 
-## Current Status
+## Active Milestone
 
-No active milestone is open.
+No active milestone is defined.
 
-Run `$gsd-new-milestone` to define the next set of requirements and roadmap phases.
+Run `$gsd-new-milestone` to define the next milestone, create a fresh `.planning/REQUIREMENTS.md`, and reopen roadmap planning.
+
+## Phases
+
+<details>
+<summary>✅ v1.4 Open Source Readiness (Phases 15-17) — SHIPPED 2026-03-09</summary>
+
+- [x] **Phase 15: Secret Storage and Auth Persistence Hardening** - 2/2 plans complete
+- [x] **Phase 16: Repository Exposure and Licensing Baseline** - 2/2 plans complete
+- [x] **Phase 17: Shared Hygiene Cleanup and Open-Source Release Gate** - 3/3 plans complete
+
+</details>
+
+## Progress
+
+| Phase | Plans Complete | Status | Completed |
+|-------|----------------|--------|-----------|
+| 15. Secret Storage and Auth Persistence Hardening | 2/2 | Complete | 2026-03-09 |
+| 16. Repository Exposure and Licensing Baseline | 2/2 | Complete | 2026-03-09 |
+| 17. Shared Hygiene Cleanup and Open-Source Release Gate | 3/3 | Complete | 2026-03-09 |

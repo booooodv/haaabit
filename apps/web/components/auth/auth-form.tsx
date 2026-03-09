@@ -23,6 +23,8 @@ type FormValues = {
   password: string;
 };
 
+type DraftValues = Pick<FormValues, "name" | "email">;
+
 type FormErrors = Partial<Record<keyof FormValues, string>>;
 
 type AuthFormCopy = LocaleMessages["auth"]["form"];
@@ -65,7 +67,7 @@ export function AuthForm({
       setValues({
         name: typeof parsed.name === "string" ? parsed.name : "",
         email: typeof parsed.email === "string" ? parsed.email : "",
-        password: typeof parsed.password === "string" ? parsed.password : "",
+        password: "",
       });
     } catch {
       window.sessionStorage.removeItem(AUTH_DRAFT_STORAGE_KEY);
@@ -79,8 +81,18 @@ export function AuthForm({
       return;
     }
 
-    window.sessionStorage.setItem(AUTH_DRAFT_STORAGE_KEY, JSON.stringify(values));
-  }, [hasHydratedDraft, values]);
+    const draftValues: DraftValues = {
+      name: mode === "sign-up" ? values.name : "",
+      email: values.email,
+    };
+
+    if (!draftValues.name && !draftValues.email) {
+      window.sessionStorage.removeItem(AUTH_DRAFT_STORAGE_KEY);
+      return;
+    }
+
+    window.sessionStorage.setItem(AUTH_DRAFT_STORAGE_KEY, JSON.stringify(draftValues));
+  }, [hasHydratedDraft, mode, values.email, values.name]);
 
   useEffect(() => {
     if (!registrationEnabled && mode === "sign-up") {

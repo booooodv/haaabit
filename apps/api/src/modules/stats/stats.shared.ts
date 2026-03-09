@@ -1,5 +1,11 @@
 import type { HabitTrendPoint } from "@haaabit/contracts/habits";
 
+import {
+  serializeContractFrequencyType,
+  serializeContractHabitKind,
+  serializeContractWeekday,
+  serializeContractWeekdays,
+} from "../../shared/habit-contract-mappers";
 import type { TodayHabitInput } from "../today/today.schema";
 import { buildTodaySummary } from "../today/today-summary";
 import { compareDateKeys, getMonthBounds, getWeekBounds, getWeekday, addDays } from "../today/today-clock";
@@ -22,28 +28,6 @@ type TrendHabitRecord = {
   weekdays: Array<{ day: string }>;
   dayStates: TrendDayState[];
 };
-
-const reverseHabitKindMap = {
-  BOOLEAN: "boolean",
-  QUANTITY: "quantity",
-} as const;
-
-const reverseFrequencyTypeMap = {
-  DAILY: "daily",
-  WEEKLY_COUNT: "weekly_count",
-  WEEKDAYS: "weekdays",
-  MONTHLY_COUNT: "monthly_count",
-} as const;
-
-const reverseWeekdayMap = {
-  MONDAY: "monday",
-  TUESDAY: "tuesday",
-  WEDNESDAY: "wednesday",
-  THURSDAY: "thursday",
-  FRIDAY: "friday",
-  SATURDAY: "saturday",
-  SUNDAY: "sunday",
-} as const;
 
 function countCompletedStatesInRange(states: TrendDayState[], rangeStart: string, rangeEnd: string) {
   return states.filter(
@@ -78,13 +62,13 @@ export function serializeHabitForToday(record: TrendHabitRecord): TodayHabitInpu
   return {
     id: record.id,
     name: record.name,
-    kind: reverseHabitKindMap[record.kind as keyof typeof reverseHabitKindMap],
-    frequencyType: reverseFrequencyTypeMap[record.frequencyType as keyof typeof reverseFrequencyTypeMap],
+    kind: serializeContractHabitKind(record.kind),
+    frequencyType: serializeContractFrequencyType(record.frequencyType),
     frequencyCount: record.frequencyCount,
     targetValue: record.targetValue,
     unit: record.unit,
     startDate: record.startDate,
-    weekdays: record.weekdays.map((entry) => reverseWeekdayMap[entry.day as keyof typeof reverseWeekdayMap]),
+    weekdays: serializeContractWeekdays(record.weekdays),
   };
 }
 
@@ -153,7 +137,7 @@ function isDueOnDate(record: TrendHabitRecord, dateKey: string) {
   }
 
   if (record.frequencyType === "WEEKDAYS") {
-    return record.weekdays.some((entry) => reverseWeekdayMap[entry.day as keyof typeof reverseWeekdayMap] === getWeekday(dateKey));
+    return record.weekdays.some((entry) => serializeContractWeekday(entry.day) === getWeekday(dateKey));
   }
 
   return true;

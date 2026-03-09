@@ -63,14 +63,28 @@ export function ApiAccessPanel({
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [isPending, setIsPending] = useState(false);
   const [isTokenRevealed, setIsTokenRevealed] = useState(false);
+  const hasFreshToken = tokenState.token != null;
+  const hasStoredToken = tokenState.hasToken;
+  const tokenDescription = hasFreshToken
+    ? copy.page.tokenDescriptions.fresh
+    : hasStoredToken
+      ? copy.page.tokenDescriptions.stored
+      : copy.page.tokenDescriptions.empty;
+  const formattedLastRotatedAt = formatTokenTimestamp(tokenState.lastRotatedAt);
 
   const tokenValue =
-    tokenState.token == null ? "" : isTokenRevealed ? tokenState.token : "••••••••••••••••••••••••";
+    !hasStoredToken
+      ? ""
+      : hasFreshToken
+        ? isTokenRevealed
+          ? tokenState.token ?? ""
+          : "••••••••••••••••••••••••"
+        : copy.page.storedTokenValue;
 
   async function refreshToken(generateNew: boolean, trigger?: HTMLButtonElement | null) {
     setFeedback({
       tone: "neutral",
-      title: generateNew ? copy.feedback.rotatePendingTitle(Boolean(tokenState.token)) : copy.feedback.refreshPendingTitle,
+      title: generateNew ? copy.feedback.rotatePendingTitle(tokenState.hasToken) : copy.feedback.refreshPendingTitle,
       message: copy.feedback.pendingMessage,
     });
     setIsPending(true);
@@ -81,7 +95,7 @@ export function ApiAccessPanel({
       setIsTokenRevealed(false);
       setFeedback({
         tone: "success",
-        title: generateNew ? copy.feedback.rotateSuccessTitle(Boolean(tokenState.token)) : copy.feedback.rotateSuccessTitle(Boolean(tokenState.token)),
+        title: copy.feedback.rotateSuccessTitle(tokenState.hasToken),
         message: copy.feedback.rotateSuccessMessage,
       });
     } catch (refreshError) {
@@ -129,7 +143,7 @@ export function ApiAccessPanel({
   }
 
   function handleRotateToken(trigger: HTMLButtonElement) {
-    if (tokenState.token && !window.confirm(copy.page.rotateConfirm)) {
+    if (tokenState.hasToken && !window.confirm(copy.page.rotateConfirm)) {
       requestAnimationFrame(() => trigger.focus());
       return;
     }
@@ -182,18 +196,31 @@ export function ApiAccessPanel({
             <Field
               label={copy.page.tokenLabel}
               htmlFor="api-access-token"
-              description={copy.page.tokenDescription}
+              description={tokenDescription}
             >
               <Input id="api-access-token" aria-label={copy.page.tokenLabel} readOnly value={tokenValue} />
             </Field>
 
-            {tokenState.token ? (
+            {hasFreshToken ? (
               <div className={styles.guidance}>
                 <p className={styles.guidanceTitle}>{copy.page.guidanceTitle}</p>
                 {copy.page.guidanceLines.map((line) => (
                   <p key={line}>{line}</p>
                 ))}
               </div>
+            ) : hasStoredToken ? (
+              <StatePanel
+                title={copy.page.storedStateTitle}
+                description={copy.page.storedStateDescription}
+                compact
+              >
+                {formattedLastRotatedAt ? (
+                  <p className={styles.metaRow}>
+                    <span className={styles.metaLabel}>{copy.page.lastRotatedLabel}</span>
+                    <span className={styles.metaValue}>{formattedLastRotatedAt}</span>
+                  </p>
+                ) : null}
+              </StatePanel>
             ) : (
               <StatePanel
                 title={copy.page.emptyStateTitle}
@@ -208,9 +235,9 @@ export function ApiAccessPanel({
                 onClick={(event) => handleRotateToken(event.currentTarget)}
                 disabled={isPending}
               >
-                {tokenState.token ? copy.page.actions.rotate : copy.page.actions.generate}
+                {tokenState.hasToken ? copy.page.actions.rotate : copy.page.actions.generate}
               </Button>
-              {tokenState.token ? (
+              {hasFreshToken ? (
                 <>
                   <Button
                     type="button"
@@ -295,4 +322,24 @@ export function ApiAccessPanel({
       </Surface>
     </section>
   );
+}
+
+function formatTokenTimestamp(value: string | null) {
+  if (!value) {
+    return null;
+  }
+
+  const parsed = new Date(value);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return value;
+  }
+
+  const year = parsed.getUTCFullYear();
+  const month = String(parsed.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(parsed.getUTCDate()).padStart(2, "0");
+  const hours = String(parsed.getUTCHours()).padStart(2, "0");
+  const minutes = String(parsed.getUTCMinutes()).padStart(2, "0");
+
+  return `${year}-${month}-${day} ${hours}:${minutes} UTC`;
 }

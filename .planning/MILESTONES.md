@@ -1,5 +1,20 @@
 # Milestones
 
+## v1.4 Open Source Readiness (Shipped: 2026-03-09)
+
+**Phases completed:** 3 phases, 7 plans, 14 tasks
+
+**Key accomplishments:**
+- Eliminated recoverable API-token storage by hashing tokens at rest, backfilling legacy plaintext rows, and switching token reads to metadata-only responses.
+- Removed browser-side password draft persistence while preserving non-secret auth form context across reloads.
+- Tightened the repository publication baseline with locked ignore coverage, a root MIT `LICENSE`, and deletion of stale dead code.
+- Centralized duplicated Fastify auth/timestamp helpers and habit contract enum mappers into shared API modules without changing shipped route or contract behavior.
+- Closed the milestone with a green release gate across repository metadata checks, full API Vitest, web production build, and focused Playwright critical paths.
+
+**Audit outcome:** No standalone `v1.4-MILESTONE-AUDIT.md` was present at archival time; milestone was archived from phase-level verification evidence and accepted as no-audit tech debt.
+
+---
+
 ## v1.0 milestone (Shipped: 2026-03-07)
 
 **Phases completed:** 6 phases, 16 plans, 48 tasks

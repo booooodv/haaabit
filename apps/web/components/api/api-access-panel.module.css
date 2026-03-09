@@ -46,6 +46,23 @@
   gap: 0.75rem;
 }
 
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: baseline;
+  color: var(--color-text-muted);
+}
+
+.metaLabel {
+  font-weight: 700;
+  color: var(--color-heading);
+}
+
+.metaValue {
+  font-variant-numeric: tabular-nums;
+}
+
 .quickstart {
   display: grid;
   gap: 1rem;

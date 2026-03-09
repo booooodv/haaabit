@@ -2,6 +2,7 @@ import { ZodError } from "zod";
 import type { FastifyReply, FastifyRequest } from "fastify";
 
 import { AuthSessionError, requireAuthenticatedUser } from "../../auth/session";
+import { getRequestTimestamp, sendAuthError } from "../../shared/controller-helpers";
 import {
   archiveHabit,
   createHabit,
@@ -12,13 +13,6 @@ import {
   restoreHabit,
   updateHabit,
 } from "./habit.service";
-
-function sendAuthError(reply: FastifyReply, error: AuthSessionError): void {
-  reply.status(error.statusCode).send({
-    code: error.statusCode === 401 ? "UNAUTHORIZED" : "FORBIDDEN",
-    message: error.message,
-  });
-}
 
 function sendHabitRequestError(reply: FastifyReply, error: unknown) {
   if (error instanceof ZodError) {
@@ -51,16 +45,6 @@ function sendHabitRequestError(reply: FastifyReply, error: unknown) {
 
 function getHabitId(request: FastifyRequest) {
   return (request.params as { habitId: string }).habitId;
-}
-
-function getRequestTimestamp(request: FastifyRequest) {
-  const header = request.headers["x-haaabit-now"];
-
-  if (request.server.env.NODE_ENV === "test" && typeof header === "string" && header.length > 0) {
-    return header;
-  }
-
-  return new Date();
 }
 
 export async function listHabitsHandler(request: FastifyRequest, reply: FastifyReply) {

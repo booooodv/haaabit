@@ -1,5 +1,9 @@
 import type { OverviewStats } from "@haaabit/contracts/stats";
 
+import {
+  serializeContractFrequencyType,
+  serializeContractHabitKind,
+} from "../../shared/habit-contract-mappers";
 import { parseOverviewStats } from "./stats.schema";
 import { findUserTimezone, listActiveHabitStatsRecords } from "./stats.repository";
 import { addDays, compareDateKeys, getWeekBounds, resolveHabitDay } from "../today/today-clock";
@@ -90,16 +94,8 @@ export async function getOverviewStats(
       return {
         habitId: habit.id,
         name: habit.name,
-        kind:
-          habit.kind === "QUANTITY" ? "quantity" : "boolean",
-        frequencyType:
-          habit.frequencyType === "DAILY"
-            ? "daily"
-            : habit.frequencyType === "WEEKLY_COUNT"
-              ? "weekly_count"
-              : habit.frequencyType === "WEEKDAYS"
-                ? "weekdays"
-                : "monthly_count",
+        kind: serializeContractHabitKind(habit.kind),
+        frequencyType: serializeContractFrequencyType(habit.frequencyType),
         completionRate: recent.completionRate,
         completedCount: recent.completedCount,
         totalCount: recent.totalCount,

@@ -49,4 +49,33 @@ test("auth keeps sign-in failures in context", async ({ page }) => {
   await expect(page.getByLabel("Password")).toHaveValue("password123");
   await expect(page.getByRole("button", { name: "Sign in" })).toBeVisible();
   await expect(page).toHaveURL(/\/$/);
+
+  const draft = await page.evaluate(() => window.sessionStorage.getItem("haaabit-auth-form-draft"));
+  expect(draft).toContain("\"email\":\"wrong@example.com\"");
+  expect(draft).not.toContain("password123");
+
+  await page.reload();
+
+  await expect(page.getByLabel("Email")).toHaveValue("wrong@example.com");
+  await expect(page.getByLabel("Password")).toHaveValue("");
+});
+
+test("auth draft keeps only non-secret fields across reloads", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Create account" }).click();
+  await page.getByLabel("Name").fill("Draft User");
+  await page.getByLabel("Email").fill("draft@example.com");
+  await page.getByLabel("Password").fill("password123");
+
+  const draft = await page.evaluate(() => window.sessionStorage.getItem("haaabit-auth-form-draft"));
+  expect(draft).toContain("\"name\":\"Draft User\"");
+  expect(draft).toContain("\"email\":\"draft@example.com\"");
+  expect(draft).not.toContain("password123");
+
+  await page.reload();
+
+  await page.getByRole("button", { name: "Create account" }).click();
+  await expect(page.getByLabel("Name")).toHaveValue("Draft User");
+  await expect(page.getByLabel("Email")).toHaveValue("draft@example.com");
+  await expect(page.getByLabel("Password")).toHaveValue("");
 });

@@ -3,6 +3,15 @@ import type { FastifyReply, FastifyRequest } from "fastify";
 
 import { AuthSessionError, requireAuthenticatedUser } from "../../auth/session";
 import {
+  getRequestTimestamp,
+  sendAuthError,
+} from "../../shared/controller-helpers";
+import {
+  serializeContractFrequencyType,
+  serializeContractHabitKind,
+  serializeContractWeekdays,
+} from "../../shared/habit-contract-mappers";
+import {
   completeHabitForToday,
   NothingToUndoError,
   setHabitTotalForToday,
@@ -14,49 +23,10 @@ import { HabitInactiveError } from "../habits/habit.service";
 import { buildTodaySummary } from "./today-summary";
 import { resolveHabitDay } from "./today-clock";
 
-const reverseHabitKindMap = {
-  BOOLEAN: "boolean",
-  QUANTITY: "quantity",
-} as const;
-
-const reverseFrequencyTypeMap = {
-  DAILY: "daily",
-  WEEKLY_COUNT: "weekly_count",
-  WEEKDAYS: "weekdays",
-  MONTHLY_COUNT: "monthly_count",
-} as const;
-
-const reverseWeekdayMap = {
-  MONDAY: "monday",
-  TUESDAY: "tuesday",
-  WEDNESDAY: "wednesday",
-  THURSDAY: "thursday",
-  FRIDAY: "friday",
-  SATURDAY: "saturday",
-  SUNDAY: "sunday",
-} as const;
-
 type PeriodCounter = {
   week: number;
   month: number;
 };
-
-function sendAuthError(reply: FastifyReply, error: AuthSessionError): void {
-  reply.status(error.statusCode).send({
-    code: error.statusCode === 401 ? "UNAUTHORIZED" : "FORBIDDEN",
-    message: error.message,
-  });
-}
-
-function getRequestTimestamp(request: FastifyRequest) {
-  const header = request.headers["x-haaabit-now"];
-
-  if (request.server.env.NODE_ENV === "test" && typeof header === "string" && header.length > 0) {
-    return header;
-  }
-
-  return new Date();
-}
 
 function serializeHabit(habit: {
   id: string;
@@ -72,13 +42,13 @@ function serializeHabit(habit: {
   return {
     id: habit.id,
     name: habit.name,
-    kind: reverseHabitKindMap[habit.kind as keyof typeof reverseHabitKindMap],
-    frequencyType: reverseFrequencyTypeMap[habit.frequencyType as keyof typeof reverseFrequencyTypeMap],
+    kind: serializeContractHabitKind(habit.kind),
+    frequencyType: serializeContractFrequencyType(habit.frequencyType),
     frequencyCount: habit.frequencyCount,
     targetValue: habit.targetValue,
     unit: habit.unit,
     startDate: habit.startDate,
-    weekdays: habit.weekdays.map((entry) => reverseWeekdayMap[entry.day as keyof typeof reverseWeekdayMap]),
+    weekdays: serializeContractWeekdays(habit.weekdays),
   };
 }
 

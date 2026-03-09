@@ -17,9 +17,17 @@ export type ApiAccessCopy = {
     title: string;
     description: string;
     tokenLabel: string;
-    tokenDescription: string;
+    tokenDescriptions: {
+      empty: string;
+      fresh: string;
+      stored: string;
+    };
     guidanceTitle: string;
     guidanceLines: string[];
+    storedStateTitle: string;
+    storedStateDescription: string;
+    storedTokenValue: string;
+    lastRotatedLabel: string;
     emptyStateTitle: string;
     emptyStateDescription: string;
     actions: {
@@ -69,12 +77,20 @@ const apiAccessCopy: Record<SupportedLocale, ApiAccessCopy> = {
       title: "API access",
       description: "Manage the personal bearer token your scripts and assistants should use when calling Haaabit.",
       tokenLabel: "Personal API token",
-      tokenDescription: "Hidden by default. Reveal it only when you need to copy it into a trusted client.",
+      tokenDescriptions: {
+        empty: "Generate a token before trying bearer-authenticated API calls.",
+        fresh: "Hidden by default. Reveal it only when you need to copy it into a trusted client right now.",
+        stored: "This token is already stored securely. Rotate it to get a new raw value you can copy.",
+      },
       guidanceTitle: "Treat this token like a password.",
       guidanceLines: [
         "Store it in a trusted secret store or private environment file.",
         "Rotation invalidates the previous token immediately.",
       ],
+      storedStateTitle: "Token already stored securely",
+      storedStateDescription: "Raw token values are shown only once, right after generation or rotation.",
+      storedTokenValue: "Stored securely - rotate to reveal a new token",
+      lastRotatedLabel: "Last rotated",
       emptyStateTitle: "No personal API token yet",
       emptyStateDescription: "No personal API token has been generated yet.",
       actions: {
@@ -122,12 +138,20 @@ const apiAccessCopy: Record<SupportedLocale, ApiAccessCopy> = {
       title: "API 访问",
       description: "管理脚本和助手在调用 Haaabit 时应使用的个人 bearer token。",
       tokenLabel: "个人 API token",
-      tokenDescription: "默认隐藏。只有在你确实需要复制到可信客户端时才显示它。",
+      tokenDescriptions: {
+        empty: "先生成 token，再去发起 bearer 鉴权的 API 调用。",
+        fresh: "默认隐藏。只有在你需要立刻复制到可信客户端时才显示它。",
+        stored: "这个 token 已安全存储。若要重新拿到原始值，请轮换生成新的 token。",
+      },
       guidanceTitle: "请像保管密码一样保管这个 token。",
       guidanceLines: [
         "把它存进可信的密钥管理工具或私有环境变量文件。",
         "轮换后，旧 token 会立即失效。",
       ],
+      storedStateTitle: "token 已安全保存",
+      storedStateDescription: "原始 token 只会在生成或轮换后显示一次。",
+      storedTokenValue: "已安全保存，如需原始值请轮换新的 token",
+      lastRotatedLabel: "上次轮换",
       emptyStateTitle: "还没有个人 API token",
       emptyStateDescription: "当前还没有生成个人 API token。",
       actions: {

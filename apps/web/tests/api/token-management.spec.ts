@@ -85,6 +85,16 @@ test("signed-in users can generate and view their personal api token", async ({ 
   await page.getByRole("button", { name: "复制 token" }).click();
   await expect(page.getByTestId("api-access-feedback")).toContainText("token 已复制");
 
+  await page.reload();
+
+  await expect(tokenField).not.toHaveValue(firstToken);
+  await expect(tokenField).toHaveValue("已安全保存，如需原始值请轮换新的 token");
+  await expect(page.getByRole("button", { name: "显示 token" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "复制 token" })).toHaveCount(0);
+  await expect(page.getByText("token 已安全保存")).toBeVisible();
+  await expect(page.getByText("原始 token 只会在生成或轮换后显示一次。")).toBeVisible();
+  await expect(page.getByText(/上次轮换/)).toBeVisible();
+
   const rotateButton = page.getByRole("button", { name: "轮换 token" });
   await rotateButton.focus();
   let firstDialogMessage = "";
@@ -95,7 +105,7 @@ test("signed-in users can generate and view their personal api token", async ({ 
   await rotateButton.click({ force: true });
   await expect.poll(() => firstDialogMessage).toContain("旧 token 会立即失效");
 
-  await expect(tokenField).toHaveValue(firstToken);
+  await expect(tokenField).toHaveValue("已安全保存，如需原始值请轮换新的 token");
 
   let secondDialogMessage = "";
   page.once("dialog", (dialog) => {

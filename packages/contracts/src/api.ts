@@ -6,6 +6,8 @@ const dateTimeStringSchema = z.string().datetime({ offset: true });
 
 export const apiAccessTokenResponseSchema = z.object({
   token: z.string().nullable(),
+  hasToken: z.boolean(),
+  lastRotatedAt: dateTimeStringSchema.nullable(),
   docsPath: nonEmptyString,
   specPath: nonEmptyString,
 });
