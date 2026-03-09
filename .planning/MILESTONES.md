@@ -1,5 +1,20 @@
 # Milestones
 
+## v1.5 MCP Integration (Shipped: 2026-03-09)
+
+**Phases completed:** 4 phases, 11 plans, 22 tasks
+
+**Key accomplishments:**
+- Added a real `packages/mcp` workspace package that can be published as `@haaabit/mcp` and launched by generic MCP clients over local `stdio`.
+- Reused the shipped bearer-authenticated API and shared contracts instead of introducing a second backend or duplicating schema definitions.
+- Shipped full habits, today, and stats read/write MCP tool coverage with centralized MCP-facing error semantics.
+- Added package-local operator docs, generic `npx` setup examples, and README smoke checks tied to the actual package metadata and tool inventory.
+- Closed the milestone with a release gate covering package build, full MCP Vitest coverage, built-CLI stdio discovery/read/write integration, and upstream API contract regressions.
+
+**Audit outcome:** `passed`. See `milestones/v1.5-MILESTONE-AUDIT.md`.
+
+---
+
 ## v1.4 Open Source Readiness (Shipped: 2026-03-09)
 
 **Phases completed:** 3 phases, 7 plans, 14 tasks

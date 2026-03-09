@@ -12,6 +12,7 @@ Self-hosted habit tracker that makes "what should I do today?" legible to both h
 - **Reversible check-ins** — every action creates an immutable mutation record; undo anytime
 - **Streaks and analytics** — current/longest streaks, 7-day and 30-day trends, stability ranking
 - **REST API with OpenAPI docs** — bearer-authenticated endpoints for habits, today, stats, and check-ins
+- **MCP package for AI hosts** — publishable `@haaabit/mcp` package that exposes the same personal-token-compatible habits, today, and stats surface over local `stdio`
 - **AI-ready** — structured API and provenance-tracked mutations let AI agents check in on your behalf
 - **Bilingual UI** — English and Chinese with browser-language detection and manual switching
 - **Archive and restore** — shelve habits without losing history
@@ -100,6 +101,17 @@ All endpoints require Bearer token authentication. Generate a personal API token
 
 Full request/response examples are available at `/api/docs`.
 
+## MCP Package / MCP 包
+
+Haaabit also ships a standalone MCP package for generic MCP clients:
+
+- Package: [`@haaabit/mcp`](./packages/mcp/README.md)
+- Transport: local `stdio`
+- Auth model: existing `HAAABIT_API_URL` + personal API token
+- Tool surface: habits, today, and stats read/write coverage
+
+See [`packages/mcp/README.md`](./packages/mcp/README.md) for setup examples and the full tool list.
+
 ## Project Structure / 项目结构
 
 ```
@@ -108,6 +120,7 @@ apps/
   web/          Next.js web app
 packages/
   contracts/    Shared Zod schemas and TypeScript types
+  mcp/          MCP server package for generic AI hosts
 prisma/         Database schema and migrations
 docker/         Caddy config
 docs/           Self-hosting guides
