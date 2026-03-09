@@ -1,0 +1,52 @@
+{
+  "name": "@haaabit/mcp",
+  "version": "0.1.0",
+  "private": false,
+  "description": "Generic stdio MCP server for Haaabit habits, today, and stats APIs.",
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/booooodv/haaabit.git",
+    "directory": "packages/mcp"
+  },
+  "homepage": "https://github.com/booooodv/haaabit/tree/main/packages/mcp",
+  "bugs": {
+    "url": "https://github.com/booooodv/haaabit/issues"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "haaabit",
+    "habits",
+    "productivity"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "bin": {
+    "haaabit": "./dist/src/cli.js"
+  },
+  "exports": {
+    ".": "./dist/src/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "vitest": "vitest"
+  },
+  "dependencies": {
+    "@haaabit/contracts": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.27.1",
+    "zod": "^4.1.5"
+  },
+  "devDependencies": {
+    "vitest": "^3.2.4"
+  }
+}

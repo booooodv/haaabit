@@ -1,0 +1,263 @@
+import { todayActionResponseSchema, todayAffectedHabitSchema, todaySummaryResponseSchema, todaySummarySchema } from "@haaabit/contracts/today";
+import { completeHabitInputSchema, setHabitTotalInputSchema, undoHabitInputSchema } from "@haaabit/contracts/checkins";
+import { z } from "zod";
+
+import type { HaaabitApiClient } from "../client/api-client.js";
+import { createMutationToolResult, createReadToolResult, formatNameList } from "./read-results.js";
+import type { InventoryTool } from "./inventory.js";
+
+export const todayTools: InventoryTool[] = [
+  {
+    name: "today_get_summary",
+    method: "GET",
+    path: "/today",
+    description: "Get the canonical today summary.",
+    responseSchema: todaySummaryResponseSchema,
+    outputSchema: z.object({
+      today: todaySummarySchema,
+    }),
+    adapter: "summary_to_today",
+  },
+  {
+    name: "today_complete",
+    method: "POST",
+    path: "/today/complete",
+    description: "Complete a boolean habit for today.",
+    inputSchema: completeHabitInputSchema,
+    responseSchema: todayActionResponseSchema,
+    outputSchema: z.object({
+      habit: todayAffectedHabitSchema,
+      today: todaySummarySchema,
+    }),
+    adapter: "action_to_today",
+  },
+  {
+    name: "today_set_total",
+    method: "POST",
+    path: "/today/set-total",
+    description: "Set today's total for a quantified habit.",
+    inputSchema: setHabitTotalInputSchema,
+    responseSchema: todayActionResponseSchema,
+    outputSchema: z.object({
+      habit: todayAffectedHabitSchema,
+      today: todaySummarySchema,
+    }),
+    adapter: "action_to_today",
+  },
+  {
+    name: "today_undo",
+    method: "POST",
+    path: "/today/undo",
+    description: "Undo today's latest mutation.",
+    inputSchema: undoHabitInputSchema,
+    responseSchema: todayActionResponseSchema,
+    outputSchema: z.object({
+      habit: todayAffectedHabitSchema,
+      today: todaySummarySchema,
+    }),
+    adapter: "action_to_today",
+  },
+];
+
+export function createTodayReadHandlers(client: HaaabitApiClient) {
+  return {
+    today_get_summary: async () => {
+      const payload = todaySummaryResponseSchema.parse(await client.request("/today"));
+
+      return createReadToolResult("today_get_summary", payload, summarizeToday(payload));
+    },
+  };
+}
+
+export function createTodayWriteHandlers(client: HaaabitApiClient) {
+  return {
+    today_complete: async (input: unknown) => {
+      const parsed = completeHabitInputSchema.parse(input);
+      const payload = todayActionResponseSchema.parse(
+        await client.request("/today/complete", {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+          },
+          body: JSON.stringify(parsed),
+        }),
+      );
+
+      return createMutationToolResult("today_complete", payload, summarizeCompletedHabit(payload));
+    },
+    today_set_total: async (input: unknown) => {
+      const parsed = setHabitTotalInputSchema.parse(input);
+      const payload = todayActionResponseSchema.parse(
+        await client.request("/today/set-total", {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+          },
+          body: JSON.stringify(parsed),
+        }),
+      );
+
+      return createMutationToolResult("today_set_total", payload, summarizeSetTotal(payload));
+    },
+    today_undo: async (input: unknown) => {
+      const parsed = undoHabitInputSchema.parse(input);
+      const payload = todayActionResponseSchema.parse(
+        await client.request("/today/undo", {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+          },
+          body: JSON.stringify(parsed),
+        }),
+      );
+
+      return createMutationToolResult("today_undo", payload, summarizeUndo(payload));
+    },
+  };
+}
+
+function summarizeToday(payload: {
+  summary: {
+    totalCount: number;
+    pendingCount: number;
+    completedCount: number;
+    pendingItems: Array<{ name: string }>;
+    completedItems: Array<{ name: string }>;
+  };
+}) {
+  const { totalCount, pendingCount, completedCount, pendingItems, completedItems } = payload.summary;
+
+  if (totalCount === 0) {
+    return "No habits are scheduled for today.";
+  }
+
+  if (pendingCount === 0) {
+    const completedNames = formatNameList(completedItems.map((item) => item.name));
+
+    return `Today is complete: ${completedCount} of ${totalCount} habits finished (${completedNames}).`;
+  }
+
+  const pendingNames = formatNameList(pendingItems.map((item) => item.name));
+
+  return `${pendingCount} still need attention today; ${completedCount} of ${totalCount} are done. Pending: ${pendingNames}.`;
+}
+
+function summarizeCompletedHabit(payload: {
+  affectedHabit: {
+    name: string;
+  };
+  summary: {
+    totalCount: number;
+    pendingCount: number;
+    completedCount: number;
+    pendingItems: Array<{ name: string }>;
+  };
+}) {
+  return `Completed ${payload.affectedHabit.name}. ${summarizeTodayRefresh(payload.summary)}`;
+}
+
+function summarizeSetTotal(payload: {
+  affectedHabit: {
+    id: string;
+    name: string;
+    targetValue: number | null;
+    unit: string | null;
+  };
+  summary: {
+    totalCount: number;
+    pendingCount: number;
+    completedCount: number;
+    pendingItems: Array<{
+      habitId: string;
+      name: string;
+      progress: {
+        currentValue: number | null;
+        targetValue: number | null;
+        unit: string | null;
+      };
+    }>;
+    completedItems: Array<{
+      habitId: string;
+      name: string;
+      progress: {
+        currentValue: number | null;
+        targetValue: number | null;
+        unit: string | null;
+      };
+    }>;
+  };
+}) {
+  const item = findTodayItem(payload.summary, payload.affectedHabit.id);
+  const currentValue = item?.progress.currentValue ?? 0;
+  const targetValue = item?.progress.targetValue ?? payload.affectedHabit.targetValue;
+  const unit = item?.progress.unit ?? payload.affectedHabit.unit;
+
+  return `${payload.affectedHabit.name} is now ${formatProgress(currentValue, targetValue, unit)}. ${summarizeTodayRefresh(payload.summary)}`;
+}
+
+function summarizeUndo(payload: {
+  affectedHabit: {
+    name: string;
+    kind: "boolean" | "quantity";
+  };
+  summary: {
+    totalCount: number;
+    pendingCount: number;
+    completedCount: number;
+    pendingItems: Array<{ name: string }>;
+  };
+}) {
+  const actionLabel = payload.affectedHabit.kind === "quantity" ? "set total" : "completion";
+
+  return `Undid today's ${actionLabel} for ${payload.affectedHabit.name}. ${summarizeTodayRefresh(payload.summary)}`;
+}
+
+function summarizeTodayRefresh(summary: {
+  totalCount: number;
+  pendingCount: number;
+  completedCount: number;
+  pendingItems: Array<{ name: string }>;
+}) {
+  if (summary.totalCount === 0) {
+    return "No habits are scheduled for today.";
+  }
+
+  if (summary.pendingCount === 0) {
+    return `No habits are pending now; ${summary.completedCount} of ${summary.totalCount} are done.`;
+  }
+
+  const pendingNames = formatNameList(summary.pendingItems.map((item) => item.name));
+
+  return `${summary.pendingCount} still need attention today. Pending: ${pendingNames}.`;
+}
+
+function findTodayItem(
+  summary: {
+    pendingItems: Array<{
+      habitId: string;
+      progress: {
+        currentValue: number | null;
+        targetValue: number | null;
+        unit: string | null;
+      };
+    }>;
+    completedItems: Array<{
+      habitId: string;
+      progress: {
+        currentValue: number | null;
+        targetValue: number | null;
+        unit: string | null;
+      };
+    }>;
+  },
+  habitId: string,
+) {
+  return [...summary.pendingItems, ...summary.completedItems].find((item) => item.habitId === habitId);
+}
+
+function formatProgress(currentValue: number | null, targetValue: number | null, unit: string | null) {
+  const left = currentValue ?? 0;
+  const right = targetValue ?? 0;
+
+  return unit ? `${left}/${right} ${unit}` : `${left}/${right}`;
+}

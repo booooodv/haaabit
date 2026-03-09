@@ -24,28 +24,25 @@
   - `milestones/v1.4-REQUIREMENTS.md`
   Notes:
   - No standalone `v1.4-MILESTONE-AUDIT.md` was recorded before archival.
+- ✅ **v1.5 MCP Integration** — Phases 18-21, 11/11 plans complete, shipped and archived 2026-03-09.
+  Archive:
+  - `milestones/v1.5-ROADMAP.md`
+  - `milestones/v1.5-REQUIREMENTS.md`
+  - `milestones/v1.5-MILESTONE-AUDIT.md`
 
 ## Active Milestone
 
-No active milestone is defined.
+No active milestone.
 
-Run `$gsd-new-milestone` to define the next milestone, create a fresh `.planning/REQUIREMENTS.md`, and reopen roadmap planning.
+Run `$gsd-new-milestone` to define the next version, create a fresh `.planning/REQUIREMENTS.md`, and open a new roadmap slice.
 
-## Phases
+## Carry-Forward Candidates
 
-<details>
-<summary>✅ v1.4 Open Source Readiness (Phases 15-17) — SHIPPED 2026-03-09</summary>
+- Remote Streamable HTTP transport for Haaabit MCP
+- MCP registry publication metadata
+- Web-publication polish such as `error.tsx`, `not-found.tsx`, and Docker `pnpm` parity
+- Future product expansion items from archived requirements (`NOTF-01`, `NOTF-02`, `VISX-01`, `PROD-01`)
 
-- [x] **Phase 15: Secret Storage and Auth Persistence Hardening** - 2/2 plans complete
-- [x] **Phase 16: Repository Exposure and Licensing Baseline** - 2/2 plans complete
-- [x] **Phase 17: Shared Hygiene Cleanup and Open-Source Release Gate** - 3/3 plans complete
+---
 
-</details>
-
-## Progress
-
-| Phase | Plans Complete | Status | Completed |
-|-------|----------------|--------|-----------|
-| 15. Secret Storage and Auth Persistence Hardening | 2/2 | Complete | 2026-03-09 |
-| 16. Repository Exposure and Licensing Baseline | 2/2 | Complete | 2026-03-09 |
-| 17. Shared Hygiene Cleanup and Open-Source Release Gate | 3/3 | Complete | 2026-03-09 |
+_For current project status, see `.planning/STATE.md`._

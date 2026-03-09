@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.4
-milestone_name: Open Source Readiness
-status: milestone_complete
-stopped_at: v1.4 archived; waiting to define the next milestone
-last_updated: "2026-03-09T08:31:50Z"
-last_activity: 2026-03-09 — Archived v1.4 Open Source Readiness milestone
+milestone: v1.5
+milestone_name: MCP Integration
+status: milestone_completed
+stopped_at: v1.5 archived; next step is start a new milestone
+last_updated: "2026-03-09T23:55:00+08:00"
+last_activity: 2026-03-09 — Archived v1.5 MCP Integration milestone
 progress:
-  total_phases: 3
-  completed_phases: 3
-  total_plans: 7
-  completed_plans: 7
+  total_phases: 4
+  completed_phases: 4
+  total_plans: 11
+  completed_plans: 11
   percent: 100
 ---
 
@@ -21,24 +21,24 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-09)
 
 **Core value:** Let AI accurately understand what the user needs to do today and reliably complete habit check-ins on the user's behalf.
-**Current focus:** Planning the next milestone after the archived v1.4 release-readiness pass
+**Current focus:** Define the next milestone
 
 ## Current Position
 
-Milestone: v1.4 archived
-Phase: 17 complete
-Plan: 17-01, 17-02, 17-03 complete
-Status: v1.4 is archived in `.planning/milestones/`; no active milestone is currently defined
-Last activity: 2026-03-09 — Archived v1.4 roadmap and requirements, and prepared the workspace for next-milestone planning
+Milestone: none active
+Phase: v1.5 archived
+Plan: all v1.5 plans complete
+Status: The v1.5 MCP Integration milestone is archived; the workspace is ready for a fresh milestone definition
+Last activity: 2026-03-09 — Archived roadmap, requirements, and audit artifacts for v1.5
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 41 across shipped milestones represented in tracked planning docs
+- Total plans completed: 41 across archived milestones represented in tracked planning docs
 - Average duration: Not normalized across archived milestones
-- Total execution time: Not tracked in archived roadmap metadata
+- Total execution time: Not tracked consistently in archived roadmap metadata
 
 **By Phase:**
 
@@ -47,10 +47,15 @@ Progress: [██████████] 100%
 | 15 | 2 | complete | ~18 min / ~17 min |
 | 16 | 2 | complete | ~6 min / ~5 min |
 | 17 | 3 | complete | ~11 min / ~11 min / ~32 min |
+| 18 | 3 | complete | session-spanning |
+| 19 | 3 | complete | session-spanning |
+| 20 | 3 | complete | ~2 min / ~3 min / ~3 min |
+| 21 | 2 | complete | ~4 min / ~6 min |
 
 **Recent Trend:**
-- The shipped code baseline closed a bugfix pass before this milestone reopened publication-oriented hardening.
-- Phase 15 removed the secret-handling blockers, Phase 16 closed the repository publication baseline, and Phase 17 finished the shared cleanup plus the final release gate.
+- The codebase now has a real MCP package foundation, explicit tool inventory, and one verified stdio launch path for generic clients.
+- The MCP package now has verified read and write tool coverage plus centralized MCP-facing error semantics over the existing REST API.
+- The roadmap and requirement set are now archived through v1.5, so the next planning cycle can start cleanly.
 
 ## Accumulated Context
 
@@ -59,23 +64,23 @@ Progress: [██████████] 100%
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
-- v1.2 localized product-owned copy and docs into Chinese and English while preserving user-entered habit data and existing API payload contracts.
-- The current code baseline already includes the post-v1.2 bugfix iteration around undo semantics, registration control, analytics correctness, and UI polish.
-- The next milestone should prioritize open-source safety and repository hygiene over optional UX polish or new product capabilities.
-- Phase 15 now stores personal API tokens as hashes, returns metadata-only token reads, and removes password persistence from browser storage.
-- Phase 16 now blocks the locked local/private artifacts in `.gitignore`, adds a root MIT `LICENSE`, and removes the dead `listHabitRecords()` helper.
-- Phase 17 now centralizes duplicated API auth/timestamp helpers, centralizes contract enum mappers, and closes the repository release gate with green API/build/browser verification.
+- v1.5 will add MCP as a monorepo package instead of introducing a separate service.
+- MCP will reuse the existing API base URL and personal API token model rather than adding a second auth path.
+- v1.5 should prioritize generic MCP clients and local `stdio` launch before remote HTTP transport.
+- The package should cover the full personal-token-compatible habits, today, and stats API surface.
 
 ### Pending Todos
 
-- Run `$gsd-new-milestone` to define the next milestone and create a fresh requirements file.
+- Run `$gsd-new-milestone` to define the next milestone and create a fresh `.planning/REQUIREMENTS.md`.
+- Decide whether the next milestone should focus on MCP transport/publishing follow-through or on product capabilities outside MCP.
 
 ### Blockers/Concerns
 
-- No active blockers. The next action is strategic: decide the next milestone and create fresh requirements/roadmap docs.
+- MCP registry metadata and remote transport remain intentionally deferred beyond this phase.
+- MCP should continue avoiding browser-session/admin routes that do not fit the personal-token model.
 
 ## Session Continuity
 
-Last session: 2026-03-09T08:31:50Z
-Stopped at: v1.4 archived; waiting to define the next milestone
+Last session: 2026-03-09T23:55:00+08:00
+Stopped at: v1.5 archived; next step is start a new milestone
 Resume file: .planning/ROADMAP.md
