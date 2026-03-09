@@ -1,4 +1,4 @@
-import { overviewStatsResponseSchema, overviewStatsSchema } from "@haaabit/contracts/stats";
+import { overviewStatsResponseSchema, overviewStatsSchema } from "../contracts/stats.js";
 import { z } from "zod";
 
 import type { HaaabitApiClient } from "../client/api-client.js";

@@ -12,12 +12,16 @@ const packageRoot = path.resolve(__dirname, "../..");
 const packageJsonPath = path.resolve(__dirname, "../../package.json");
 
 describe("mcp package bootstrap", () => {
-  it("publishes the haaabit bin entry that matches the built artifact", async () => {
+  it("publishes a bin entry that matches the built artifact", async () => {
     const contents = await readFile(packageJsonPath, "utf8");
-    const pkg = JSON.parse(contents) as { bin?: Record<string, string> };
-    const binPath = pkg.bin?.haaabit;
+    const pkg = JSON.parse(contents) as { bin?: Record<string, string> | string };
+    const binPath = typeof pkg.bin === "string"
+      ? pkg.bin
+      : pkg.bin
+        ? Object.values(pkg.bin)[0]
+        : undefined;
 
-    expect(binPath).toBe("./dist/src/cli.js");
+    expect(binPath).toBe("dist/cli.js");
     await expect(access(path.resolve(packageRoot, binPath!))).resolves.toBeUndefined();
   });
 
@@ -57,12 +61,16 @@ describe("mcp package bootstrap", () => {
       access: "public",
     });
     expect(pkg.exports).toEqual({
-      ".": "./dist/src/index.js",
+      ".": "./dist/index.js",
     });
     expect(pkg.files).toEqual(["dist"]);
   });
 
-  it("creates a stdio-ready server with package metadata", () => {
+  it("creates a stdio-ready server with package metadata", async () => {
+    const pkg = JSON.parse(await readFile(packageJsonPath, "utf8")) as {
+      name: string;
+      version: string;
+    };
     const server = createServer({
       apiUrl: "https://habit.example.com/api",
       apiToken: "secret-token",
@@ -70,8 +78,8 @@ describe("mcp package bootstrap", () => {
 
     expect(server.server).toBeDefined();
     expect(server.metadata).toEqual({
-      name: "@haaabit/mcp",
-      version: "0.1.0",
+      name: pkg.name,
+      version: pkg.version,
     });
   });
 

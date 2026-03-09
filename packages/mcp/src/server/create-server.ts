@@ -1,15 +1,8 @@
-import { createRequire } from "node:module";
-
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import packageJson from "../../package.json";
 
 import { HaaabitApiClient } from "../client/api-client.js";
 import { createDiscoveryHandlers } from "../tools/inventory.js";
-
-const require = createRequire(import.meta.url);
-const pkg = require("../../package.json") as {
-  name: string;
-  version: string;
-};
 
 export type CreateServerOptions = {
   apiUrl: string;
@@ -38,8 +31,8 @@ export type HaaabitMcpServer = {
 
 export function createServer(options: CreateServerOptions): HaaabitMcpServer {
   const metadata = {
-    name: pkg.name,
-    version: pkg.version,
+    name: packageJson.name,
+    version: packageJson.version,
   };
   const server = new McpServer(metadata);
   const client = new HaaabitApiClient({

@@ -1,5 +1,5 @@
-import { todayActionResponseSchema, todayAffectedHabitSchema, todaySummaryResponseSchema, todaySummarySchema } from "@haaabit/contracts/today";
-import { completeHabitInputSchema, setHabitTotalInputSchema, undoHabitInputSchema } from "@haaabit/contracts/checkins";
+import { completeHabitInputSchema, setHabitTotalInputSchema, undoHabitInputSchema } from "../contracts/checkins.js";
+import { todayActionResponseSchema, todayAffectedHabitSchema, todaySummaryResponseSchema, todaySummarySchema } from "../contracts/today.js";
 import { z } from "zod";
 
 import type { HaaabitApiClient } from "../client/api-client.js";

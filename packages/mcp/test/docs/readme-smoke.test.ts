@@ -15,8 +15,13 @@ describe("package README smoke", () => {
     const readme = await readFile(readmePath, "utf8");
     const packageJson = JSON.parse(await readFile(packageJsonPath, "utf8")) as {
       name: string;
-      bin?: Record<string, string>;
+      bin?: Record<string, string> | string;
     };
+    const binPath = typeof packageJson.bin === "string"
+      ? packageJson.bin
+      : packageJson.bin
+        ? Object.values(packageJson.bin)[0]
+        : undefined;
 
     expect(readme).toContain("# @haaabit/mcp");
     expect(readme).toContain("HAAABIT_API_URL");
@@ -28,7 +33,7 @@ describe("package README smoke", () => {
     expect(readme).toContain(`"args": ["-y", "${packageJson.name}"]`);
     expect(readme).toContain("Claude Code");
     expect(readme).toContain("MCP Inspector");
-    expect(packageJson.bin?.haaabit).toBe("./dist/src/cli.js");
+    expect(binPath).toBe("dist/cli.js");
   });
 
   it("lists every shipped tool with its one-line inventory description", async () => {

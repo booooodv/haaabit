@@ -1,4 +1,4 @@
-import { habitPathParamsSchema } from "@haaabit/contracts/api";
+import { habitPathParamsSchema } from "../contracts/api.js";
 import {
   createHabitInputSchema,
   habitDetailResponseSchema,
@@ -6,7 +6,7 @@ import {
   habitItemResponseSchema,
   habitListResponseSchema,
   updateHabitInputSchema,
-} from "@haaabit/contracts/habits";
+} from "../contracts/habits.js";
 import { z } from "zod";
 
 import type { HaaabitApiClient } from "../client/api-client.js";
