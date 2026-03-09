@@ -75,11 +75,13 @@ docker compose up -d
 ./scripts/self-host/check.sh
 ```
 
-If the health check passes, open:
+If the health check passes, open `${APP_BASE_URL}/` to register.
 
-- `${APP_BASE_URL}/`
-- `${APP_BASE_URL}/api/docs`
-- `${APP_BASE_URL}/api/openapi.json`
+### After installation
+
+- **First user is admin**: the first account registered is automatically promoted to admin and can toggle whether new user registration is allowed.
+- **API access**: each user can generate a personal API token from the API Access page. Tokens are hashed with SHA-256 at rest — the plaintext is shown only once on creation.
+- **Interactive API docs**: visit `${APP_BASE_URL}/api/docs` for the full OpenAPI documentation, or fetch the spec at `${APP_BASE_URL}/api/openapi.json`.
 
 ### Locale behavior for operators
 
@@ -204,11 +206,13 @@ docker compose up -d
 ./scripts/self-host/check.sh
 ```
 
-如果健康检查通过，请打开：
+如果健康检查通过，请打开 `${APP_BASE_URL}/` 注册账号。
 
-- `${APP_BASE_URL}/`
-- `${APP_BASE_URL}/api/docs`
-- `${APP_BASE_URL}/api/openapi.json`
+### 安装后
+
+- **首个用户即管理员**：首个注册的账号会自动成为管理员，可以开关是否允许新用户注册。
+- **API 访问**：每个用户可以在 API Access 页面生成个人 API Token。Token 以 SHA-256 哈希存储，明文仅在创建时展示一次。
+- **交互式 API 文档**：访问 `${APP_BASE_URL}/api/docs` 查看完整的 OpenAPI 文档，或通过 `${APP_BASE_URL}/api/openapi.json` 获取规范文件。
 
 ### 面向 operator 的语言行为说明
 

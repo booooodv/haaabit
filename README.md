@@ -1,53 +1,118 @@
 # Haaabit
 
-Self-hosted habit tracking focused on making "what should I do today?" legible to both humans and AI callers.
+Self-hosted habit tracker that makes "what should I do today?" legible to both humans and AI.
 
-自托管习惯追踪工具，让人和 AI 都能更清楚地知道“今天该做什么”。
+自托管习惯追踪工具，让人和 AI 都能清楚地知道"今天该做什么"。
 
-## Docs
+## Features / 功能
 
-- Bilingual self-host docs live in the repository and keep commands, paths, headers, and other technical literals in English for copyability.
-- 双语自托管文档直接保存在仓库里；命令、路径、header 和其他技术字面量保持英文，便于直接复制使用。
+- **Today-first dashboard** — see pending and completed habits at a glance, with completion rates and trends
+- **Boolean and quantified habits** — simple yes/no or numeric targets (e.g. "Read 10 pages")
+- **Flexible recurrence** — daily, specific weekdays, weekly count, or monthly count
+- **Reversible check-ins** — every action creates an immutable mutation record; undo anytime
+- **Streaks and analytics** — current/longest streaks, 7-day and 30-day trends, stability ranking
+- **REST API with OpenAPI docs** — bearer-authenticated endpoints for habits, today, stats, and check-ins
+- **AI-ready** — structured API and provenance-tracked mutations let AI agents check in on your behalf
+- **Bilingual UI** — English and Chinese with browser-language detection and manual switching
+- **Archive and restore** — shelve habits without losing history
+- **Admin controls** — first user becomes admin; toggle new-user registration on or off
+- **Single-binary deployment** — SQLite database, Docker Compose, no external services required
 
-- [Self-host install guide / 自托管安装指南](./docs/self-hosting.md)
-- [Self-host upgrade guide / 自托管升级指南](./docs/self-hosting-upgrades.md)
+## Tech Stack / 技术栈
 
-## English Quickstart
+| Layer | Technology |
+|-------|-----------|
+| API | Fastify, Prisma, better-auth, Zod |
+| Web | Next.js (App Router), CSS Modules, Radix UI |
+| Database | SQLite |
+| Proxy | Caddy |
+| Runtime | Node.js, TypeScript, pnpm |
+| Testing | Vitest (API), Playwright (E2E) |
 
-The official self-hosted path is a single public entrypoint backed by three services:
-
-- `proxy` for public routing
-- `web` for the Next.js app
-- `api` for auth, habits, today, stats, and OpenAPI
-
-Quick commands:
+## Quick Start (Docker) / 快速开始
 
 ```bash
+git clone https://github.com/booooodv/haaabit.git
+cd haaabit
 cp .env.example .env
+# Edit .env — set BETTER_AUTH_SECRET (run: openssl rand -hex 32)
+
 docker compose build web api
 docker compose run --rm migrate
 docker compose up -d
-./scripts/self-host/check.sh
 ```
 
-Use the install guide for the full two-step setup and locale-behavior notes, then use the upgrade guide for backup-first releases.
+Open `http://localhost:8080` — the first registered user becomes admin.
 
-## 中文快速开始
+For the full setup guide, see [Self-host install guide / 自托管安装指南](./docs/self-hosting.md).
 
-官方自托管路径只有一个对外入口，由三个服务组成：
+For upgrades, see [Self-host upgrade guide / 自托管升级指南](./docs/self-hosting-upgrades.md).
 
-- `proxy` 负责公网入口和路由转发
-- `web` 负责 Next.js 应用
-- `api` 负责 auth、habits、today、stats 和 OpenAPI
+## Local Development / 本地开发
 
-快速命令：
+Prerequisites: Node.js 20+, pnpm 10+
 
 ```bash
+# Install dependencies
+pnpm install
+
+# Generate Prisma client
+pnpm prisma:generate
+
+# Copy env and set BETTER_AUTH_SECRET
 cp .env.example .env
-docker compose build web api
-docker compose run --rm migrate
-docker compose up -d
-./scripts/self-host/check.sh
+
+# Start API and web in parallel
+pnpm dev
 ```
 
-完整的两步安装流程、语言行为说明和升级前备份流程，请分别查看上面的安装指南与升级指南。
+- Web: `http://localhost:3000`
+- API: `http://localhost:3001`
+- API docs: `http://localhost:3001/api/docs`
+
+### Running Tests / 运行测试
+
+```bash
+# API unit tests (Vitest)
+pnpm test
+
+# E2E browser tests (Playwright)
+pnpm test:e2e
+```
+
+## API Overview / API 概览
+
+All endpoints require Bearer token authentication. Generate a personal API token from the web UI under API Access.
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/today` | Today's habits with status |
+| `POST` | `/api/today/complete` | Complete a boolean habit |
+| `POST` | `/api/today/set-total` | Set value for a quantified habit |
+| `POST` | `/api/today/undo` | Undo the latest check-in |
+| `GET` | `/api/habits` | List habits (filterable) |
+| `POST` | `/api/habits` | Create a habit |
+| `GET` | `/api/habits/:id` | Habit detail with stats and history |
+| `PATCH` | `/api/habits/:id` | Update a habit |
+| `GET` | `/api/stats/overview` | Dashboard analytics |
+| `GET` | `/api/openapi.json` | OpenAPI 3.1 spec |
+| `GET` | `/api/docs` | Interactive API documentation |
+
+Full request/response examples are available at `/api/docs`.
+
+## Project Structure / 项目结构
+
+```
+apps/
+  api/          Fastify API server
+  web/          Next.js web app
+packages/
+  contracts/    Shared Zod schemas and TypeScript types
+prisma/         Database schema and migrations
+docker/         Caddy config
+docs/           Self-hosting guides
+```
+
+## License / 许可证
+
+[MIT](./LICENSE)
