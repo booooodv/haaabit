@@ -72,6 +72,18 @@ type HabitStateSnapshot = {
   completed: boolean;
 };
 
+export class TodayActionUnavailableError extends Error {
+  constructor() {
+    super("This habit is not actionable in today right now");
+  }
+}
+
+export class NothingToUndoError extends Error {
+  constructor() {
+    super("There is no successful today action to undo");
+  }
+}
+
 function serializeHabit(habit: PersistedCheckinHabit) {
   return {
     id: habit.id,
@@ -93,6 +105,23 @@ function getDefaultState(dateKey: string): HabitStateSnapshot {
     value: null,
     completed: false,
   };
+}
+
+function isHabitActionableToday(
+  habit: PersistedCheckinHabit,
+  day: ReturnType<typeof resolveHabitDay>,
+) {
+  if (day.todayKey < habit.startDate) {
+    return false;
+  }
+
+  if (habit.frequencyType === "WEEKDAYS") {
+    return habit.weekdays.some(
+      (entry) => reverseWeekdayMap[entry.day as keyof typeof reverseWeekdayMap] === day.weekday,
+    );
+  }
+
+  return true;
 }
 
 async function resolveCheckinContext(
@@ -201,6 +230,10 @@ export async function completeHabitForToday(
     throw new Error("Only boolean habits can use complete");
   }
 
+  if (!isHabitActionableToday(context.habit, context.day)) {
+    throw new TodayActionUnavailableError();
+  }
+
   return persistMutation(dependencies, {
     habit: context.habit,
     currentState: context.dayState,
@@ -278,13 +311,16 @@ export async function undoHabitForToday(
     habitId: context.habit.id,
     dateKey: context.day.todayKey,
   });
-  const nextState = latestMutation
-    ? {
-        dateKey: context.day.todayKey,
-        value: latestMutation.previousValue,
-        completed: latestMutation.previousCompleted,
-      }
-    : getDefaultState(context.day.todayKey);
+
+  if (!latestMutation) {
+    throw new NothingToUndoError();
+  }
+
+  const nextState = {
+    dateKey: context.day.todayKey,
+    value: latestMutation.previousValue,
+    completed: latestMutation.previousCompleted,
+  };
 
   return persistMutation(dependencies, {
     habit: context.habit,

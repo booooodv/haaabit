@@ -3,7 +3,12 @@
 import type { ApiAccessTokenResponse } from "@haaabit/contracts/api";
 import { useState } from "react";
 
-import { getApiAccessToken, resetApiAccessToken } from "../../lib/auth-client";
+import {
+  getAdminRegistrationSettings,
+  getApiAccessToken,
+  resetApiAccessToken,
+  updateAdminRegistrationSettings,
+} from "../../lib/auth-client";
 import { createApiUrl } from "../../lib/api";
 import { getApiAccessCopy } from "../../lib/i18n/api-access";
 import {
@@ -46,12 +51,15 @@ function fallbackCopyText(value: string) {
 
 export function ApiAccessPanel({
   initialTokenState,
+  initialRegistrationState = null,
 }: {
   initialTokenState: ApiAccessTokenResponse;
+  initialRegistrationState?: { registrationEnabled: boolean } | null;
 }) {
   const { locale } = useLocale();
   const copy = getApiAccessCopy(locale);
   const [tokenState, setTokenState] = useState(initialTokenState);
+  const [registrationState, setRegistrationState] = useState(initialRegistrationState);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [isPending, setIsPending] = useState(false);
   const [isTokenRevealed, setIsTokenRevealed] = useState(false);
@@ -86,6 +94,47 @@ export function ApiAccessPanel({
       setIsPending(false);
       requestAnimationFrame(() => trigger?.focus());
     }
+  }
+
+  async function refreshRegistration(registrationEnabled: boolean, trigger?: HTMLButtonElement | null) {
+    setFeedback({
+      tone: "neutral",
+      title: copy.page.registration.title,
+      message: copy.feedback.pendingMessage,
+    });
+    setIsPending(true);
+
+    try {
+      const nextState =
+        registrationState == null
+          ? await getAdminRegistrationSettings()
+          : await updateAdminRegistrationSettings(registrationEnabled);
+
+      setRegistrationState(nextState);
+      setFeedback({
+        tone: "success",
+        title: copy.page.registration.title,
+        message: nextState.registrationEnabled ? copy.page.registration.enabled : copy.page.registration.disabled,
+      });
+    } catch (error) {
+      setFeedback({
+        tone: "danger",
+        title: copy.feedback.updateErrorTitle,
+        message: error instanceof Error ? error.message : copy.feedback.updateErrorTitle,
+      });
+    } finally {
+      setIsPending(false);
+      requestAnimationFrame(() => trigger?.focus());
+    }
+  }
+
+  function handleRotateToken(trigger: HTMLButtonElement) {
+    if (tokenState.token && !window.confirm(copy.page.rotateConfirm)) {
+      requestAnimationFrame(() => trigger.focus());
+      return;
+    }
+
+    void refreshToken(true, trigger);
   }
 
   async function copyToken() {
@@ -156,7 +205,7 @@ export function ApiAccessPanel({
             <div className={styles.actions}>
               <Button
                 type="button"
-                onClick={(event) => void refreshToken(true, event.currentTarget)}
+                onClick={(event) => handleRotateToken(event.currentTarget)}
                 disabled={isPending}
               >
                 {tokenState.token ? copy.page.actions.rotate : copy.page.actions.generate}
@@ -175,7 +224,7 @@ export function ApiAccessPanel({
                     type="button"
                     variant="secondary"
                     onClick={() => void copyToken()}
-                    disabled={isPending || !isTokenRevealed}
+                    disabled={isPending}
                   >
                     {copy.page.actions.copy}
                   </Button>
@@ -207,6 +256,41 @@ export function ApiAccessPanel({
               </a>
             </div>
           </Surface>
+
+          {registrationState ? (
+            <Surface variant="soft" className={styles.registrationSurface} padding="md">
+              <div className={styles.quickstartCopy}>
+                <span className={styles.kicker}>{copy.page.registration.eyebrow}</span>
+                <h2>{copy.page.registration.title}</h2>
+                <p>{copy.page.registration.description}</p>
+              </div>
+
+              <StatePanel
+                title={
+                  registrationState.registrationEnabled
+                    ? copy.page.registration.enabled
+                    : copy.page.registration.disabled
+                }
+                compact
+              />
+
+              <div className={styles.actions}>
+                <Button
+                  type="button"
+                  variant={registrationState.registrationEnabled ? "danger" : "secondary"}
+                  onClick={(event) =>
+                    void refreshRegistration(!registrationState.registrationEnabled, event.currentTarget)
+                  }
+                  disabled={isPending}
+                >
+                  {registrationState.registrationEnabled
+                    ? copy.page.registration.disableAction
+                    : copy.page.registration.enableAction}
+                </Button>
+                {isPending ? <DisabledHint>{copy.page.registration.pendingHint}</DisabledHint> : null}
+              </div>
+            </Surface>
+          ) : null}
         </PageFrame>
       </Surface>
     </section>

@@ -1,15 +1,59 @@
 import { expect, type APIRequestContext, type BrowserContext, type Page } from "@playwright/test";
 
-export async function signUpAndCreateFirstHabit(page: Page, email: string, name = "Accessibility User") {
+export async function signUpInBrowser(page: Page, email: string, name = "Accessibility Browser User") {
   await page.goto("/");
-  await page.getByRole("button", { name: "Create account" }).click();
-  await page.getByLabel("Name").fill(name);
-  await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password").fill("password123");
-  await page.getByRole("button", { name: "Create account" }).click();
-  await page.getByLabel("Habit name").fill("Morning walk");
+  const result = await page.evaluate(
+    async ({ nextEmail, nextName }) => {
+      const response = await fetch("http://127.0.0.1:3001/api/auth/sign-up/email", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          email: nextEmail,
+          password: "password123",
+          name: nextName,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+
+      return (await response.json()) as { user: { id: string } };
+    },
+    {
+      nextEmail: email,
+      nextName: name,
+    },
+  );
+
+  expect(result.user.id).toBeTruthy();
+  await page.goto("/habits/new");
+}
+
+export async function createFirstHabit(
+  page: Page,
+  input: {
+    name?: string;
+    startDate?: string;
+  } = {},
+) {
+  await page.goto("/habits/new");
+  await page.getByLabel("Habit name").fill(input.name ?? "Morning walk");
+
+  if (input.startDate) {
+    await page.getByLabel("Start date").fill(input.startDate);
+  }
+
   await page.getByRole("button", { name: "Create first habit" }).click();
   await expect(page).toHaveURL(/\/dashboard$/);
+}
+
+export async function signUpAndCreateFirstHabit(page: Page, email: string, name = "Accessibility User") {
+  await signUpInBrowser(page, email, name);
+  await createFirstHabit(page);
 }
 
 export async function signUpThroughApi(

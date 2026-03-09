@@ -127,6 +127,20 @@ export const commonBadRequestResponses = {
           message: "Only boolean habits can use complete",
         },
       },
+      notActionableToday: {
+        summary: "Habit is not actionable in today",
+        value: {
+          code: "BAD_REQUEST",
+          message: "This habit is not actionable in today right now",
+        },
+      },
+      nothingToUndo: {
+        summary: "No successful today action to undo",
+        value: {
+          code: "BAD_REQUEST",
+          message: "There is no successful today action to undo",
+        },
+      },
     },
   },
 } as const;

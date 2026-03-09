@@ -15,7 +15,6 @@ test.describe("locale foundation", () => {
       await expect(page.getByRole("heading", { name: "登录 Haaabit" })).toBeVisible();
       await expect(page.getByRole("button", { name: "登录" })).toBeVisible();
       await expect(page.getByRole("button", { name: "创建账户" })).toBeVisible();
-      await expect(page.getByText("由你部署，数据由你掌控")).toBeVisible();
     });
   });
 
@@ -61,5 +60,41 @@ test.describe("locale foundation", () => {
       await expect(page.getByTestId("app-shell-utility-nav").getByRole("link", { name: "API 访问" })).toBeVisible();
       await expect(page.getByRole("button", { name: "退出登录" })).toBeVisible();
     });
+  });
+
+  test("ignores extension-injected html classes during hydration", async ({ page, request, context }) => {
+    const email = `locale-hydration-${Date.now()}@example.com`;
+    const consoleErrors: string[] = [];
+
+    await signUpThroughApi(request, context, email, "Hydration Guard User");
+
+    page.on("console", (message) => {
+      if (message.type() === "error") {
+        consoleErrors.push(message.text());
+      }
+    });
+
+    await page.route("**/habits", async (route) => {
+      const response = await route.fetch();
+      const html = await response.text();
+
+      await route.fulfill({
+        response,
+        body: html.replace(
+          "<head>",
+          "<head><script>document.documentElement.classList.add('trancy-zh-CN')</script>",
+        ),
+      });
+    });
+
+    await page.goto("/habits");
+
+    await expect(page.getByRole("heading", { name: "Habits", exact: true })).toBeVisible();
+
+    expect(
+      consoleErrors.filter((entry) =>
+        entry.includes("A tree hydrated but some attributes of the server rendered HTML didn't match"),
+      ),
+    ).toEqual([]);
   });
 });

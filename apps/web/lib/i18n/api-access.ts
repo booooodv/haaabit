@@ -29,6 +29,7 @@ export type ApiAccessCopy = {
       hide: string;
       copy: string;
     };
+    rotateConfirm: string;
     disabledHint: string;
     quickstart: {
       eyebrow: string;
@@ -36,6 +37,16 @@ export type ApiAccessCopy = {
       description: string;
       docsLink: string;
       specLink: string;
+    };
+    registration: {
+      eyebrow: string;
+      title: string;
+      description: string;
+      enabled: string;
+      disabled: string;
+      enableAction: string;
+      disableAction: string;
+      pendingHint: string;
     };
   };
 };
@@ -73,6 +84,7 @@ const apiAccessCopy: Record<SupportedLocale, ApiAccessCopy> = {
         hide: "Hide token",
         copy: "Copy token",
       },
+      rotateConfirm: "Rotating this token invalidates the previous value immediately. Continue?",
       disabledHint: "Token controls unlock after the current request settles.",
       quickstart: {
         eyebrow: "Quickstart",
@@ -80,6 +92,16 @@ const apiAccessCopy: Record<SupportedLocale, ApiAccessCopy> = {
         description: "Start with the bearer header, then verify the connection against today's summary endpoint.",
         docsLink: "Open API docs",
         specLink: "OpenAPI JSON",
+      },
+      registration: {
+        eyebrow: "Admin",
+        title: "Registration access",
+        description: "Control whether new users can create local accounts from the sign-in page.",
+        enabled: "Registration is open",
+        disabled: "Registration is closed",
+        enableAction: "Reopen registration",
+        disableAction: "Close registration",
+        pendingHint: "Registration controls unlock after the current request settles.",
       },
     },
   },
@@ -115,6 +137,7 @@ const apiAccessCopy: Record<SupportedLocale, ApiAccessCopy> = {
         hide: "隐藏 token",
         copy: "复制 token",
       },
+      rotateConfirm: "轮换后，旧 token 会立即失效。确定继续吗？",
       disabledHint: "当前请求完成后，token 控件会恢复可用。",
       quickstart: {
         eyebrow: "快速开始",
@@ -122,6 +145,16 @@ const apiAccessCopy: Record<SupportedLocale, ApiAccessCopy> = {
         description: "先带上 bearer header，再用 today summary 接口验证连接是否正常。",
         docsLink: "打开 API 文档",
         specLink: "OpenAPI JSON",
+      },
+      registration: {
+        eyebrow: "管理员",
+        title: "注册权限",
+        description: "控制登录页是否允许新用户继续创建本地账户。",
+        enabled: "当前允许注册",
+        disabled: "当前已关闭注册",
+        enableAction: "重新开启注册",
+        disableAction: "关闭注册",
+        pendingHint: "当前请求完成后，注册权限控件会恢复可用。",
       },
     },
   },

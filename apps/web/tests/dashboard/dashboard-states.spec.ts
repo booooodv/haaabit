@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 
+import { createFirstHabit, signUpInBrowser } from "../accessibility/helpers";
+
 async function createHabitViaApi(
   page: import("@playwright/test").Page,
   payload: Record<string, unknown>,
@@ -40,12 +42,7 @@ async function listHabitIds(page: import("@playwright/test").Page) {
 test("dashboard keeps no-habits guidance in place instead of redirecting away", async ({ page }) => {
   const email = `dashboard-no-habits-${Date.now()}@example.com`;
 
-  await page.goto("/");
-  await page.getByRole("button", { name: "Create account" }).click();
-  await page.getByLabel("Name").fill("No Habits User");
-  await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password").fill("password123");
-  await page.getByRole("button", { name: "Create account" }).click();
+  await signUpInBrowser(page, email, "No Habits User");
 
   await expect(page).toHaveURL(/\/habits\/new$/);
 
@@ -61,16 +58,11 @@ test("dashboard distinguishes nothing due today from all done", async ({ page })
   const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
   const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
-  await page.goto("/");
-  await page.getByRole("button", { name: "Create account" }).click();
-  await page.getByLabel("Name").fill("Dashboard States User");
-  await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password").fill("password123");
-  await page.getByRole("button", { name: "Create account" }).click();
-
-  await page.getByLabel("Habit name").fill("Tomorrow walk");
-  await page.getByLabel("Start date").fill(tomorrow);
-  await page.getByRole("button", { name: "Create first habit" }).click();
+  await signUpInBrowser(page, email, "Dashboard States User");
+  await createFirstHabit(page, {
+    name: "Tomorrow walk",
+    startDate: tomorrow,
+  });
 
   await expect(page).toHaveURL(/\/dashboard$/);
   await expect(page.getByText("Nothing due today")).toBeVisible();
@@ -86,7 +78,7 @@ test("dashboard distinguishes nothing due today from all done", async ({ page })
 
   const habitIds = await listHabitIds(page);
   await page.goto("/dashboard");
-  await page.getByTestId("locale-switch").getByRole("button", { name: "中文" }).click();
+  await page.getByTestId("locale-switch-button").click();
 
   await expect(page.getByRole("heading", { name: "今天" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "概览" })).toBeVisible();
@@ -102,16 +94,11 @@ test("dashboard keeps recoverable load errors inside the route shell", async ({ 
   const email = `dashboard-error-${Date.now()}@example.com`;
   const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
-  await page.goto("/");
-  await page.getByRole("button", { name: "Create account" }).click();
-  await page.getByLabel("Name").fill("Dashboard Error User");
-  await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password").fill("password123");
-  await page.getByRole("button", { name: "Create account" }).click();
-
-  await page.getByLabel("Habit name").fill("Morning walk");
-  await page.getByLabel("Start date").fill(yesterday);
-  await page.getByRole("button", { name: "Create first habit" }).click();
+  await signUpInBrowser(page, email, "Dashboard Error User");
+  await createFirstHabit(page, {
+    name: "Morning walk",
+    startDate: yesterday,
+  });
 
   await page.goto("/dashboard?simulateTodayError=1&simulateOverviewError=1");
 

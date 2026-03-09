@@ -63,7 +63,7 @@ test("signed-in users can open chinese interactive api docs while technical lite
   await signUpThroughApi(request, context, email, "API Docs Chinese User");
 
   await page.goto("/api-access");
-  await page.getByTestId("locale-switch").getByRole("button", { name: "中文" }).click();
+  await page.getByTestId("locale-switch-button").click();
   await page.getByRole("button", { name: "生成 token" }).click();
   await expect(page.getByRole("heading", { name: "第一条调用" })).toBeVisible();
   await expect(page.getByText("Authorization: Bearer")).toBeVisible();

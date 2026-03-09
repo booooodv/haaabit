@@ -9,16 +9,14 @@ test.describe("locale switching", () => {
     await page.goto("/");
     await page.getByLabel("Email").fill("typed@example.com");
 
-    const switcher = page.getByTestId("locale-switch");
-    await expect(switcher).toBeVisible();
-
-    const chineseButton = switcher.getByRole("button", { name: "中文" });
-    await chineseButton.focus();
-    await chineseButton.press("Enter");
+    const switchButton = page.getByTestId("locale-switch-button");
+    await expect(switchButton).toBeVisible();
+    await switchButton.focus();
+    await switchButton.press("Enter");
 
     await expect(page).toHaveURL(/\/$/);
     await expect(page.locator("html")).toHaveAttribute("lang", "zh-CN");
-    await expect(chineseButton).toBeFocused();
+    await expect(switchButton).toBeFocused();
     await expect(page.getByRole("heading", { name: "登录 Haaabit" })).toBeVisible();
     await expect(page.getByLabel("邮箱")).toHaveValue("typed@example.com");
 
@@ -38,15 +36,14 @@ test.describe("locale switching", () => {
     await page.goto("/habits");
     await expect(page).toHaveURL(/\/habits$/);
 
-    const switcher = page.getByTestId("locale-switch");
-    await expect(switcher).toBeVisible();
-    const chineseButton = switcher.getByRole("button", { name: "中文" });
-    await chineseButton.focus();
-    await chineseButton.press("Enter");
+    const switchButton = page.getByTestId("locale-switch-button");
+    await expect(switchButton).toBeVisible();
+    await switchButton.focus();
+    await switchButton.press("Enter");
 
     await expect(page).toHaveURL(/\/habits$/);
     await expect(page.locator("html")).toHaveAttribute("lang", "zh-CN");
-    await expect(chineseButton).toBeFocused();
+    await expect(switchButton).toBeFocused();
     await expect(page.getByTestId("app-shell-primary-nav").getByRole("link", { name: "习惯" })).toHaveAttribute(
       "aria-current",
       "page",
@@ -71,15 +68,13 @@ test.describe("locale switching", () => {
       await page.goto("/api-access");
       await expect(page).toHaveURL(/\/api-access$/);
 
-      const switcher = page.getByTestId("locale-switch");
-      const chineseButton = switcher.getByRole("button", { name: "中文" });
-
-      await chineseButton.focus();
-      await chineseButton.press("Enter");
+      const switchButton = page.getByTestId("locale-switch-button");
+      await switchButton.focus();
+      await switchButton.press("Enter");
 
       await expect(page).toHaveURL(/\/api-access$/);
       await expect(page.locator("html")).toHaveAttribute("lang", "zh-CN");
-      await expect(chineseButton).toBeFocused();
+      await expect(switchButton).toBeFocused();
       await expect(page.getByRole("heading", { name: "API 访问" })).toBeVisible();
       await expect(page.getByTestId("app-shell-utility-nav").getByRole("link", { name: "API 访问" })).toHaveAttribute(
         "aria-current",

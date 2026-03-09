@@ -359,4 +359,52 @@ describe("habit routes", () => {
       },
     });
   });
+
+  it("accepts archive and restore requests with application/json headers and an empty body", async () => {
+    context = await createTestContext();
+    const { body, cookie } = await signUp(context.app);
+
+    const habit = await createOwnedHabit(context, body.user.id, {
+      name: "Walk the dog",
+      frequency: {
+        type: "daily",
+      },
+    });
+
+    const archiveResponse = await context.app.inject({
+      method: "POST",
+      url: `/api/habits/${habit.id}/archive`,
+      headers: {
+        cookie,
+        "content-type": "application/json",
+      },
+      payload: "",
+    });
+
+    expect(archiveResponse.statusCode).toBe(200);
+    expect(archiveResponse.json()).toMatchObject({
+      item: {
+        id: habit.id,
+        isActive: false,
+      },
+    });
+
+    const restoreResponse = await context.app.inject({
+      method: "POST",
+      url: `/api/habits/${habit.id}/restore`,
+      headers: {
+        cookie,
+        "content-type": "application/json",
+      },
+      payload: "",
+    });
+
+    expect(restoreResponse.statusCode).toBe(200);
+    expect(restoreResponse.json()).toMatchObject({
+      item: {
+        id: habit.id,
+        isActive: true,
+      },
+    });
+  });
 });

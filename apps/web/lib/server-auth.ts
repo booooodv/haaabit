@@ -13,7 +13,17 @@ type SessionPayload = {
     id: string;
     email: string;
     name: string;
+    isAdmin: boolean;
   };
+};
+
+type RegistrationStatusPayload = {
+  registrationEnabled: boolean;
+  hasUsers: boolean;
+};
+
+type AdminRegistrationPayload = {
+  registrationEnabled: boolean;
 };
 
 type HabitPayload = {
@@ -92,6 +102,40 @@ export async function getSessionFromCookieHeader(cookieHeader: string): Promise<
   }
 
   return (await response.json()) as SessionPayload;
+}
+
+export async function getRegistrationStatusFromCookieHeader(
+  cookieHeader: string,
+): Promise<RegistrationStatusPayload> {
+  const response = await fetch(createServerApiUrl("/api/auth/registration"), {
+    headers: cookieHeader.length > 0 ? { cookie: cookieHeader } : undefined,
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error("Unable to load registration status");
+  }
+
+  return (await response.json()) as RegistrationStatusPayload;
+}
+
+export async function getAdminRegistrationFromCookieHeader(
+  cookieHeader: string,
+): Promise<AdminRegistrationPayload | null> {
+  const response = await fetch(createServerApiUrl("/api/admin/registration"), {
+    headers: cookieHeader.length > 0 ? { cookie: cookieHeader } : undefined,
+    cache: "no-store",
+  });
+
+  if (response.status === 401 || response.status === 403) {
+    return null;
+  }
+
+  if (!response.ok) {
+    throw new Error("Unable to load admin registration settings");
+  }
+
+  return (await response.json()) as AdminRegistrationPayload;
 }
 
 export async function listHabitsFromCookieHeader(

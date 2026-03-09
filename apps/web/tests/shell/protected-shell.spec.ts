@@ -1,19 +1,9 @@
 import { expect, test } from "@playwright/test";
 
-async function signUpAndCreateFirstHabit(page: import("@playwright/test").Page, email: string) {
-  await page.goto("/");
-  await page.getByRole("button", { name: "Create account" }).click();
-  await page.getByLabel("Name").fill("Shell User");
-  await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password").fill("password123");
-  await page.getByRole("button", { name: "Create account" }).click();
-  await page.getByLabel("Habit name").fill("Morning walk");
-  await page.getByRole("button", { name: "Create first habit" }).click();
-  await expect(page).toHaveURL(/\/dashboard$/);
-}
+import { signUpAndCreateFirstHabit } from "../accessibility/helpers";
 
 test("protected shell shows utility access and active desktop navigation", async ({ page }) => {
-  await signUpAndCreateFirstHabit(page, `shell-desktop-${Date.now()}@example.com`);
+  await signUpAndCreateFirstHabit(page, `shell-desktop-${Date.now()}@example.com`, "Shell User");
 
   const utilityNav = page.getByTestId("app-shell-utility-nav");
   const primaryNav = page.getByTestId("app-shell-primary-nav");
@@ -26,7 +16,9 @@ test("protected shell shows utility access and active desktop navigation", async
     "aria-current",
     "page",
   );
-  await expect(utilityNav.getByRole("link", { name: "API Access" })).not.toHaveAttribute(
+  const apiAccessEntry = utilityNav.getByRole("link", { name: "API Access" });
+  await expect(apiAccessEntry).toHaveAttribute("data-accented", "true");
+  await expect(apiAccessEntry).not.toHaveAttribute(
     "aria-current",
     "page",
   );
@@ -58,7 +50,7 @@ test.describe("mobile shell", () => {
   test("protected shell uses bottom navigation on mobile while keeping utility access on top", async ({
     page,
   }) => {
-    await signUpAndCreateFirstHabit(page, `shell-mobile-${Date.now()}@example.com`);
+    await signUpAndCreateFirstHabit(page, `shell-mobile-${Date.now()}@example.com`, "Shell User");
 
     const mobileNav = page.getByTestId("app-shell-mobile-nav");
 
@@ -70,7 +62,7 @@ test.describe("mobile shell", () => {
       "page",
     );
 
-    await page.getByTestId("locale-switch").getByRole("button", { name: "中文" }).click();
+    await page.getByTestId("locale-switch-button").click();
     await expect(page).toHaveURL(/\/dashboard$/);
     await expect(page.getByTestId("app-shell-utility-nav").getByRole("link", { name: "API 访问" })).toBeVisible();
     await expect(mobileNav.getByRole("link", { name: "今天" })).toHaveAttribute("aria-current", "page");
@@ -79,6 +71,8 @@ test.describe("mobile shell", () => {
     await mobileHabitsLink.focus();
     await mobileHabitsLink.press("Enter");
     await expect(page).toHaveURL(/\/habits$/);
+    await expect(mobileHabitsLink.locator("span").last()).toBeVisible();
+    await expect(mobileHabitsLink.locator("span").last()).toHaveText("习惯");
     await expect(mobileNav.getByRole("link", { name: "习惯" })).toBeFocused();
     await expect(mobileNav.getByRole("link", { name: "习惯" })).toHaveAttribute("aria-current", "page");
 

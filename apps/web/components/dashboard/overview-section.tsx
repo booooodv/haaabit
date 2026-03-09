@@ -34,6 +34,8 @@ export function OverviewSection({
   isRefreshing?: boolean;
 }) {
   const { copy } = useLocale();
+  const rankingEntries = overview.stabilityRanking.slice(0, 5);
+  const rankingPlaceholderCount = Math.max(0, 5 - rankingEntries.length);
 
   return (
     <section data-testid="dashboard-overview" className={styles.section}>
@@ -69,7 +71,7 @@ export function OverviewSection({
           title={copy.dashboard.overview.trend.title}
           subtitle={copy.dashboard.overview.trend.subtitle}
           notDueLabel={copy.dashboard.overview.chart.notDue}
-          points={overview.trends.last30Days}
+          points={overview.trends.last7Days}
           testId="overview-trend-chart"
         />
 
@@ -80,8 +82,9 @@ export function OverviewSection({
           </div>
 
           <div className={styles.rankingItems}>
-            {overview.stabilityRanking.length > 0 ? (
-              overview.stabilityRanking.slice(0, 5).map((entry, index) => (
+            {rankingEntries.length > 0 ? (
+              <>
+                {rankingEntries.map((entry, index) => (
                 <div key={entry.habitId} data-testid={`overview-ranking-item-${entry.habitId}`} className={styles.rankingItem}>
                   <div className={styles.rankingTop}>
                     <strong>
@@ -92,10 +95,20 @@ export function OverviewSection({
                     </span>
                   </div>
                   <span className={styles.rankingMeta}>
-                    {copy.dashboard.overview.ranking.recentDays(entry.completedCount, entry.totalCount)}
+                    {entry.frequencyType === "weekly_count" || entry.frequencyType === "monthly_count"
+                      ? copy.dashboard.overview.ranking.currentPeriod(entry.completedCount, entry.totalCount)
+                      : copy.dashboard.overview.ranking.recentDays(entry.completedCount, entry.totalCount)}
                   </span>
                 </div>
-              ))
+                ))}
+                {Array.from({ length: rankingPlaceholderCount }, (_, index) => (
+                  <div
+                    key={`placeholder-${index}`}
+                    aria-hidden="true"
+                    className={`${styles.rankingItem} ${styles.rankingItemPlaceholder}`}
+                  />
+                ))}
+              </>
             ) : (
               <p className={styles.rankingMeta}>{copy.dashboard.overview.ranking.empty}</p>
             )}

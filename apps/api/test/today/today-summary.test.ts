@@ -92,7 +92,7 @@ describe("buildTodaySummary", () => {
     });
   });
 
-  it("keeps weekly and monthly habits visible until their period target is met, then keeps them in completed", () => {
+  it("treats weekly and monthly habits as completed after today's action or when the period target is met", () => {
     const summary = buildTodaySummary({
       day: resolveHabitDay({
         timestamp: "2026-03-11T12:00:00.000Z",
@@ -133,7 +133,14 @@ describe("buildTodaySummary", () => {
           weekdays: [],
         },
       ],
-      dayStates: [],
+      dayStates: [
+        {
+          habitId: "weekly-pending",
+          dateKey: "2026-03-11",
+          value: null,
+          completed: true,
+        },
+      ],
       periodProgress: [
         {
           habitId: "weekly-pending",
@@ -156,11 +163,74 @@ describe("buildTodaySummary", () => {
       ],
     });
 
-    expect(summary.pendingItems.map((item) => item.habitId)).toEqual(["weekly-pending"]);
+    expect(summary.pendingItems).toEqual([]);
     expect(summary.completedItems.map((item) => item.habitId)).toEqual([
+      "weekly-pending",
       "weekly-complete",
       "monthly-complete",
     ]);
+    expect(summary.pendingCount).toBe(0);
+    expect(summary.completedCount).toBe(3);
+    expect(summary.completionRate).toBe(1);
+  });
+
+  it("shows incomplete weekly habits as available without counting them against today's completion rate", () => {
+    const summary = buildTodaySummary({
+      day: resolveHabitDay({
+        timestamp: "2026-03-11T12:00:00.000Z",
+        timeZone: "UTC",
+      }),
+      habits: [
+        {
+          id: "daily-pending",
+          name: "Drink water",
+          kind: "boolean",
+          frequencyType: "daily",
+          frequencyCount: null,
+          targetValue: null,
+          unit: null,
+          startDate: "2026-03-01",
+          weekdays: [],
+        },
+        {
+          id: "weekly-available",
+          name: "Run",
+          kind: "boolean",
+          frequencyType: "weekly_count",
+          frequencyCount: 3,
+          targetValue: null,
+          unit: null,
+          startDate: "2026-03-01",
+          weekdays: [],
+        },
+      ],
+      dayStates: [],
+      periodProgress: [
+        {
+          habitId: "weekly-available",
+          period: "week",
+          periodKey: "2026-W11",
+          completions: 1,
+        },
+      ],
+    });
+
+    expect(summary.totalCount).toBe(1);
+    expect(summary.pendingCount).toBe(1);
+    expect(summary.completedCount).toBe(0);
+    expect(summary.completionRate).toBe(0);
+    expect(summary.pendingItems).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          habitId: "daily-pending",
+          status: "pending",
+        }),
+        expect.objectContaining({
+          habitId: "weekly-available",
+          status: "available",
+        }),
+      ]),
+    );
   });
 
   it("does not carry yesterday forward and evaluates weekday habits against the effective habit day", () => {

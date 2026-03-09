@@ -12,7 +12,8 @@ export const statsApiRouteDefinitions: PublicApiRouteDefinition[] = [
     path: "/api/stats/overview",
     operationId: "getOverviewStats",
     summary: "Get overview analytics",
-    description: "Returns account-level metrics, recent completion trends, and active-habit stability ranking.",
+    description:
+      "Returns account-level metrics, recent completion trends, and active-habit stability ranking. Count-based habits are ranked by recent completed periods, and the current unfinished period is excluded until it is done or closes.",
     tags: ["Stats"],
     security: [{ BearerAuth: [] }],
     responses: {

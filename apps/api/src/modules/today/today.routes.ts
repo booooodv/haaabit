@@ -86,7 +86,8 @@ export const todayApiRouteDefinitions: PublicApiRouteDefinition[] = [
     path: "/api/today/complete",
     operationId: "completeTodayHabit",
     summary: "Complete a boolean habit for today",
-    description: "Marks a boolean habit complete and returns the affected habit plus the refreshed today summary.",
+    description:
+      "Marks a boolean habit complete when it is currently actionable in today, then returns the affected habit plus the refreshed canonical today summary.",
     tags: ["Today"],
     security: [{ BearerAuth: [] }],
     request: {

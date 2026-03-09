@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 
+import { createFirstHabit, signUpInBrowser } from "../accessibility/helpers";
+
 async function seedHabit(
   page: import("@playwright/test").Page,
   payload: Record<string, unknown>,
@@ -20,21 +22,27 @@ async function seedHabit(
   }, payload);
 }
 
+async function measurePageBox(locator: import("@playwright/test").Locator) {
+  return locator.evaluate((element) => {
+    const rect = element.getBoundingClientRect();
+
+    return {
+      x: rect.x + window.scrollX,
+      y: rect.y + window.scrollY,
+      width: rect.width,
+      height: rect.height,
+    };
+  });
+}
+
 test("user can manage habits through search, edit, archive, and restore flows", async ({ page }) => {
+  await page.setViewportSize({ width: 980, height: 900 });
   const email = `habits-manager-${Date.now()}@example.com`;
 
-  await page.goto("/");
-  await page.getByRole("button", { name: "Create account" }).click();
-  await page.getByLabel("Name").fill("Habit Manager");
-  await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password").fill("password123");
-  await page.getByRole("button", { name: "Create account" }).click();
-
-  await page.getByTestId("locale-switch").getByRole("button", { name: "中文" }).click();
-  await expect(page.getByRole("heading", { name: "创建你的第一个习惯" })).toBeVisible();
-
-  await page.getByLabel("习惯名称").fill("Morning walk");
-  await page.getByRole("button", { name: "创建第一个习惯" }).click();
+  await signUpInBrowser(page, email, "Habit Manager");
+  await expect(page.getByRole("heading", { name: "Create your first habit" })).toBeVisible();
+  await page.getByLabel("Habit name").fill("Morning walk");
+  await page.getByRole("button", { name: "Create first habit" }).click();
   await expect(page).toHaveURL(/\/dashboard$/);
 
   await seedHabit(page, {
@@ -49,9 +57,22 @@ test("user can manage habits through search, edit, archive, and restore flows", 
   });
 
   await page.goto("/habits");
+  await page.getByTestId("locale-switch-button").click();
   await expect(page.getByRole("heading", { name: "习惯" })).toBeVisible();
   await expect(page.getByTestId("habits-toolbar")).toBeVisible();
   await expect(page.getByTestId("habits-toolbar")).toContainText("新建习惯");
+  await page.getByRole("button", { name: "新建习惯" }).click();
+  await expect(page.getByLabel("习惯类型")).toContainText("打卡型");
+  await page.getByRole("button", { name: "关闭" }).click();
+
+  const statusSwitch = page.getByTestId("habits-status-switch");
+  const activeButton = statusSwitch.getByRole("button", { name: "启用中" });
+  const archivedButton = statusSwitch.getByRole("button", { name: "已归档" });
+  const statusSwitchBox = await measurePageBox(statusSwitch);
+  const activeBox = await measurePageBox(activeButton);
+  const archivedBox = await measurePageBox(archivedButton);
+
+  expect(Math.abs(activeBox.width - archivedBox.width)).toBeLessThan(2);
 
   await page.getByLabel("搜索").fill("Read");
   await expect(page.locator("article").filter({ hasText: "Read pages" })).toBeVisible();
@@ -75,6 +96,15 @@ test("user can manage habits through search, edit, archive, and restore flows", 
   await expect(page.locator("article").filter({ hasText: "Read Deep Work" })).toHaveCount(0);
 
   await page.getByRole("button", { name: "已归档" }).click();
+  const statusSwitchBoxAfterToggle = await measurePageBox(statusSwitch);
+  const activeBoxAfterToggle = await measurePageBox(activeButton);
+  const archivedBoxAfterToggle = await measurePageBox(archivedButton);
+
+  expect(Math.abs(statusSwitchBoxAfterToggle.x - statusSwitchBox.x)).toBeLessThan(2);
+  expect(Math.abs(statusSwitchBoxAfterToggle.y - statusSwitchBox.y)).toBeLessThan(2);
+  expect(Math.abs(activeBoxAfterToggle.x - activeBox.x)).toBeLessThan(2);
+  expect(Math.abs(archivedBoxAfterToggle.x - archivedBox.x)).toBeLessThan(2);
+
   const archivedCard = page.locator("article").filter({ hasText: "Read Deep Work" });
   await expect(archivedCard).toBeVisible();
   await archivedCard.getByRole("button", { name: "恢复" }).click();
@@ -87,15 +117,10 @@ test("user can manage habits through search, edit, archive, and restore flows", 
 test("closing an edit overlay returns focus to the triggering action", async ({ page }) => {
   const email = `habits-focus-${Date.now()}@example.com`;
 
-  await page.goto("/");
-  await page.getByRole("button", { name: "Create account" }).click();
-  await page.getByLabel("Name").fill("Habit Focus User");
-  await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password").fill("password123");
-  await page.getByRole("button", { name: "Create account" }).click();
-  await page.getByLabel("Habit name").fill("Morning walk");
-  await page.getByRole("button", { name: "Create first habit" }).click();
-  await expect(page).toHaveURL(/\/dashboard$/);
+  await signUpInBrowser(page, email, "Habit Focus User");
+  await createFirstHabit(page, {
+    name: "Morning walk",
+  });
 
   await page.goto("/habits");
 
@@ -114,15 +139,10 @@ test("closing an edit overlay returns focus to the triggering action", async ({ 
 test("habit action failures stay in context", async ({ page }) => {
   const email = `habits-error-${Date.now()}@example.com`;
 
-  await page.goto("/");
-  await page.getByRole("button", { name: "Create account" }).click();
-  await page.getByLabel("Name").fill("Habit Error User");
-  await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password").fill("password123");
-  await page.getByRole("button", { name: "Create account" }).click();
-  await page.getByLabel("Habit name").fill("Morning walk");
-  await page.getByRole("button", { name: "Create first habit" }).click();
-  await expect(page).toHaveURL(/\/dashboard$/);
+  await signUpInBrowser(page, email, "Habit Error User");
+  await createFirstHabit(page, {
+    name: "Morning walk",
+  });
 
   await page.goto("/habits");
   await expect(page.getByTestId("habits-page")).toBeVisible();
@@ -154,15 +174,10 @@ test.describe("mobile habits layout", () => {
   test("mobile habits surface stacks filters into a single-column priority flow", async ({ page }) => {
     const email = `habits-mobile-${Date.now()}@example.com`;
 
-    await page.goto("/");
-    await page.getByRole("button", { name: "Create account" }).click();
-    await page.getByLabel("Name").fill("Habit Mobile User");
-    await page.getByLabel("Email").fill(email);
-    await page.getByLabel("Password").fill("password123");
-    await page.getByRole("button", { name: "Create account" }).click();
-    await page.getByLabel("Habit name").fill("Morning walk");
-    await page.getByRole("button", { name: "Create first habit" }).click();
-    await expect(page).toHaveURL(/\/dashboard$/);
+    await signUpInBrowser(page, email, "Habit Mobile User");
+    await createFirstHabit(page, {
+      name: "Morning walk",
+    });
 
     await page.goto("/habits");
 
@@ -179,5 +194,35 @@ test.describe("mobile habits layout", () => {
     expect(Math.abs((categoryBox?.x ?? 0) - (kindBox?.x ?? 0))).toBeLessThan(6);
     expect((categoryBox?.y ?? 0) > (searchBox?.y ?? 0)).toBeTruthy();
     expect((kindBox?.y ?? 0) > (categoryBox?.y ?? 0)).toBeTruthy();
+  });
+
+  test("mobile habit cards place actions below the metadata block", async ({ page }) => {
+    const email = `habits-mobile-card-${Date.now()}@example.com`;
+
+    await signUpInBrowser(page, email, "Habit Mobile Card User");
+    await createFirstHabit(page, {
+      name: "Morning walk",
+    });
+
+    await seedHabit(page, {
+      name: "Read pages",
+      kind: "quantity",
+      targetValue: 10,
+      unit: "pages",
+      category: "learning",
+      frequency: {
+        type: "daily",
+      },
+    });
+
+    await page.goto("/habits");
+
+    const card = page.locator("article").filter({ hasText: "Read pages" });
+    const metaBox = await card.getByTestId("habit-card-meta").boundingBox();
+    const actionBox = await card.getByTestId("habit-card-actions").boundingBox();
+
+    expect(metaBox).not.toBeNull();
+    expect(actionBox).not.toBeNull();
+    expect((actionBox?.y ?? 0) > (metaBox?.y ?? 0)).toBeTruthy();
   });
 });

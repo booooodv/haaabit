@@ -5,7 +5,7 @@ import { LocaleSwitch, useLocale } from "../../components/locale";
 import { PageFrame, PageHeader, Surface } from "../../components/ui";
 import styles from "./page.module.css";
 
-export function AuthPageContent() {
+export function AuthPageContent({ registrationEnabled }: { registrationEnabled: boolean }) {
   const { copy } = useLocale();
 
   return (
@@ -18,17 +18,7 @@ export function AuthPageContent() {
             description={copy.auth.page.description}
             actions={<LocaleSwitch />}
           />
-          <AuthForm copy={copy.auth.form} />
-          <div className={styles.valueStrip}>
-            <div className={styles.valueGrid}>
-              {copy.auth.page.values.map((item) => (
-                <div key={item.label} className={styles.valueItem}>
-                  <span className={styles.valueLabel}>{item.label}</span>
-                  <span className={styles.valueText}>{item.text}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+          <AuthForm copy={copy.auth.form} registrationEnabled={registrationEnabled} />
         </PageFrame>
       </Surface>
     </main>

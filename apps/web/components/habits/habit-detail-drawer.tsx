@@ -37,9 +37,11 @@ function formatFrequency(detail: HabitDetail, copy: ReturnType<typeof getHabitsC
 export function HabitDetailDrawer({
   detail,
   closeHref,
+  onClose,
 }: {
   detail: HabitDetail;
-  closeHref: string;
+  closeHref?: string;
+  onClose?: () => void;
 }) {
   const router = useRouter();
   const { locale } = useLocale();
@@ -50,7 +52,10 @@ export function HabitDetailDrawer({
       open
       onOpenChange={(nextOpen) => {
         if (!nextOpen) {
-          router.push(closeHref);
+          if (closeHref) {
+            router.push(closeHref);
+          }
+          onClose?.();
         }
       }}
       variant="drawer"

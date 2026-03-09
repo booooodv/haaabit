@@ -1,9 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import type { RefObject } from "react";
 import { useEffect, useRef, useState } from "react";
 
-import { Button, DisabledHint, Field, InlineStatus, Input } from "../ui";
+import { Button, Field, InlineStatus, Input } from "../ui";
 import { listHabits, signIn, signUp } from "../../lib/auth-client";
 import type { LocaleMessages } from "../../lib/i18n/messages";
 import { routes } from "../../lib/navigation";
@@ -29,7 +30,13 @@ type AuthFormCopy = LocaleMessages["auth"]["form"];
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const AUTH_DRAFT_STORAGE_KEY = "haaabit-auth-form-draft";
 
-export function AuthForm({ copy }: { copy: AuthFormCopy }) {
+export function AuthForm({
+  copy,
+  registrationEnabled,
+}: {
+  copy: AuthFormCopy;
+  registrationEnabled: boolean;
+}) {
   const router = useRouter();
   const [mode, setMode] = useState<Mode>("sign-in");
   const [feedback, setFeedback] = useState<Feedback | null>(null);
@@ -76,6 +83,13 @@ export function AuthForm({ copy }: { copy: AuthFormCopy }) {
   }, [hasHydratedDraft, values]);
 
   useEffect(() => {
+    if (!registrationEnabled && mode === "sign-up") {
+      setMode("sign-in");
+      setFocusTarget("email");
+    }
+  }, [mode, registrationEnabled]);
+
+  useEffect(() => {
     if (!focusTarget) {
       return;
     }
@@ -105,6 +119,10 @@ export function AuthForm({ copy }: { copy: AuthFormCopy }) {
   }
 
   function switchMode(nextMode: Mode) {
+    if (nextMode === "sign-up" && !registrationEnabled) {
+      return;
+    }
+
     setMode(nextMode);
     setFeedback(null);
     setErrors({});
@@ -183,13 +201,19 @@ export function AuthForm({ copy }: { copy: AuthFormCopy }) {
       router.push(habits.length === 0 ? routes.newHabit : routes.dashboard);
       router.refresh();
     } catch (submissionError) {
-      const message = submissionError instanceof Error ? submissionError.message : "Unable to continue";
+      const message = submissionError instanceof Error ? submissionError.message : copy.feedback.submitErrorTitle;
 
       if (mode === "sign-in" && message.toLowerCase().includes("invalid email or password")) {
         setErrors({
           password: copy.fields.password.invalidCredentials,
         });
         setFocusTarget("password");
+        setFeedback({
+          tone: "danger",
+          title: copy.feedback.submitErrorTitle,
+          message: copy.fields.password.invalidCredentials,
+        });
+        return;
       }
 
       setFeedback({
@@ -213,23 +237,11 @@ export function AuthForm({ copy }: { copy: AuthFormCopy }) {
 
   return (
     <form action={handleSubmit} className={styles.form}>
-      <div className={styles.modeBlock}>
-        <p className={styles.modeEyebrow}>
-          {mode === "sign-up" ? copy.mode.signUp.eyebrow : copy.mode.signIn.eyebrow}
-        </p>
-        <p className={styles.modeDescription}>
-          {mode === "sign-up"
-            ? copy.mode.signUp.description
-            : copy.mode.signIn.description}
-        </p>
-      </div>
-
       <div className={styles.fields}>
         {mode === "sign-up" ? (
           <Field
             label={copy.fields.name.label}
             htmlFor="auth-name"
-            description={copy.fields.name.description}
             error={errors.name}
             required
           >
@@ -251,7 +263,6 @@ export function AuthForm({ copy }: { copy: AuthFormCopy }) {
         <Field
           label={copy.fields.email.label}
           htmlFor="auth-email"
-          description={copy.fields.email.description}
           error={errors.email}
           required
         >
@@ -272,11 +283,6 @@ export function AuthForm({ copy }: { copy: AuthFormCopy }) {
         <Field
           label={copy.fields.password.label}
           htmlFor="auth-password"
-          description={
-            mode === "sign-up"
-              ? copy.fields.password.signUpDescription
-              : copy.fields.password.signInDescription
-          }
           error={errors.password}
           required
         >
@@ -303,28 +309,27 @@ export function AuthForm({ copy }: { copy: AuthFormCopy }) {
       ) : null}
 
       <div className={styles.actions}>
-        <div className={styles.switcher}>
-          <span className={styles.switchLabel}>
-            {mode === "sign-up" ? copy.mode.signUp.switchLabel : copy.mode.signIn.switchLabel}
-          </span>
-          {mode === "sign-up" ? (
-            <Button type="button" variant="ghost" onClick={() => switchMode("sign-in")} disabled={isSubmitting}>
-              {copy.mode.signUp.switchAction}
-            </Button>
-          ) : (
-            <Button type="button" variant="ghost" onClick={() => switchMode("sign-up")} disabled={isSubmitting}>
-              {copy.mode.signIn.switchAction}
-            </Button>
-          )}
-        </div>
+        {registrationEnabled ? (
+          <div className={styles.switcher}>
+            <span className={styles.switchLabel}>
+              {mode === "sign-up" ? copy.mode.signUp.switchLabel : copy.mode.signIn.switchLabel}
+            </span>
+            {mode === "sign-up" ? (
+              <Button type="button" variant="ghost" onClick={() => switchMode("sign-in")} disabled={isSubmitting}>
+                {copy.mode.signUp.switchAction}
+              </Button>
+            ) : (
+              <Button type="button" variant="ghost" onClick={() => switchMode("sign-up")} disabled={isSubmitting}>
+                {copy.mode.signIn.switchAction}
+              </Button>
+            )}
+          </div>
+        ) : null}
 
         <div className={styles.submitCluster}>
           <Button type="submit" disabled={isSubmitting} size="lg">
             {submitLabel}
           </Button>
-          {isSubmitting ? (
-            <DisabledHint>{copy.disabledHint}</DisabledHint>
-          ) : null}
         </div>
       </div>
     </form>
@@ -332,17 +337,16 @@ export function AuthForm({ copy }: { copy: AuthFormCopy }) {
 }
 
 function firstInvalidField(mode: Mode, errors: FormErrors) {
-  const order: Array<keyof FormValues> =
-    mode === "sign-up" ? ["name", "email", "password"] : ["email", "password"];
+  const order: Array<keyof FormValues> = mode === "sign-up" ? ["name", "email", "password"] : ["email", "password"];
 
   return order.find((field) => errors[field]) ?? order[0];
 }
 
 function getFieldRef(
   field: keyof FormValues,
-  nameRef: React.RefObject<HTMLInputElement | null>,
-  emailRef: React.RefObject<HTMLInputElement | null>,
-  passwordRef: React.RefObject<HTMLInputElement | null>,
+  nameRef: RefObject<HTMLInputElement | null>,
+  emailRef: RefObject<HTMLInputElement | null>,
+  passwordRef: RefObject<HTMLInputElement | null>,
 ) {
   switch (field) {
     case "name":

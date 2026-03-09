@@ -5,7 +5,7 @@ const monthKeySchema = z.string().regex(/^\d{4}-\d{2}$/, "monthKey must use YYYY
 const weekKeySchema = z.string().regex(/^\d{4}-W\d{2}$/, "weekKey must use YYYY-Www");
 const nonEmptyString = z.string().trim().min(1);
 
-export const todayStatusSchema = z.enum(["pending", "completed"]);
+export const todayStatusSchema = z.enum(["pending", "available", "completed"]);
 export const todayHabitKindSchema = z.enum(["boolean", "quantity"]);
 export const todayFrequencyTypeSchema = z.enum(["daily", "weekly_count", "weekdays", "monthly_count"]);
 export const todayWeekdaySchema = z.enum([
@@ -32,6 +32,7 @@ export const todayItemSchema = z.object({
   kind: todayHabitKindSchema,
   frequencyType: todayFrequencyTypeSchema,
   status: todayStatusSchema,
+  canUndo: z.boolean(),
   date: isoDateKeySchema,
   progress: todayProgressSchema,
 });

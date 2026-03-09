@@ -252,7 +252,7 @@ const habitsCopy: Record<SupportedLocale, HabitsCopy> = {
         kind: "Kind",
         kindOptions: {
           all: "All kinds",
-          boolean: "Boolean",
+          boolean: "Check-in",
           quantity: "Quantity",
         },
       },
@@ -292,7 +292,7 @@ const habitsCopy: Record<SupportedLocale, HabitsCopy> = {
           active: "Active",
           archived: "Archived",
         },
-        booleanKind: "Boolean",
+        booleanKind: "Check-in",
         quantityKind: "Quantity",
         unitsFallback: "units",
         uncategorized: "Uncategorized",
@@ -328,10 +328,10 @@ const habitsCopy: Record<SupportedLocale, HabitsCopy> = {
         name: "Habit name",
         kind: {
           label: "Habit type",
-          description: "Choose whether the habit is binary or quantity-based.",
+          description: "Choose whether the habit is check-in based or quantity-based.",
           editDescription: "Locked after creation.",
           options: {
-            boolean: "Boolean",
+            boolean: "Check-in",
             quantity: "Quantity",
           },
         },
@@ -390,7 +390,7 @@ const habitsCopy: Record<SupportedLocale, HabitsCopy> = {
         category: "Category",
         target: "Target",
         uncategorized: "Uncategorized",
-        boolean: "Boolean",
+        boolean: "Check-in",
         unitsFallback: "units",
       },
       stats: {
@@ -455,7 +455,7 @@ const habitsCopy: Record<SupportedLocale, HabitsCopy> = {
         kind: "类型",
         kindOptions: {
           all: "全部类型",
-          boolean: "布尔型",
+          boolean: "打卡型",
           quantity: "数值型",
         },
       },
@@ -495,7 +495,7 @@ const habitsCopy: Record<SupportedLocale, HabitsCopy> = {
           active: "启用中",
           archived: "已归档",
         },
-        booleanKind: "布尔型",
+        booleanKind: "打卡型",
         quantityKind: "数值型",
         unitsFallback: "单位",
         uncategorized: "未分类",
@@ -531,10 +531,10 @@ const habitsCopy: Record<SupportedLocale, HabitsCopy> = {
         name: "习惯名称",
         kind: {
           label: "习惯类型",
-          description: "选择这是一个布尔型习惯，还是按数值累计的习惯。",
+          description: "选择这是一个打卡型习惯，还是按数值累计的习惯。",
           editDescription: "创建后不可更改。",
           options: {
-            boolean: "布尔型",
+            boolean: "打卡型",
             quantity: "数值型",
           },
         },
@@ -593,7 +593,7 @@ const habitsCopy: Record<SupportedLocale, HabitsCopy> = {
         category: "分类",
         target: "目标",
         uncategorized: "未分类",
-        boolean: "布尔型",
+        boolean: "打卡型",
         unitsFallback: "单位",
       },
       stats: {

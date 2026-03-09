@@ -49,8 +49,10 @@ export function AppShell({ userEmail, children }: AppShellProps) {
                     <Link
                       key={item.href}
                       href={item.href}
+                      data-accented={item.href === routes.apiAccess ? "true" : undefined}
                       className={cn(
                         styles.utilityLink,
+                        item.href === routes.apiAccess && styles.utilityLinkAccent,
                         active && styles.utilityLinkActive,
                       )}
                       aria-current={active ? "page" : undefined}
@@ -120,7 +122,7 @@ export function AppShell({ userEmail, children }: AppShellProps) {
               aria-current={active ? "page" : undefined}
             >
               <span className={styles.mobileNavEyebrow}>{locale === "zh-CN" ? "前往" : "Go to"}</span>
-              <span>{item.label}</span>
+              <span className={styles.mobileNavLabel}>{item.label}</span>
             </Link>
           );
         })}

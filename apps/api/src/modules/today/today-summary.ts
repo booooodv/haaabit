@@ -59,7 +59,11 @@ function isVisibleToday(habit: TodayHabitInput, day: { todayKey: string; weekday
 
 function getStatus(habit: TodayHabitInput, dayState: TodayDayStateInput | undefined, periodCompletions: number) {
   if (habit.frequencyType === "weekly_count" || habit.frequencyType === "monthly_count") {
-    return periodCompletions >= (habit.frequencyCount ?? Number.MAX_SAFE_INTEGER) ? "completed" : "pending";
+    if (dayState?.completed) {
+      return "completed";
+    }
+
+    return periodCompletions >= (habit.frequencyCount ?? Number.MAX_SAFE_INTEGER) ? "completed" : "available";
   }
 
   if (habit.kind === "quantity") {
@@ -81,6 +85,7 @@ function createItem(
     kind: habit.kind,
     frequencyType: habit.frequencyType,
     status: getStatus(habit, dayState, periodCompletions),
+    canUndo: Boolean(dayState?.completed || (dayState?.value ?? 0) > 0),
     date,
     progress: {
       currentValue: habit.kind === "quantity" ? dayState?.value ?? 0 : null,
@@ -106,6 +111,8 @@ export function buildTodaySummary(input: unknown): TodaySummary {
   const parsed = parseBuildTodaySummaryInput(input);
   const pendingItems: TodayItem[] = [];
   const completedItems: TodayItem[] = [];
+  let countedPending = 0;
+  let countedCompleted = 0;
 
   for (const habit of parsed.habits) {
     if (!isVisibleToday(habit, parsed.day)) {
@@ -118,17 +125,21 @@ export function buildTodaySummary(input: unknown): TodaySummary {
 
     if (item.status === "completed") {
       completedItems.push(item);
+      countedCompleted += 1;
     } else {
       pendingItems.push(item);
+      if (item.status === "pending") {
+        countedPending += 1;
+      }
     }
   }
 
   return parseTodaySummary({
     date: parsed.day.todayKey,
-    totalCount: pendingItems.length + completedItems.length,
-    pendingCount: pendingItems.length,
-    completedCount: completedItems.length,
-    completionRate: roundCompletionRate(completedItems.length, pendingItems.length + completedItems.length),
+    totalCount: countedPending + countedCompleted,
+    pendingCount: countedPending,
+    completedCount: countedCompleted,
+    completionRate: roundCompletionRate(countedCompleted, countedPending + countedCompleted),
     pendingItems,
     completedItems,
   });

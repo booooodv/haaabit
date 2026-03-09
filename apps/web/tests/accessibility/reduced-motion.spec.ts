@@ -22,7 +22,7 @@ test("reduced-motion mode flattens overlay and shell transition timing", async (
   await page.emulateMedia({ reducedMotion: "reduce" });
   await signUpAndCreateFirstHabit(page, email, "Reduced Motion User");
 
-  await page.getByTestId("locale-switch").getByRole("button", { name: "中文" }).click();
+  await page.getByTestId("locale-switch-button").click();
 
   const habitsLink = page.getByTestId("app-shell-primary-nav").getByRole("link", { name: "习惯" });
   const navTransitionDuration = await habitsLink.evaluate((node) => getComputedStyle(node).transitionDuration);

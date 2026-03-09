@@ -70,6 +70,10 @@ function minDateKey(left: string, right: string) {
   return compareDateKeys(left, right) <= 0 ? left : right;
 }
 
+function maxDateKey(left: string, right: string) {
+  return compareDateKeys(left, right) >= 0 ? left : right;
+}
+
 export function serializeHabitForToday(record: TrendHabitRecord): TodayHabitInput {
   return {
     id: record.id,
@@ -287,6 +291,79 @@ export function calculateRecentCompletionRate(
     days: number;
   },
 ) {
+  if (record.frequencyType === "WEEKLY_COUNT" || record.frequencyType === "MONTHLY_COUNT") {
+    const currentPeriodStart =
+      record.frequencyType === "WEEKLY_COUNT"
+        ? maxDateKey(record.startDate, getWeekBounds(params.todayKey).weekStartKey)
+        : maxDateKey(record.startDate, getMonthBounds(params.todayKey).monthStartKey);
+    const currentPeriodCompletedCount = countCompletedStatesInRange(
+      record.dayStates,
+      currentPeriodStart,
+      params.todayKey,
+    );
+    const currentCompletionTarget = record.frequencyCount ?? 1;
+
+    if (compareDateKeys(params.todayKey, currentPeriodStart) >= 0) {
+      return {
+        completedCount: Math.min(currentPeriodCompletedCount, currentCompletionTarget),
+        totalCount: currentCompletionTarget,
+        completionRate: roundRate(
+          Math.min(currentPeriodCompletedCount, currentCompletionTarget),
+          currentCompletionTarget,
+        ),
+      };
+    }
+
+    const startKey = addDays(params.todayKey, -(params.days - 1));
+    const seenPeriods = new Set<string>();
+    let completedCount = 0;
+    let totalCount = 0;
+
+    for (let cursor = startKey; compareDateKeys(cursor, params.todayKey) <= 0; cursor = addDays(cursor, 1)) {
+      if (compareDateKeys(cursor, record.startDate) < 0) {
+        continue;
+      }
+
+      const periodKey =
+        record.frequencyType === "WEEKLY_COUNT" ? getWeekBounds(cursor).weekKey : getMonthBounds(cursor).monthKey;
+
+      if (seenPeriods.has(periodKey)) {
+        continue;
+      }
+
+      seenPeriods.add(periodKey);
+
+      const periodStartKey =
+        record.frequencyType === "WEEKLY_COUNT"
+          ? getWeekBounds(cursor).weekStartKey
+          : getMonthBounds(cursor).monthStartKey;
+      const periodEndKey =
+        record.frequencyType === "WEEKLY_COUNT"
+          ? getWeekBounds(cursor).weekEndKey
+          : getMonthBounds(cursor).monthEndKey;
+      const effectiveStart = maxDateKey(record.startDate, periodStartKey);
+      const effectiveEnd = minDateKey(periodEndKey, params.todayKey);
+      const periodCompletedCount = countCompletedStatesInRange(record.dayStates, effectiveStart, effectiveEnd);
+      const completionTarget = record.frequencyCount ?? 1;
+      const isCurrentPeriod = compareDateKeys(params.todayKey, periodEndKey) < 0;
+
+      if (isCurrentPeriod && periodCompletedCount < completionTarget) {
+        continue;
+      }
+
+      totalCount += 1;
+      if (periodCompletedCount >= completionTarget) {
+        completedCount += 1;
+      }
+    }
+
+    return {
+      completedCount,
+      totalCount,
+      completionRate: roundRate(completedCount, totalCount),
+    };
+  }
+
   const points = buildHabitTrendSlice(record, params);
   const duePoints = points.filter((point) => point.completionTarget !== null);
   const completedCount = duePoints.filter((point) => point.status === "completed").length;

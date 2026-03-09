@@ -35,8 +35,13 @@ function getPointColor(point: ChartPoint) {
 }
 
 function getPointHeight(point: ChartPoint) {
-  const rate = point.completionRate ?? 0;
-  return Math.max(18, Math.round(rate * 88));
+  const rate = point.completionRate;
+
+  if (rate === null || rate <= 0) {
+    return 0;
+  }
+
+  return Math.max(10, Math.round(rate * 88));
 }
 
 export function CompletionRateChart({
@@ -52,6 +57,8 @@ export function CompletionRateChart({
   points: ChartPoint[];
   testId?: string;
 }) {
+  const showLabelEvery = points.length > 20 ? 5 : points.length > 14 ? 3 : 1;
+
   return (
     <section data-testid={testId} className={styles.chart}>
       <div className={styles.header}>
@@ -61,11 +68,12 @@ export function CompletionRateChart({
 
       <div
         className={styles.plot}
+        data-testid="completion-rate-chart-plot"
         style={{
           gridTemplateColumns: `repeat(${points.length}, minmax(0, 1fr))`,
         }}
       >
-        {points.map((point) => (
+        {points.map((point, index) => (
           <div
             key={point.date}
             title={`${point.date} · ${getPointLabel(point, notDueLabel)}`}
@@ -78,8 +86,11 @@ export function CompletionRateChart({
                 background: getPointColor(point),
                 opacity: point.completionRate === null ? 0.45 : 1,
               }}
+              data-completion-rate={point.completionRate ?? "not_due"}
             />
-            <span className={styles.label}>{point.date.slice(5)}</span>
+            <span className={styles.label}>
+              {index % showLabelEvery === 0 || index === points.length - 1 ? point.date.slice(5) : ""}
+            </span>
           </div>
         ))}
       </div>

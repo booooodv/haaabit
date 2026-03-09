@@ -269,4 +269,175 @@ describe("today action routes", () => {
       code: "HABIT_INACTIVE",
     });
   });
+
+  it("rejects complete actions for weekdays habits on non-due days", async () => {
+    context = await createTestContext();
+    const { body, cookie } = await signUp(context.app);
+
+    const weekdayHabit = await createOwnedHabit(context, body.user.id, {
+      name: "Stretch",
+      frequency: {
+        type: "weekdays",
+        days: ["monday", "wednesday"],
+      },
+      startDate: "2026-03-01",
+    });
+
+    const completeResponse = await context.app.inject({
+      method: "POST",
+      url: "/api/today/complete",
+      headers: {
+        cookie,
+        "x-haaabit-now": "2026-03-10T08:00:00.000Z",
+      },
+      payload: {
+        habitId: weekdayHabit.id,
+        source: "web",
+      },
+    });
+
+    expect(completeResponse.statusCode).toBe(400);
+    expect(completeResponse.json()).toMatchObject({
+      code: "BAD_REQUEST",
+      message: "This habit is not actionable in today right now",
+    });
+
+    const todayResponse = await context.app.inject({
+      method: "GET",
+      url: "/api/today",
+      headers: {
+        cookie,
+        "x-haaabit-now": "2026-03-10T08:00:00.000Z",
+      },
+    });
+
+    expect(todayResponse.statusCode).toBe(200);
+    expect(todayResponse.json()).toMatchObject({
+      summary: {
+        pendingItems: [],
+        completedItems: [],
+      },
+    });
+  });
+
+
+  it("rejects undo when the latest today action never succeeded", async () => {
+    context = await createTestContext();
+    const { body, cookie } = await signUp(context.app);
+
+    const weekdayHabit = await createOwnedHabit(context, body.user.id, {
+      name: "Stretch",
+      frequency: {
+        type: "weekdays",
+        days: ["monday", "wednesday"],
+      },
+      startDate: "2026-03-01",
+    });
+
+    const completeResponse = await context.app.inject({
+      method: "POST",
+      url: "/api/today/complete",
+      headers: {
+        cookie,
+        "x-haaabit-now": "2026-03-10T08:00:00.000Z",
+      },
+      payload: {
+        habitId: weekdayHabit.id,
+        source: "web",
+      },
+    });
+
+    expect(completeResponse.statusCode).toBe(400);
+
+    const undoResponse = await context.app.inject({
+      method: "POST",
+      url: "/api/today/undo",
+      headers: {
+        cookie,
+        "x-haaabit-now": "2026-03-10T08:05:00.000Z",
+      },
+      payload: {
+        habitId: weekdayHabit.id,
+        source: "web",
+      },
+    });
+
+    expect(undoResponse.statusCode).toBe(400);
+    expect(undoResponse.json()).toMatchObject({
+      code: "BAD_REQUEST",
+      message: "There is no successful today action to undo",
+    });
+  });
+
+  it("rejects undo when a habit has no successful today action history", async () => {
+    context = await createTestContext();
+    const { body, cookie } = await signUp(context.app);
+
+    const habit = await createOwnedHabit(context, body.user.id, {
+      name: "Meditate",
+      frequency: {
+        type: "daily",
+      },
+    });
+
+    const undoResponse = await context.app.inject({
+      method: "POST",
+      url: "/api/today/undo",
+      headers: {
+        cookie,
+        "x-haaabit-now": "2026-03-11T08:05:00.000Z",
+      },
+      payload: {
+        habitId: habit.id,
+        source: "web",
+      },
+    });
+
+    expect(undoResponse.statusCode).toBe(400);
+    expect(undoResponse.json()).toMatchObject({
+      code: "BAD_REQUEST",
+      message: "There is no successful today action to undo",
+    });
+  });
+
+  it("returns the same today summary as a follow-up GET after a valid complete action", async () => {
+    context = await createTestContext();
+    const { body, cookie } = await signUp(context.app);
+
+    const habit = await createOwnedHabit(context, body.user.id, {
+      name: "Meditate",
+      frequency: {
+        type: "daily",
+      },
+    });
+
+    const completeResponse = await context.app.inject({
+      method: "POST",
+      url: "/api/today/complete",
+      headers: {
+        cookie,
+        "x-haaabit-now": "2026-03-11T08:00:00.000Z",
+      },
+      payload: {
+        habitId: habit.id,
+        source: "web",
+      },
+    });
+
+    expect(completeResponse.statusCode).toBe(200);
+
+    const getResponse = await context.app.inject({
+      method: "GET",
+      url: "/api/today",
+      headers: {
+        cookie,
+        "x-haaabit-now": "2026-03-11T08:00:00.000Z",
+      },
+    });
+
+    expect(getResponse.statusCode).toBe(200);
+    expect((completeResponse.json() as { summary: unknown }).summary).toEqual(
+      (getResponse.json() as { summary: unknown }).summary,
+    );
+  });
 });

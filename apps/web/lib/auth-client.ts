@@ -1,5 +1,5 @@
 import type { ApiAccessTokenResponse } from "@haaabit/contracts/api";
-import type { CreateHabitInput, HabitListFilters, UpdateHabitInput, Weekday } from "@haaabit/contracts/habits";
+import type { CreateHabitInput, HabitDetail, HabitListFilters, UpdateHabitInput, Weekday } from "@haaabit/contracts/habits";
 import type { OverviewStats } from "@haaabit/contracts/stats";
 import type { TodaySummary } from "@haaabit/contracts/today";
 
@@ -30,6 +30,15 @@ type OverviewStatsResponse = {
 };
 
 type ApiAccessTokenResponseBody = ApiAccessTokenResponse;
+
+type RegistrationStatusResponse = {
+  registrationEnabled: boolean;
+  hasUsers: boolean;
+};
+
+type AdminRegistrationResponse = {
+  registrationEnabled: boolean;
+};
 
 type TodayActionInput = {
   habitId: string;
@@ -166,6 +175,14 @@ export async function updateHabit(habitId: string, input: UpdateHabitInput) {
   return body.item;
 }
 
+export async function getHabitDetail(habitId: string) {
+  const body = await requestJson<{ item: HabitDetail }>(`/api/habits/${habitId}`, {
+    method: "GET",
+  });
+
+  return body.item;
+}
+
 export async function archiveHabit(habitId: string) {
   const body = await requestJson<{ item: HabitRecord }>(`/api/habits/${habitId}/archive`, {
     method: "POST",
@@ -207,6 +224,27 @@ export async function getApiAccessToken() {
 export async function resetApiAccessToken() {
   return requestJson<ApiAccessTokenResponseBody>("/api/api-access/token/reset", {
     method: "POST",
+  });
+}
+
+export async function getRegistrationStatus() {
+  return requestJson<RegistrationStatusResponse>("/api/auth/registration", {
+    method: "GET",
+  });
+}
+
+export async function getAdminRegistrationSettings() {
+  return requestJson<AdminRegistrationResponse>("/api/admin/registration", {
+    method: "GET",
+  });
+}
+
+export async function updateAdminRegistrationSettings(registrationEnabled: boolean) {
+  return requestJson<AdminRegistrationResponse>("/api/admin/registration", {
+    method: "POST",
+    body: JSON.stringify({
+      registrationEnabled,
+    }),
   });
 }
 

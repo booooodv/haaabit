@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 
+import { createFirstHabit, signUpInBrowser } from "../accessibility/helpers";
+
 async function createHabitViaApi(
   page: import("@playwright/test").Page,
   payload: Record<string, unknown>,
@@ -26,16 +28,11 @@ test("habit detail trends render from both list entry and direct-link detail rou
   const email = `habit-trends-${Date.now()}@example.com`;
   const startDate = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
-  await page.goto("/");
-  await page.getByRole("button", { name: "Create account" }).click();
-  await page.getByLabel("Name").fill("Trend User");
-  await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password").fill("password123");
-  await page.getByRole("button", { name: "Create account" }).click();
-
-  await page.getByLabel("Habit name").fill("Morning walk");
-  await page.getByLabel("Start date").fill(startDate);
-  await page.getByRole("button", { name: "Create first habit" }).click();
+  await signUpInBrowser(page, email, "Trend User");
+  await createFirstHabit(page, {
+    name: "Morning walk",
+    startDate,
+  });
 
   const created = await createHabitViaApi(page, {
     name: "Read pages",
@@ -66,14 +63,15 @@ test("habit detail trends render from both list entry and direct-link detail rou
 
   await page.goto("/habits");
   const readCard = page.locator("article").filter({ hasText: "Read pages" });
-  await readCard.getByRole("link", { name: "View details" }).click();
+  await readCard.getByRole("button", { name: "View details" }).click();
 
+  await expect(page).toHaveURL(/\/habits$/);
   await expect(page.getByTestId("habit-detail-overlay").getByRole("heading", { name: "Read pages" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Recent trends" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Last 7 days" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Last 30 days" })).toBeVisible();
 
-  await page.getByRole("link", { name: "Close" }).click();
+  await page.getByRole("button", { name: "Close" }).click();
   await expect(page).toHaveURL(/\/habits$/);
 
   await page.goto(`/habits/${created.item.id}`);

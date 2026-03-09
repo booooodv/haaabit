@@ -14,23 +14,24 @@
 }
 
 .toolbarTop {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 1rem;
-  align-items: flex-start;
-  flex-wrap: wrap;
+  align-items: start;
 }
 
 .toolbarActions {
   display: grid;
   gap: 0.85rem;
   justify-items: end;
+  align-content: start;
 }
 
 .toolbarIntro {
   display: grid;
   gap: 0.35rem;
   max-width: 30rem;
+  min-width: 0;
 }
 
 .toolbarLabel {
@@ -56,9 +57,17 @@
 }
 
 .segmented {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem;
+  border: 1px solid rgba(102, 122, 115, 0.18);
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.segmentedButton {
+  min-width: 7.25rem;
 }
 
 .filters {
@@ -116,6 +125,7 @@
   flex-wrap: wrap;
   gap: 0.9rem;
   align-items: center;
+  justify-content: space-between;
 }
 
 .primaryAction {
@@ -130,16 +140,23 @@
   background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-strong) 100%);
   box-shadow: 0 12px 32px rgba(28, 64, 81, 0.24);
   font-weight: 700;
-  text-decoration: none;
+  font-size: 0.98rem;
+  cursor: pointer;
   transition:
     transform 160ms ease,
     box-shadow 160ms ease,
     filter 160ms ease;
 }
 
-.primaryAction:hover {
+.primaryAction:hover:not(:disabled) {
   transform: translateY(-1px);
   filter: saturate(1.05);
+}
+
+.primaryAction:disabled {
+  opacity: 0.62;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 .secondaryActions {
@@ -169,7 +186,12 @@
 @media (max-width: 720px) {
   .segmented {
     display: grid;
+    width: 100%;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .segmentedButton {
+    min-width: 0;
   }
 
   .filters {
@@ -192,6 +214,7 @@
 
   .toolbarTop {
     display: grid;
+    grid-template-columns: 1fr;
   }
 
   .toolbarActions {

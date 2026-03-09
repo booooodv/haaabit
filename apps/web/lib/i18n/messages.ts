@@ -123,6 +123,7 @@ export type LocaleMessages = {
         title: string;
         description: string;
         recentDays: (completedCount: number, totalCount: number) => string;
+        currentPeriod: (completedCount: number, totalCount: number) => string;
         empty: string;
       };
       refreshing: string;
@@ -168,6 +169,10 @@ export type LocaleMessages = {
         title: string;
         count: (count: number) => string;
       };
+      available: {
+        title: string;
+        count: (count: number) => string;
+      };
       completed: {
         title: string;
         count: (count: number) => string;
@@ -198,11 +203,12 @@ export type LocaleMessages = {
         cardSuccessMessage: string;
       };
     };
-    item: {
-      status: {
-        pending: string;
-        completed: string;
-      };
+      item: {
+        status: {
+          pending: string;
+          available: string;
+          completed: string;
+        };
       totalLabel: string;
       saveTotal: string;
       progress: {
@@ -222,24 +228,10 @@ export const messages: Record<SupportedLocale, LocaleMessages> = {
     },
     auth: {
       page: {
-        eyebrow: "Private by deployment",
+        eyebrow: "Welcome back",
         title: "Sign in to Haaabit",
-        description:
-          "Stored on the deployment you control. Sign in to the same local account you will use for today's check-ins, edits, and later AI-assisted actions.",
-        values: [
-          {
-            label: "Local account",
-            text: "Credentials stay tied to this self-hosted deployment, not a shared cloud account.",
-          },
-          {
-            label: "Today ready",
-            text: "Land in a dashboard that tells you what is due, what is done, and what needs correction.",
-          },
-          {
-            label: "Calm recovery",
-            text: "If a sign-in attempt fails, your entered details stay in place so you can correct and continue.",
-          },
-        ],
+        description: "Sign in to continue.",
+        values: [],
       },
       form: {
         feedback: {
@@ -275,9 +267,8 @@ export const messages: Record<SupportedLocale, LocaleMessages> = {
         },
         mode: {
           signIn: {
-            eyebrow: "Private account access",
-            description:
-              "Use the account already stored on this deployment. Your details stay in place if you need to correct them.",
+            eyebrow: "Sign in",
+            description: "Use your account to continue.",
             submit: "Sign in",
             pending: "Signing in...",
             switchLabel: "Need a new account?",
@@ -345,13 +336,14 @@ export const messages: Record<SupportedLocale, LocaleMessages> = {
           activeHabitsHint: "Current working set",
         },
         trend: {
-          title: "30-day completion rate",
-          subtitle: "Daily-granularity account trend",
+          title: "7-day completion rate",
+          subtitle: "Daily account trend for the current week",
         },
         ranking: {
           title: "Stability ranking",
-          description: "Active habits ranked by recent completion rate.",
+          description: "Daily habits use recent completion rate. Count-based habits use current period progress.",
           recentDays: (completedCount, totalCount) => `${completedCount}/${totalCount} recent due days`,
+          currentPeriod: (completedCount, totalCount) => `${completedCount}/${totalCount} in the current target`,
           empty: "No active habits with recent due history yet.",
         },
         refreshing: "Refreshing overview...",
@@ -397,6 +389,10 @@ export const messages: Record<SupportedLocale, LocaleMessages> = {
           title: "Pending",
           count: (count) => `${count} pending`,
         },
+        available: {
+          title: "Available",
+          count: (count) => `${count} available`,
+        },
         completed: {
           title: "Completed",
           count: (count) => `${count} completed`,
@@ -411,12 +407,12 @@ export const messages: Record<SupportedLocale, LocaleMessages> = {
           cardSuccessMessage: "Marked complete. You can undo from this card if needed.",
         },
         setTotal: {
-          label: "Save total",
-          pendingTitle: "Saving today total",
-          successTitle: "Total saved",
-          successMessagePending: "The updated quantity now counts toward today's completion status.",
-          successMessageCompleted: "The completed list now reflects the latest quantity value.",
-          cardSuccessMessage: "Saved in place. Today's quantity is now up to date.",
+          label: "Add amount",
+          pendingTitle: "Adding to today's progress",
+          successTitle: "Progress updated",
+          successMessagePending: "The new amount now counts toward today's completion status.",
+          successMessageCompleted: "The completed list now reflects the added amount.",
+          cardSuccessMessage: "Added to today's progress.",
         },
         undo: {
           label: "Undo",
@@ -430,10 +426,11 @@ export const messages: Record<SupportedLocale, LocaleMessages> = {
       item: {
         status: {
           pending: "pending",
+          available: "available",
           completed: "completed",
         },
-        totalLabel: "Today's total",
-        saveTotal: "Save total",
+        totalLabel: "Today's amount",
+        saveTotal: "Add amount",
         progress: {
           period: (current, target, scope) => `${current} / ${target} this ${scope}`,
           doneToday: "Done today",
@@ -449,24 +446,10 @@ export const messages: Record<SupportedLocale, LocaleMessages> = {
     },
     auth: {
       page: {
-        eyebrow: "由你部署，数据由你掌控",
+        eyebrow: "欢迎回来",
         title: "登录 Haaabit",
-        description:
-          "数据保存在你控制的部署上。登录同一个本地账户，继续今天的打卡、编辑以及后续的 AI 辅助操作。",
-        values: [
-          {
-            label: "本地账户",
-            text: "凭据只属于这套自托管部署，不会绑定到共享云账户。",
-          },
-          {
-            label: "今天就绪",
-            text: "进入后先看到今天该做什么、已经完成什么、还有哪里需要修正。",
-          },
-          {
-            label: "平静恢复",
-            text: "如果登录失败，你刚刚输入的内容会保留下来，方便直接修正后继续。",
-          },
-        ],
+        description: "登录后继续使用。",
+        values: [],
       },
       form: {
         feedback: {
@@ -502,8 +485,8 @@ export const messages: Record<SupportedLocale, LocaleMessages> = {
         },
         mode: {
           signIn: {
-            eyebrow: "本地账户登录",
-            description: "使用这套部署里已有的账户登录；如果需要修正信息，已填内容会继续保留。",
+            eyebrow: "登录",
+            description: "使用你的账户继续。",
             submit: "登录",
             pending: "登录中...",
             switchLabel: "还没有账户？",
@@ -570,13 +553,14 @@ export const messages: Record<SupportedLocale, LocaleMessages> = {
           activeHabitsHint: "当前工作集合",
         },
         trend: {
-          title: "近 30 天完成率",
-          subtitle: "按天展示的账户趋势",
+          title: "近 7 天完成率",
+          subtitle: "按天展示最近一周的账户趋势",
         },
         ranking: {
           title: "稳定度排序",
-          description: "按近期完成率对启用中的习惯排序。",
+          description: "按近期完成率或当前周期进度对启用中的习惯排序。",
           recentDays: (completedCount, totalCount) => `最近应完成日 ${completedCount}/${totalCount}`,
+          currentPeriod: (completedCount, totalCount) => `当前周期 ${completedCount}/${totalCount}`,
           empty: "目前还没有带近期应完成记录的启用中习惯。",
         },
         refreshing: "正在刷新概览...",
@@ -622,6 +606,10 @@ export const messages: Record<SupportedLocale, LocaleMessages> = {
           title: "待完成",
           count: (count) => `${count} 个待完成`,
         },
+        available: {
+          title: "可完成",
+          count: (count) => `${count} 个可完成`,
+        },
         completed: {
           title: "已完成",
           count: (count) => `${count} 个已完成`,
@@ -636,12 +624,12 @@ export const messages: Record<SupportedLocale, LocaleMessages> = {
           cardSuccessMessage: "已标记完成。如有需要，你可以直接在这张卡片里撤销。",
         },
         setTotal: {
-          label: "更新总量",
-          pendingTitle: "正在保存今天总量",
-          successTitle: "总量已保存",
-          successMessagePending: "更新后的数量现在会计入今天的完成状态。",
-          successMessageCompleted: "已完成列表现在反映的是最新数量。",
-          cardSuccessMessage: "已在当前位置保存，今天的数量已更新。",
+          label: "添加数量",
+          pendingTitle: "正在添加今天的进度",
+          successTitle: "进度已更新",
+          successMessagePending: "新增的数量现在会计入今天的完成状态。",
+          successMessageCompleted: "已完成列表现在反映的是新增后的数量。",
+          cardSuccessMessage: "已添加到今天进度中。",
         },
         undo: {
           label: "撤销",
@@ -655,10 +643,11 @@ export const messages: Record<SupportedLocale, LocaleMessages> = {
       item: {
         status: {
           pending: "待完成",
+          available: "可完成",
           completed: "已完成",
         },
-        totalLabel: "今天总量",
-        saveTotal: "更新总量",
+        totalLabel: "今天新增",
+        saveTotal: "添加数量",
         progress: {
           period: (current, target, scope) => `${scope === "week" ? "本周" : "本月"} ${current} / ${target}`,
           doneToday: "今天已完成",

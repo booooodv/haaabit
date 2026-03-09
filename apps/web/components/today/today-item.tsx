@@ -4,7 +4,7 @@ import type { TodayItem } from "@haaabit/contracts/today";
 import { useEffect, useState } from "react";
 
 import { useLocale } from "../locale";
-import { Badge, Button, DisabledHint, Field, InlineStatus, Input, cn } from "../ui";
+import { Badge, Button, DisabledHint, InlineStatus, Input, cn } from "../ui";
 import styles from "./today-item.module.css";
 
 type ItemFeedback = {
@@ -42,10 +42,10 @@ function formatProgress(item: TodayItem, copy: ReturnType<typeof useLocale>["cop
 export function TodayItemCard(props: TodayItemProps) {
   const { item, feedback = null, isPending = false, onComplete, onSetTotal, onUndo } = props;
   const { copy } = useLocale();
-  const [draftTotal, setDraftTotal] = useState(String(item.progress.currentValue ?? 0));
+  const [draftTotal, setDraftTotal] = useState("0");
 
   useEffect(() => {
-    setDraftTotal(String(item.progress.currentValue ?? 0));
+    setDraftTotal("0");
   }, [item.progress.currentValue, item.habitId]);
 
   function handleComplete() {
@@ -53,20 +53,21 @@ export function TodayItemCard(props: TodayItemProps) {
   }
 
   function handleSetTotal() {
-    const total = Number(draftTotal);
+    const amount = Number(draftTotal);
 
-    if (!Number.isFinite(total) || total < 0) {
+    if (!Number.isFinite(amount) || amount <= 0) {
       return;
     }
 
-    void onSetTotal(item.habitId, total);
+    void onSetTotal(item.habitId, (item.progress.currentValue ?? 0) + amount);
   }
 
   function handleUndo() {
     void onUndo(item.habitId);
   }
 
-  const showUndo = item.status === "completed" || (item.progress.currentValue ?? 0) > 0;
+  const showUndo = item.canUndo;
+  const showHeaderActions = item.kind !== "quantity" && (item.status !== "completed" || showUndo);
 
   return (
     <article
@@ -75,31 +76,22 @@ export function TodayItemCard(props: TodayItemProps) {
     >
       <div className={styles.header}>
         <div className={styles.copy}>
-          <h3 className={styles.title}>{item.name}</h3>
+          <div className={styles.titleRow}>
+            <h3 className={styles.title}>{item.name}</h3>
+            <Badge tone={item.status === "completed" ? "success" : "warning"}>
+              {copy.today.item.status[item.status]}
+            </Badge>
+          </div>
           <p className={styles.progress}>{formatProgress(item, copy.today.item)}</p>
         </div>
-        <Badge tone={item.status === "completed" ? "success" : "warning"}>
-          {copy.today.item.status[item.status]}
-        </Badge>
-      </div>
 
-      {item.kind === "quantity" ? (
-        <div className={styles.quantityRow}>
-          <Field label={copy.today.item.totalLabel} htmlFor={`today-total-${item.habitId}`} className={styles.field}>
-            <Input
-              id={`today-total-${item.habitId}`}
-              type="number"
-              min={0}
-              value={draftTotal}
-              onChange={(event) => setDraftTotal(event.target.value)}
-              disabled={isPending}
-            />
-          </Field>
-
-          <div className={styles.actions}>
-            <Button type="button" onClick={handleSetTotal} disabled={isPending} size="sm">
-              {copy.today.item.saveTotal}
-            </Button>
+        {showHeaderActions ? (
+          <div className={styles.headerActions}>
+            {item.status !== "completed" ? (
+              <Button type="button" onClick={handleComplete} disabled={isPending} size="sm">
+                {copy.today.actions.complete.label}
+              </Button>
+            ) : null}
 
             {showUndo ? (
               <Button type="button" variant="secondary" onClick={handleUndo} disabled={isPending} size="sm">
@@ -107,25 +99,47 @@ export function TodayItemCard(props: TodayItemProps) {
               </Button>
             ) : null}
           </div>
-        </div>
-      ) : (
-        <div className={styles.actions}>
-          {item.status === "pending" ? (
-            <Button type="button" onClick={handleComplete} disabled={isPending} size="sm">
-              {copy.today.actions.complete.label}
-            </Button>
-          ) : null}
+        ) : null}
+      </div>
 
-          {showUndo ? (
-            <Button type="button" variant="secondary" onClick={handleUndo} disabled={isPending} size="sm">
-              {copy.today.actions.undo.label}
-            </Button>
-          ) : null}
+      {item.kind === "quantity" ? (
+        <div className={styles.quantitySection}>
+          <label className={styles.quantityLabel} htmlFor={`today-total-${item.habitId}`}>
+            {copy.today.item.totalLabel}
+          </label>
+
+          <div className={styles.quantityRow} data-testid="today-quantity-row">
+            <Input
+              id={`today-total-${item.habitId}`}
+              type="number"
+              min={1}
+              value={draftTotal}
+              onChange={(event) => setDraftTotal(event.target.value)}
+              disabled={isPending}
+              className={styles.quantityInput}
+            />
+
+            <div className={styles.actions}>
+              <Button type="button" onClick={handleSetTotal} disabled={isPending}>
+                {copy.today.item.saveTotal}
+              </Button>
+
+              {showUndo ? (
+                <Button type="button" variant="secondary" onClick={handleUndo} disabled={isPending}>
+                  {copy.today.actions.undo.label}
+                </Button>
+              ) : null}
+            </div>
+          </div>
         </div>
-      )}
+      ) : null}
 
       {feedback ? (
-        <InlineStatus tone={feedback.tone} title={feedback.title}>
+        <InlineStatus
+          tone={feedback.tone}
+          title={feedback.title}
+          testId={`today-item-feedback-${item.habitId}`}
+        >
           {feedback.message}
         </InlineStatus>
       ) : null}

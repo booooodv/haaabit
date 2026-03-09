@@ -2,7 +2,13 @@ import { ZodError } from "zod";
 import type { FastifyReply, FastifyRequest } from "fastify";
 
 import { AuthSessionError, requireAuthenticatedUser } from "../../auth/session";
-import { completeHabitForToday, setHabitTotalForToday, undoHabitForToday } from "../checkins/checkin.service";
+import {
+  completeHabitForToday,
+  NothingToUndoError,
+  setHabitTotalForToday,
+  TodayActionUnavailableError,
+  undoHabitForToday,
+} from "../checkins/checkin.service";
 import { HabitInactiveError } from "../habits/habit.service";
 
 import { buildTodaySummary } from "./today-summary";
@@ -225,6 +231,22 @@ function sendRequestError(reply: FastifyReply, error: unknown) {
   if (error instanceof HabitInactiveError) {
     reply.status(409).send({
       code: "HABIT_INACTIVE",
+      message: error.message,
+    });
+    return reply;
+  }
+
+  if (error instanceof TodayActionUnavailableError) {
+    reply.status(400).send({
+      code: "BAD_REQUEST",
+      message: error.message,
+    });
+    return reply;
+  }
+
+  if (error instanceof NothingToUndoError) {
+    reply.status(400).send({
+      code: "BAD_REQUEST",
       message: error.message,
     });
     return reply;

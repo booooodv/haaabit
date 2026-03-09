@@ -1,19 +1,16 @@
 import { expect, test } from "@playwright/test";
 
+import { createFirstHabit, signUpInBrowser } from "../accessibility/helpers";
+
 test("archiving the last active habit keeps dashboard in place and restore makes today reachable again", async ({
   page,
 }) => {
   const email = `habit-regression-${Date.now()}@example.com`;
 
-  await page.goto("/");
-  await page.getByRole("button", { name: "Create account" }).click();
-  await page.getByLabel("Name").fill("Regression User");
-  await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password").fill("password123");
-  await page.getByRole("button", { name: "Create account" }).click();
-
-  await page.getByLabel("Habit name").fill("Morning walk");
-  await page.getByRole("button", { name: "Create first habit" }).click();
+  await signUpInBrowser(page, email, "Regression User");
+  await createFirstHabit(page, {
+    name: "Morning walk",
+  });
   await expect(page).toHaveURL(/\/dashboard$/);
   await expect(page.getByText(/^1 pending$/)).toBeVisible();
 

@@ -50,4 +50,174 @@ describe("auth flow", () => {
       await context.cleanup();
     }
   });
+
+  it("marks the first registered user as admin and lets that admin disable future registration", async () => {
+    const context = await createTestContext();
+
+    try {
+      const publicBefore = await context.app.inject({
+        method: "GET",
+        url: "/api/auth/registration",
+      });
+
+      expect(publicBefore.statusCode).toBe(200);
+      expect(publicBefore.json()).toMatchObject({
+        registrationEnabled: true,
+        hasUsers: false,
+      });
+
+      const { cookie: adminCookie } = await signUp(context.app, {
+        email: "admin@example.com",
+        name: "Admin",
+      });
+
+      const sessionResponse = await context.app.inject({
+        method: "GET",
+        url: "/api/session",
+        headers: {
+          cookie: adminCookie,
+        },
+      });
+
+      expect(sessionResponse.statusCode).toBe(200);
+      expect(sessionResponse.json()).toMatchObject({
+        user: {
+          email: "admin@example.com",
+          isAdmin: true,
+        },
+      });
+
+      const adminSettingsResponse = await context.app.inject({
+        method: "GET",
+        url: "/api/admin/registration",
+        headers: {
+          cookie: adminCookie,
+        },
+      });
+
+      expect(adminSettingsResponse.statusCode).toBe(200);
+      expect(adminSettingsResponse.json()).toMatchObject({
+        registrationEnabled: true,
+      });
+
+      const disableResponse = await context.app.inject({
+        method: "POST",
+        url: "/api/admin/registration",
+        headers: {
+          cookie: adminCookie,
+        },
+        payload: {
+          registrationEnabled: false,
+        },
+      });
+
+      expect(disableResponse.statusCode).toBe(200);
+      expect(disableResponse.json()).toMatchObject({
+        registrationEnabled: false,
+      });
+
+      const publicAfter = await context.app.inject({
+        method: "GET",
+        url: "/api/auth/registration",
+      });
+
+      expect(publicAfter.statusCode).toBe(200);
+      expect(publicAfter.json()).toMatchObject({
+        registrationEnabled: false,
+        hasUsers: true,
+      });
+
+      const blockedSignUp = await context.app.inject({
+        method: "POST",
+        url: "/api/auth/sign-up/email",
+        payload: {
+          email: "blocked@example.com",
+          password: "password123",
+          name: "Blocked",
+        },
+      });
+
+      expect(blockedSignUp.statusCode).toBe(403);
+      expect(blockedSignUp.json()).toMatchObject({
+        code: "FORBIDDEN",
+        message: "Registration is currently disabled",
+      });
+    } finally {
+      await context.cleanup();
+    }
+  });
+
+  it("backfills the oldest existing user as admin after upgrading from a legacy database", async () => {
+    const context = await createTestContext();
+
+    try {
+      const { cookie: firstCookie } = await signUp(context.app, {
+        email: "legacy-owner@example.com",
+        name: "Legacy Owner",
+      });
+
+      await signUp(context.app, {
+        email: "legacy-member@example.com",
+        name: "Legacy Member",
+      });
+
+      await context.app.db.user.updateMany({
+        data: {
+          isAdmin: false,
+        },
+      });
+
+      const firstSessionResponse = await context.app.inject({
+        method: "GET",
+        url: "/api/session",
+        headers: {
+          cookie: firstCookie,
+        },
+      });
+
+      expect(firstSessionResponse.statusCode).toBe(200);
+      expect(firstSessionResponse.json()).toMatchObject({
+        user: {
+          email: "legacy-owner@example.com",
+          isAdmin: true,
+        },
+      });
+
+      const adminSettingsResponse = await context.app.inject({
+        method: "GET",
+        url: "/api/admin/registration",
+        headers: {
+          cookie: firstCookie,
+        },
+      });
+
+      expect(adminSettingsResponse.statusCode).toBe(200);
+      expect(adminSettingsResponse.json()).toMatchObject({
+        registrationEnabled: true,
+      });
+
+      const users = await context.app.db.user.findMany({
+        orderBy: {
+          createdAt: "asc",
+        },
+        select: {
+          email: true,
+          isAdmin: true,
+        },
+      });
+
+      expect(users).toEqual([
+        {
+          email: "legacy-owner@example.com",
+          isAdmin: true,
+        },
+        {
+          email: "legacy-member@example.com",
+          isAdmin: false,
+        },
+      ]);
+    } finally {
+      await context.cleanup();
+    }
+  });
 });

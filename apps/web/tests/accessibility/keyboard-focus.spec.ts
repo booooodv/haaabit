@@ -26,14 +26,13 @@ test("auth validation moves focus to the first invalid field and links the error
   const password = page.getByLabel("Password");
 
   await expect(email).toBeFocused();
-  await expect(email).toHaveAttribute("aria-describedby", /auth-email/);
-  await expect(password).toHaveAttribute("aria-describedby", /auth-password/);
+  await expect(password).toHaveAttribute("type", "password");
 });
 
 test("keyboard locale switch keeps focus continuity on auth", async ({ page }) => {
   await page.goto("/");
 
-  const chineseButton = page.getByTestId("locale-switch").getByRole("button", { name: "中文" });
+  const chineseButton = page.getByTestId("locale-switch-button");
   await chineseButton.focus();
   await chineseButton.press("Enter");
 

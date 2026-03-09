@@ -7,10 +7,11 @@ test("logged-out users land on auth page and protected shell redirects back to l
 
   await expect(page.getByRole("heading", { name: "Sign in to Haaabit" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Sign in" })).toBeVisible();
-  await expect(page.getByText("Private by deployment")).toBeVisible();
-  await expect(page.getByText("Stored on the deployment you control")).toBeVisible();
-
+  await expect(page.getByText("Use your account to continue.")).toHaveCount(0);
+  await expect(page.getByText("Use the email you want tied to this self-hosted account.")).toHaveCount(0);
+  await expect(page.getByText("Use the password already stored on this deployment.")).toHaveCount(0);
   const createAccount = page.getByRole("button", { name: "Create account" });
+  await expect(createAccount).toBeVisible();
   await createAccount.focus();
   await createAccount.press("Enter");
   await expect(page.getByLabel("Name")).toBeFocused();
@@ -40,11 +41,10 @@ test("auth keeps sign-in failures in context", async ({ page }) => {
   const feedback = page.getByTestId("auth-feedback");
   await expect(feedback).toBeVisible();
   await expect(feedback).toContainText("Unable to continue");
-  await expect(feedback).toContainText("Invalid email or password");
-  await expect(page.getByText("Check your email and password, then try again.")).toBeVisible();
+  await expect(feedback).not.toContainText("Invalid email or password");
+  await expect(feedback).toContainText("Check your email and password, then try again.");
+  await expect(page.locator("#auth-password-error")).toContainText("Check your email and password, then try again.");
   await expect(page.getByLabel("Password")).toBeFocused();
-  await expect(page.getByLabel("Email")).toHaveAttribute("aria-describedby", /auth-email/);
-  await expect(page.getByLabel("Password")).toHaveAttribute("aria-describedby", /auth-password/);
   await expect(page.getByLabel("Email")).toHaveValue("wrong@example.com");
   await expect(page.getByLabel("Password")).toHaveValue("password123");
   await expect(page.getByRole("button", { name: "Sign in" })).toBeVisible();

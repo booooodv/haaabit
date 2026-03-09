@@ -1,0 +1,8 @@
+ALTER TABLE "User" ADD COLUMN "isAdmin" BOOLEAN NOT NULL DEFAULT false;
+
+CREATE TABLE "AppSettings" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "registrationEnabled" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL
+);

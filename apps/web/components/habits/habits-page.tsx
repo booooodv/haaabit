@@ -1,11 +1,11 @@
 "use client";
 
 import type { HabitDetail } from "@haaabit/contracts/habits";
-import Link from "next/link";
 import { useDeferredValue, useEffect, useRef, useState } from "react";
 
 import {
   archiveHabit,
+  getHabitDetail,
   listHabits,
   restoreHabit,
   type HabitRecord,
@@ -81,6 +81,7 @@ export function HabitsPage({
   const { locale } = useLocale();
   const copy = getHabitsCopy(locale);
   const [status, setStatus] = useState<HabitStatus>(initialStatus);
+  const [detail, setDetail] = useState<HabitDetail | null>(initialDetail);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("");
   const [kind, setKind] = useState<HabitKindFilter>("all");
@@ -92,6 +93,7 @@ export function HabitsPage({
   const deferredCategory = useDeferredValue(category);
   const requestIdRef = useRef(0);
   const overlayTriggerRef = useRef<HTMLElement | null>(null);
+  const detailTriggerRef = useRef<HTMLElement | null>(null);
   const workingSetSummary = copy.page.toolbar.workingSetSummary(status, items.length);
 
   function rememberOverlayTrigger(target: HTMLElement) {
@@ -112,6 +114,21 @@ export function HabitsPage({
   function closeOverlayAndRestoreFocus() {
     setOverlay(null);
     restoreOverlayTriggerFocus();
+  }
+
+  function rememberDetailTrigger(target: HTMLElement) {
+    detailTriggerRef.current = target;
+  }
+
+  function restoreDetailTriggerFocus() {
+    const trigger = detailTriggerRef.current;
+    if (!trigger) {
+      return;
+    }
+
+    requestAnimationFrame(() => {
+      trigger.focus();
+    });
   }
 
   async function fetchHabits(
@@ -164,6 +181,25 @@ export function HabitsPage({
       if (requestId === requestIdRef.current) {
         setIsPending(false);
       }
+    }
+  }
+
+  async function handleOpenDetail(habitId: string, trigger: HTMLElement) {
+    rememberDetailTrigger(trigger);
+    setIsPending(true);
+
+    try {
+      const nextDetail = await getHabitDetail(habitId);
+      setDetail(nextDetail);
+    } catch (loadError) {
+      setFeedback({
+        tone: "danger",
+        title: copy.page.feedback.updatingErrorTitle,
+        message: loadError instanceof Error ? loadError.message : copy.page.feedback.updatingErrorTitle,
+      });
+      restoreDetailTriggerFocus();
+    } finally {
+      setIsPending(false);
     }
   }
 
@@ -279,12 +315,18 @@ export function HabitsPage({
                     {copy.page.toolbar.newHabit}
                   </Button>
 
-                  <div className={styles.segmented} role="group" aria-label={copy.page.toolbar.statusGroupLabel}>
+                  <div
+                    className={styles.segmented}
+                    role="group"
+                    aria-label={copy.page.toolbar.statusGroupLabel}
+                    data-testid="habits-status-switch"
+                  >
                     {(["active", "archived"] as const).map((option) => (
                       <Button
                         key={option}
                         type="button"
-                        variant={option === status ? "primary" : "secondary"}
+                        variant={option === status ? "secondary" : "ghost"}
+                        className={styles.segmentedButton}
                         onClick={() => setStatus(option)}
                         aria-pressed={option === status}
                       >
@@ -355,52 +397,9 @@ export function HabitsPage({
                   <p className={styles.description}>{habit.description ?? copy.page.card.noDescription}</p>
                 </div>
 
-                <div className={styles.actions}>
-                  <Link
-                    href={routes.habitDetail(habit.id)}
-                    className={styles.primaryAction}
-                    data-testid="habit-card-primary-action"
-                  >
-                    {copy.page.card.primaryAction}
-                  </Link>
-                  <div className={styles.secondaryActions}>
-                    {status === "active" ? (
-                      <>
-                        <Button
-                          type="button"
-                          variant="secondary"
-                          onClick={(event) => {
-                            rememberOverlayTrigger(event.currentTarget);
-                            setOverlay({ mode: "edit", habit });
-                          }}
-                          disabled={isPending}
-                        >
-                          {copy.page.card.edit}
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="secondary"
-                          onClick={() => void handleArchive(habit.id)}
-                          disabled={isPending}
-                        >
-                          {copy.page.card.archive}
-                        </Button>
-                      </>
-                    ) : (
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        onClick={() => void handleRestore(habit.id)}
-                        disabled={isPending}
-                      >
-                        {copy.page.card.restore}
-                      </Button>
-                    )}
-                  </div>
-                </div>
               </div>
 
-              <div className={styles.metaGrid}>
+              <div className={styles.metaGrid} data-testid="habit-card-meta">
                 <div>
                   <strong className={styles.metaLabel}>{copy.page.card.metaLabels.frequency}</strong>
                   {formatFrequency(habit, copy)}
@@ -416,6 +415,52 @@ export function HabitsPage({
                 <div>
                   <strong className={styles.metaLabel}>{copy.page.card.metaLabels.state}</strong>
                   {habit.isActive ? copy.page.card.state.active : copy.page.card.state.archived}
+                </div>
+              </div>
+
+              <div className={styles.actions} data-testid="habit-card-actions">
+                <button
+                  type="button"
+                  className={styles.primaryAction}
+                  data-testid="habit-card-primary-action"
+                  onClick={(event) => void handleOpenDetail(habit.id, event.currentTarget)}
+                  disabled={isPending}
+                >
+                  {copy.page.card.primaryAction}
+                </button>
+                <div className={styles.secondaryActions}>
+                  {status === "active" ? (
+                    <>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={(event) => {
+                          rememberOverlayTrigger(event.currentTarget);
+                          setOverlay({ mode: "edit", habit });
+                        }}
+                        disabled={isPending}
+                      >
+                        {copy.page.card.edit}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => void handleArchive(habit.id)}
+                        disabled={isPending}
+                      >
+                        {copy.page.card.archive}
+                      </Button>
+                    </>
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={() => void handleRestore(habit.id)}
+                      disabled={isPending}
+                    >
+                      {copy.page.card.restore}
+                    </Button>
+                  )}
                 </div>
               </div>
             </article>
@@ -492,7 +537,18 @@ export function HabitsPage({
         </OverlayPanel>
       ) : null}
 
-      {initialDetail ? <HabitDetailDrawer detail={initialDetail} closeHref={closeDetailHref} /> : null}
+      {detail ? (
+        <HabitDetailDrawer
+          detail={detail}
+          closeHref={initialDetail ? closeDetailHref : undefined}
+          onClose={() => {
+            setDetail(null);
+            if (!initialDetail) {
+              restoreDetailTriggerFocus();
+            }
+          }}
+        />
+      ) : null}
     </div>
   );
 }

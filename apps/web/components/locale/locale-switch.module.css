@@ -1,14 +1,38 @@
 .switch {
   display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.3rem;
-  border: 1px solid rgba(102, 122, 115, 0.18);
-  border-radius: var(--radius-pill);
-  background: rgba(255, 255, 255, 0.72);
 }
 
 .button {
-  min-height: 2rem;
-  padding-inline: 0.8rem;
+  min-height: 2.6rem;
+  min-width: 4rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid rgba(102, 122, 115, 0.18);
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 8px 20px rgba(28, 64, 81, 0.08);
+}
+
+.icon {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.12rem;
+  line-height: 1;
+}
+
+.cjk {
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.divider {
+  font-size: 0.62rem;
+  color: var(--color-text-soft);
+}
+
+.latin {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: var(--color-text-soft);
 }

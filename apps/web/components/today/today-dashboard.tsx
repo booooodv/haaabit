@@ -1,7 +1,7 @@
 "use client";
 
 import type { TodaySummary } from "@haaabit/contracts/today";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   completeTodayHabit,
@@ -35,6 +35,30 @@ export function TodayDashboard({ initialSummary, onActionSettled }: TodayDashboa
   const [cardFeedback, setCardFeedback] = useState<CardFeedback | null>(null);
   const [activeHabitId, setActiveHabitId] = useState<string | null>(null);
   const [isMutating, setIsMutating] = useState(false);
+
+  useEffect(() => {
+    if (!feedback || feedback.tone === "danger" || isMutating) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setFeedback((current) => (current?.tone === "danger" ? current : null));
+    }, 4000);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [feedback, isMutating]);
+
+  useEffect(() => {
+    if (!cardFeedback || cardFeedback.tone === "danger" || isMutating) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setCardFeedback((current) => (current?.tone === "danger" ? current : null));
+    }, 4000);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [cardFeedback, isMutating]);
 
   async function applyAction(
     habitId: string,
@@ -94,8 +118,12 @@ export function TodayDashboard({ initialSummary, onActionSettled }: TodayDashboa
     }
   }
 
-  const hasNothingDue = summary.pendingCount === 0 && summary.completedCount === 0;
   const hasAllDone = summary.pendingCount === 0 && summary.completedCount > 0;
+  const availableItems = summary.pendingItems.filter((item) => item.status === "available");
+  const pendingItems = summary.pendingItems.filter((item) => item.status === "pending");
+  const hasVisibleItems =
+    pendingItems.length > 0 || availableItems.length > 0 || summary.completedItems.length > 0;
+  const showNothingDue = !hasVisibleItems;
 
   return (
     <section className={styles.stack} data-testid="today-dashboard">
@@ -124,7 +152,7 @@ export function TodayDashboard({ initialSummary, onActionSettled }: TodayDashboa
         </PageFrame>
       </Surface>
 
-      {hasNothingDue ? (
+      {showNothingDue ? (
         <StatePanel
           testId="today-primary-state"
           title={copy.today.states.nothingDue.title}
@@ -132,7 +160,7 @@ export function TodayDashboard({ initialSummary, onActionSettled }: TodayDashboa
         />
       ) : null}
 
-      {hasAllDone ? (
+      {hasAllDone && availableItems.length === 0 ? (
         <StatePanel
           testId="today-primary-state"
           tone="success"
@@ -147,9 +175,9 @@ export function TodayDashboard({ initialSummary, onActionSettled }: TodayDashboa
             <h2>{copy.today.groups.pending.title}</h2>
             <span className={styles.groupCount}>{copy.today.groups.pending.count(summary.pendingCount)}</span>
           </div>
-          {summary.pendingItems.length > 0 ? (
+          {pendingItems.length > 0 ? (
             <div className={styles.cards}>
-              {summary.pendingItems.map((item) => (
+              {pendingItems.map((item) => (
                 <TodayItemCard
                   key={`${item.habitId}-${item.status}-${item.progress.currentValue ?? "none"}`}
                   item={item}
@@ -191,7 +219,7 @@ export function TodayDashboard({ initialSummary, onActionSettled }: TodayDashboa
                 />
               ))}
             </div>
-          ) : hasNothingDue || hasAllDone ? null : (
+          ) : showNothingDue || hasAllDone ? null : (
             <StatePanel
               title={copy.today.states.nothingPending.title}
               description={copy.today.states.nothingPending.description}
@@ -199,6 +227,60 @@ export function TodayDashboard({ initialSummary, onActionSettled }: TodayDashboa
             />
           )}
         </section>
+
+        {availableItems.length > 0 ? (
+          <section className={styles.group}>
+            <div className={styles.groupHeader}>
+              <h2>{copy.today.groups.available.title}</h2>
+              <span className={styles.groupCount}>
+                {copy.today.groups.available.count(availableItems.length)}
+              </span>
+            </div>
+            <div className={styles.cards}>
+              {availableItems.map((item) => (
+                <TodayItemCard
+                  key={`${item.habitId}-${item.status}-${item.progress.periodCompletions ?? "none"}`}
+                  item={item}
+                  feedback={cardFeedback?.habitId === item.habitId ? cardFeedback : null}
+                  isPending={isMutating && activeHabitId === item.habitId}
+                  onComplete={(habitId) =>
+                    applyAction(
+                      habitId,
+                      copy.today.actions.complete.pendingTitle,
+                      copy.today.actions.complete.successTitle,
+                      copy.today.actions.complete.successMessage,
+                      copy.today.actions.complete.cardSuccessMessage,
+                      () => completeTodayHabit({ habitId, source: "web" }).then((result) => ({ summary: result.summary })),
+                    )
+                  }
+                  onSetTotal={(habitId, total) =>
+                    applyAction(
+                      habitId,
+                      copy.today.actions.setTotal.pendingTitle,
+                      copy.today.actions.setTotal.successTitle,
+                      copy.today.actions.setTotal.successMessagePending,
+                      copy.today.actions.setTotal.cardSuccessMessage,
+                      () =>
+                        setTodayHabitTotal({ habitId, total, source: "web" }).then((result) => ({
+                          summary: result.summary,
+                        })),
+                    )
+                  }
+                  onUndo={(habitId) =>
+                    applyAction(
+                      habitId,
+                      copy.today.actions.undo.pendingTitle,
+                      copy.today.actions.undo.successTitle,
+                      copy.today.actions.undo.successMessagePending,
+                      copy.today.actions.undo.cardSuccessMessage,
+                      () => undoTodayHabit({ habitId, source: "web" }).then((result) => ({ summary: result.summary })),
+                    )
+                  }
+                />
+              ))}
+            </div>
+          </section>
+        ) : null}
 
         <section className={styles.group}>
           <div className={styles.groupHeader}>
@@ -249,7 +331,7 @@ export function TodayDashboard({ initialSummary, onActionSettled }: TodayDashboa
                 />
               ))}
             </div>
-          ) : hasNothingDue ? null : (
+          ) : showNothingDue ? null : (
             <StatePanel
               title={copy.today.states.nothingCompleted.title}
               description={copy.today.states.nothingCompleted.description}

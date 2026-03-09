@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 
+import { createFirstHabit, signUpInBrowser } from "../accessibility/helpers";
+
 async function createHabitViaApi(
   page: import("@playwright/test").Page,
   payload: Record<string, unknown>,
@@ -25,15 +27,10 @@ async function createHabitViaApi(
 test("habit detail supports list entry, direct link, and close back to the habits surface", async ({ page }) => {
   const email = `habit-detail-${Date.now()}@example.com`;
 
-  await page.goto("/");
-  await page.getByRole("button", { name: "Create account" }).click();
-  await page.getByLabel("Name").fill("Detail User");
-  await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password").fill("password123");
-  await page.getByRole("button", { name: "Create account" }).click();
-
-  await page.getByLabel("Habit name").fill("Morning walk");
-  await page.getByRole("button", { name: "Create first habit" }).click();
+  await signUpInBrowser(page, email, "Detail User");
+  await createFirstHabit(page, {
+    name: "Morning walk",
+  });
 
   const created = await createHabitViaApi(page, {
     name: "Read pages",
@@ -47,11 +44,11 @@ test("habit detail supports list entry, direct link, and close back to the habit
   });
 
   await page.goto("/habits");
-  await page.getByTestId("locale-switch").getByRole("button", { name: "中文" }).click();
+  await page.getByTestId("locale-switch-button").click();
   const readCard = page.locator("article").filter({ hasText: "Read pages" });
-  await readCard.getByRole("link", { name: "查看详情" }).click();
+  await readCard.getByRole("button", { name: "查看详情" }).click();
 
-  await expect(page).toHaveURL(new RegExp(`/habits/${created.item.id}$`));
+  await expect(page).toHaveURL(/\/habits$/);
   await expect(page.getByTestId("habit-detail-overlay").getByRole("heading", { name: "Read pages" })).toBeVisible();
   await expect(page.getByTestId("habit-detail-summary")).toBeVisible();
   await expect(page.getByText("当前连续完成")).toBeVisible();
@@ -67,7 +64,7 @@ test("habit detail supports list entry, direct link, and close back to the habit
   expect((summaryBox?.y ?? 0) < (trendsHeadingBox?.y ?? 0)).toBeTruthy();
   expect((trendsHeadingBox?.y ?? 0) < (historyHeadingBox?.y ?? 0)).toBeTruthy();
 
-  await page.getByRole("link", { name: "关闭" }).click();
+  await page.getByRole("button", { name: "关闭" }).click();
   await expect(page).toHaveURL(/\/habits$/);
 
   await page.goto(`/habits/${created.item.id}`);
@@ -83,14 +80,10 @@ test.describe("mobile habit detail", () => {
   }) => {
     const email = `habit-detail-mobile-${Date.now()}@example.com`;
 
-    await page.goto("/");
-    await page.getByRole("button", { name: "Create account" }).click();
-    await page.getByLabel("Name").fill("Detail Mobile User");
-    await page.getByLabel("Email").fill(email);
-    await page.getByLabel("Password").fill("password123");
-    await page.getByRole("button", { name: "Create account" }).click();
-    await page.getByLabel("Habit name").fill("Morning walk");
-    await page.getByRole("button", { name: "Create first habit" }).click();
+    await signUpInBrowser(page, email, "Detail Mobile User");
+    await createFirstHabit(page, {
+      name: "Morning walk",
+    });
 
     const created = await createHabitViaApi(page, {
       name: "Read pages",

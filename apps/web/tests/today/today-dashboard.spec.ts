@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 
+import { createFirstHabit, signUpInBrowser } from "../accessibility/helpers";
+
 async function listHabitIds(page: import("@playwright/test").Page) {
   return page.evaluate(async () => {
     const response = await fetch("http://127.0.0.1:3001/api/habits", {
@@ -21,18 +23,11 @@ test("dashboard shows pending/completed groups and stays in sync through complet
   const email = `today-user-${Date.now()}@example.com`;
   const startDate = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
-  await page.goto("/");
-  await page.getByRole("button", { name: "Create account" }).click();
-
-  await page.getByLabel("Name").fill("Today User");
-  await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password").fill("password123");
-  await page.getByRole("button", { name: "Create account" }).click();
-
-  await page.getByLabel("Habit name").fill("Morning walk");
-  await page.getByLabel("Start date").fill(startDate);
-  await page.getByLabel("Frequency").selectOption("daily");
-  await page.getByRole("button", { name: "Create first habit" }).click();
+  await signUpInBrowser(page, email, "Today User");
+  await createFirstHabit(page, {
+    name: "Morning walk",
+    startDate,
+  });
 
   await expect(page).toHaveURL(/\/dashboard$/);
 
@@ -63,7 +58,7 @@ test("dashboard shows pending/completed groups and stays in sync through complet
   const habitIds = await listHabitIds(page);
 
   await page.goto("/dashboard");
-  await page.getByTestId("locale-switch").getByRole("button", { name: "中文" }).click();
+  await page.getByTestId("locale-switch-button").click();
   const todayDashboard = page
     .getByTestId("app-shell-content")
     .locator('section[data-testid="today-dashboard"]')
@@ -95,21 +90,21 @@ test("dashboard shows pending/completed groups and stays in sync through complet
     walkCard.getByRole("button", { name: "撤销" }),
   ).toBeVisible();
 
-  await readCard.getByLabel("今天总量").fill("5");
-  await readCard.getByRole("button", { name: "更新总量" }).click();
+  await readCard.getByLabel("今天新增").fill("5");
+  await readCard.getByRole("button", { name: "添加数量" }).click();
 
   await expect(page.getByText("5 / 10 pages")).toBeVisible();
   await expect(page.getByText(/^1 个待完成$/)).toBeVisible();
   await expect(page.getByText(/^1 个已完成$/)).toBeVisible();
-  await expect(readCard).toContainText("已在当前位置保存，今天的数量已更新。");
+  await expect(readCard).toContainText("已添加到今天进度中。");
 
-  await readCard.getByLabel("今天总量").fill("10");
-  await readCard.getByRole("button", { name: "更新总量" }).click();
+  await readCard.getByLabel("今天新增").fill("5");
+  await readCard.getByRole("button", { name: "添加数量" }).click();
 
   await expect(page.getByText(/^0 个待完成$/)).toBeVisible();
   await expect(page.getByText(/^2 个已完成$/)).toBeVisible();
   await expect(readCard).toContainText("已完成");
-  await expect(readCard).toContainText("已在当前位置保存，今天的数量已更新。");
+  await expect(readCard).toContainText("已添加到今天进度中。");
 
   await readCard.getByRole("button", { name: "撤销" }).click();
 
@@ -122,15 +117,10 @@ test("dashboard shows pending/completed groups and stays in sync through complet
 test("today action failures stay in context", async ({ page }) => {
   const email = `today-error-${Date.now()}@example.com`;
 
-  await page.goto("/");
-  await page.getByRole("button", { name: "Create account" }).click();
-  await page.getByLabel("Name").fill("Today Error User");
-  await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password").fill("password123");
-  await page.getByRole("button", { name: "Create account" }).click();
-  await page.getByLabel("Habit name").fill("Morning walk");
-  await page.getByRole("button", { name: "Create first habit" }).click();
-  await expect(page).toHaveURL(/\/dashboard$/);
+  await signUpInBrowser(page, email, "Today Error User");
+  await createFirstHabit(page, {
+    name: "Morning walk",
+  });
 
   await page.route("**/api/today/complete", async (route) => {
     await route.fulfill({
@@ -152,4 +142,115 @@ test("today action failures stay in context", async ({ page }) => {
   );
   await expect(walkCard).toContainText("Unable to mark habit complete right now");
   await expect(page).toHaveURL(/\/dashboard$/);
+});
+
+test("today success feedback auto-dismisses after a short delay", async ({ page }) => {
+  const email = `today-autodismiss-${Date.now()}@example.com`;
+  const startDate = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
+  await signUpInBrowser(page, email, "Today Auto Dismiss User");
+  await createFirstHabit(page, {
+    name: "Morning walk",
+    startDate,
+  });
+
+  await page.evaluate(async ({ seededStartDate }) => {
+    const response = await fetch("http://127.0.0.1:3001/api/habits", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        name: "Read pages",
+        kind: "quantity",
+        targetValue: 10,
+        unit: "pages",
+        startDate: seededStartDate,
+        frequency: {
+          type: "daily",
+        },
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(await response.text());
+    }
+  }, { seededStartDate: startDate });
+
+  const habitIds = await listHabitIds(page);
+
+  await page.goto("/dashboard");
+  await page.getByTestId("locale-switch-button").click();
+  const todayDashboard = page
+    .getByTestId("app-shell-content")
+    .locator('section[data-testid="today-dashboard"]')
+    .first();
+
+  const readCard = todayDashboard.getByTestId(`today-item-${habitIds["Read pages"]}`);
+  await readCard.getByLabel("今天新增").fill("5");
+  await readCard.getByRole("button", { name: "添加数量" }).click();
+
+  await expect(page.getByTestId("today-feedback")).toBeVisible();
+  await expect(readCard.getByTestId(`today-item-feedback-${habitIds["Read pages"]}`)).toContainText(
+    "已添加到今天进度中。",
+  );
+
+  await page.waitForTimeout(4500);
+
+  await expect(page.getByTestId("today-feedback")).toHaveCount(0);
+  await expect(readCard.getByTestId(`today-item-feedback-${habitIds["Read pages"]}`)).toHaveCount(0);
+});
+
+test.describe("mobile today dashboard", () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test("mobile quantity cards keep input and actions on one horizontal row", async ({ page }) => {
+    const email = `today-mobile-quantity-${Date.now()}@example.com`;
+    const startDate = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
+    await signUpInBrowser(page, email, "Today Mobile Quantity User");
+    await createFirstHabit(page, {
+      name: "Morning walk",
+      startDate,
+    });
+
+    await page.evaluate(async ({ seededStartDate }) => {
+      const response = await fetch("http://127.0.0.1:3001/api/habits", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          name: "Read pages",
+          kind: "quantity",
+          targetValue: 10,
+          unit: "pages",
+          startDate: seededStartDate,
+          frequency: {
+            type: "daily",
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+    }, { seededStartDate: startDate });
+
+    const habitIds = await listHabitIds(page);
+
+    await page.goto("/dashboard");
+
+    const readCard = page.getByTestId(`today-item-${habitIds["Read pages"]}`);
+    await readCard.scrollIntoViewIfNeeded();
+    const inputBox = await readCard.getByLabel("Today's amount").boundingBox();
+    const actionBox = await readCard.getByRole("button", { name: "Add amount" }).boundingBox();
+
+    expect(inputBox).not.toBeNull();
+    expect(actionBox).not.toBeNull();
+    expect(Math.abs((inputBox?.y ?? 0) - (actionBox?.y ?? 0))).toBeLessThan(12);
+    expect((actionBox?.x ?? 0) > (inputBox?.x ?? 0)).toBeTruthy();
+  });
 });

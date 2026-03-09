@@ -101,4 +101,85 @@ describe("overview stats summary", () => {
       },
     });
   });
+
+  it("scores weekly-count habits by the current period target while the period is still active", async () => {
+    context = await createTestContext();
+    const { body } = await signUp(context.app);
+
+    const weeklyHabit = await createOwnedHabit(context, body.user.id, {
+      name: "Run",
+      frequency: {
+        type: "weekly_count",
+        count: 1,
+      },
+      startDate: "2026-02-01",
+    });
+
+    await context.app.db.habitDayState.createMany({
+      data: [
+        { habitId: weeklyHabit.id, dateKey: "2026-02-16", completed: true },
+        { habitId: weeklyHabit.id, dateKey: "2026-02-23", completed: true },
+      ],
+    });
+
+    const overview = await getOverviewStats(
+      {
+        db: context.app.db,
+      },
+      {
+        userId: body.user.id,
+        timestamp: "2026-03-11T12:00:00.000Z",
+      },
+    );
+
+    expect(overview.stabilityRanking).toEqual([
+      expect.objectContaining({
+        habitId: weeklyHabit.id,
+        completedCount: 0,
+        totalCount: 1,
+        completionRate: 0,
+      }),
+    ]);
+  });
+
+  it("shows in-progress weekly-count habits in stability ranking using the current period target", async () => {
+    context = await createTestContext();
+    const { body } = await signUp(context.app);
+
+    const weeklyHabit = await createOwnedHabit(context, body.user.id, {
+      name: "Workout",
+      frequency: {
+        type: "weekly_count",
+        count: 5,
+      },
+      startDate: "2026-03-01",
+    });
+
+    await context.app.db.habitDayState.create({
+      data: {
+        habitId: weeklyHabit.id,
+        dateKey: "2026-03-11",
+        completed: true,
+      },
+    });
+
+    const overview = await getOverviewStats(
+      {
+        db: context.app.db,
+      },
+      {
+        userId: body.user.id,
+        timestamp: "2026-03-11T12:00:00.000Z",
+      },
+    );
+
+    expect(overview.stabilityRanking).toEqual([
+      expect.objectContaining({
+        habitId: weeklyHabit.id,
+        completedCount: 1,
+        totalCount: 5,
+        completionRate: 0.2,
+      }),
+    ]);
+  });
 });

@@ -51,6 +51,11 @@
   gap: 1rem;
 }
 
+.registrationSurface {
+  display: grid;
+  gap: 1rem;
+}
+
 .quickstartCopy {
   display: grid;
   gap: 0.35rem;
