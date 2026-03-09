@@ -4,8 +4,8 @@ milestone: v1.5
 milestone_name: MCP Integration
 status: milestone_completed
 stopped_at: v1.5 archived; next step is start a new milestone
-last_updated: "2026-03-09T23:55:00+08:00"
-last_activity: 2026-03-09 — Archived v1.5 MCP Integration milestone
+last_updated: "2026-03-10T01:56:00+08:00"
+last_activity: 2026-03-10 — Completed quick task 1: 修掉 @haaabit/mcp npm 发布后的 CLI/bin 问题，并补发可验证版本
 progress:
   total_phases: 4
   completed_phases: 4
@@ -29,7 +29,7 @@ Milestone: none active
 Phase: v1.5 archived
 Plan: all v1.5 plans complete
 Status: The v1.5 MCP Integration milestone is archived; the workspace is ready for a fresh milestone definition
-Last activity: 2026-03-09 — Archived roadmap, requirements, and audit artifacts for v1.5
+Last activity: 2026-03-10 — Completed quick task 1: 修掉 @haaabit/mcp npm 发布后的 CLI/bin 问题，并补发可验证版本
 
 Progress: [██████████] 100%
 
@@ -78,6 +78,12 @@ Recent decisions affecting current work:
 
 - MCP registry metadata and remote transport remain intentionally deferred beyond this phase.
 - MCP should continue avoiding browser-session/admin routes that do not fit the personal-token model.
+
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 1 | 修掉 @haaabit/mcp npm 发布后的 CLI/bin 问题，并补发可验证版本 | 2026-03-09 | 705e1b1 | [1-haaabit-mcp-npm-cli-bin](./quick/1-haaabit-mcp-npm-cli-bin/) |
 
 ## Session Continuity
 
