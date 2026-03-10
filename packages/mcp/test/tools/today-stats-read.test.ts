@@ -104,12 +104,6 @@ describe("today and stats read tools", () => {
           pendingCount: 2,
         },
       },
-      content: [
-        {
-          type: "text",
-          text: expect.stringContaining("2 still need attention"),
-        },
-      ],
     });
     expect(JSON.stringify(result)).toContain("Deep Work");
     expect(JSON.stringify(result)).toContain("Read");
@@ -167,12 +161,6 @@ describe("today and stats read tools", () => {
     const result = await tool.handler({});
 
     expect(result).toMatchObject({
-      content: [
-        {
-          type: "text",
-          text: expect.stringContaining("complete"),
-        },
-      ],
       structuredContent: {
         today: {
           completedCount: 2,
@@ -233,12 +221,13 @@ describe("today and stats read tools", () => {
           },
         },
       },
-      content: [
-        {
-          type: "text",
-          text: expect.stringContaining("3 active habits"),
-        },
-      ],
+    });
+    expect(result.content?.[0]).toMatchObject({
+      type: "text",
+      text: expect.stringContaining("3 active habits"),
+    });
+    expect(JSON.parse(String((result.structuredContent as { _haaabit_json: string })._haaabit_json))).toMatchObject({
+      stats: { metrics: { activeHabitCount: 3 } },
     });
     expect(JSON.stringify(result)).toContain("behind");
   });

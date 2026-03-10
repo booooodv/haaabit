@@ -133,12 +133,14 @@ describe("today write tools", () => {
           pendingCount: 1,
         },
       },
-      content: [
-        {
-          type: "text",
-          text: expect.stringContaining("Completed Walk"),
-        },
-      ],
+    });
+    expect(result.content?.[0]).toMatchObject({
+      type: "text",
+      text: expect.stringContaining("Completed Walk"),
+    });
+    expect(JSON.parse(String((result.structuredContent as { _haaabit_json: string })._haaabit_json))).toMatchObject({
+      habit: { id: "habit_walk", name: "Walk" },
+      today: { pendingCount: 1 },
     });
     expect(JSON.stringify(result)).toContain("Read");
   });
@@ -221,12 +223,14 @@ describe("today write tools", () => {
           completedCount: 2,
         },
       },
-      content: [
-        {
-          type: "text",
-          text: expect.stringContaining("10/10 pages"),
-        },
-      ],
+    });
+    expect(result.content?.[0]).toMatchObject({
+      type: "text",
+      text: expect.stringContaining("10/10 pages"),
+    });
+    expect(JSON.parse(String((result.structuredContent as { _haaabit_json: string })._haaabit_json))).toMatchObject({
+      habit: { id: "habit_read", name: "Read" },
+      today: { completedCount: 2 },
     });
     expect(JSON.stringify(result)).toContain("No habits are pending now");
   });
@@ -309,12 +313,14 @@ describe("today write tools", () => {
           pendingCount: 1,
         },
       },
-      content: [
-        {
-          type: "text",
-          text: expect.stringContaining("Undid today's set total for Read"),
-        },
-      ],
+    });
+    expect(result.content?.[0]).toMatchObject({
+      type: "text",
+      text: expect.stringContaining("Undid today's set total for Read"),
+    });
+    expect(JSON.parse(String((result.structuredContent as { _haaabit_json: string })._haaabit_json))).toMatchObject({
+      habit: { id: "habit_read", name: "Read" },
+      today: { pendingCount: 1 },
     });
     expect(JSON.stringify(result)).toContain("Pending: Read");
   });

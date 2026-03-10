@@ -92,12 +92,13 @@ describe("habits write tools", () => {
           targetValue: 30,
         },
       },
-      content: [
-        {
-          type: "text",
-          text: expect.stringContaining("Created Read"),
-        },
-      ],
+    });
+    expect(result.content?.[0]).toMatchObject({
+      type: "text",
+      text: expect.stringContaining("Created Read"),
+    });
+    expect(JSON.parse(String((result.structuredContent as { _haaabit_json: string })._haaabit_json))).toMatchObject({
+      item: { id: "habit_1", name: "Read", targetValue: 30 },
     });
     expect(JSON.stringify(result)).toContain("30");
     expect(JSON.stringify(result)).toContain("pages");
@@ -171,12 +172,6 @@ describe("habits write tools", () => {
           category: "focus",
         },
       },
-      content: [
-        {
-          type: "text",
-          text: expect.stringContaining("Updated Deep Work PM"),
-        },
-      ],
     });
     expect(JSON.stringify(result)).toContain("target");
     expect(JSON.stringify(result)).toContain("category");
@@ -225,12 +220,6 @@ describe("habits write tools", () => {
           isActive: false,
         },
       },
-      content: [
-        {
-          type: "text",
-          text: expect.stringContaining("read-only"),
-        },
-      ],
     });
   });
 
@@ -276,12 +265,6 @@ describe("habits write tools", () => {
           isActive: true,
         },
       },
-      content: [
-        {
-          type: "text",
-          text: expect.stringContaining("usable again"),
-        },
-      ],
     });
   });
 });

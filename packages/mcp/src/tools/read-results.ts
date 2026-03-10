@@ -2,6 +2,8 @@ import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 
 import { adaptToolResult } from "../schemas/adapters.js";
 
+const MACHINE_JSON_FIELD = "_haaabit_json";
+
 export function createReadToolResult(toolName: string, payload: unknown, summary: string): CallToolResult {
   return createSuccessToolResult(toolName, payload, summary);
 }
@@ -17,14 +19,23 @@ function createSuccessToolResult(toolName: string, payload: unknown, summary: st
     throw new Error(`Expected object structuredContent for tool ${toolName}`);
   }
 
+  const serializedContent = serializeStructuredContent(structuredContent);
+
   return {
     content: [
       {
         type: "text",
         text: summary,
       },
+      {
+        type: "text",
+        text: serializedContent,
+      },
     ],
-    structuredContent,
+    structuredContent: {
+      ...structuredContent,
+      [MACHINE_JSON_FIELD]: serializedContent,
+    },
   };
 }
 
@@ -37,6 +48,10 @@ export function formatNameList(names: string[], limit = 5) {
   const remaining = names.length - limit;
 
   return `${visible}, +${remaining} more`;
+}
+
+function serializeStructuredContent(value: Record<string, unknown>) {
+  return JSON.stringify(value, null, 2);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

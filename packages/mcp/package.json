@@ -1,6 +1,6 @@
 {
   "name": "@haaabit/mcp",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "private": false,
   "description": "Generic stdio MCP server for Haaabit habits, today, and stats APIs.",
   "license": "MIT",
