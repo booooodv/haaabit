@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: none
 milestone_name: none
 status: milestone_completed
-stopped_at: Quick task 5 complete; next step is define the next milestone
-last_updated: "2026-03-11T01:34:00+08:00"
-last_activity: 2026-03-11 — Completed quick task 5: 修复 @haaabit/mcp 0.1.2 发布包 CLI 启动即退出导致标准 MCP host Connection closed
+stopped_at: Quick task 6 complete; next step is define the next milestone
+last_updated: "2026-03-11T02:07:00+08:00"
+last_activity: 2026-03-11 — Completed quick task 6: 改进 @haaabit/mcp tool 返回格式，避免 structuredContent 被压成 [Object]，提供更机器可读 JSON 输出
 progress:
   total_phases: 4
   completed_phases: 4
@@ -29,7 +29,7 @@ Milestone: none active
 Phase: v1.6 archived
 Plan: all v1.6 plans complete
 Status: The v1.6 OpenClaw Compatibility milestone is archived; the workspace is ready for a fresh milestone definition
-Last activity: 2026-03-11 — Completed quick task 5: 修复 @haaabit/mcp 0.1.2 发布包 CLI 启动即退出导致标准 MCP host Connection closed
+Last activity: 2026-03-11 — Completed quick task 6: 改进 @haaabit/mcp tool 返回格式，避免 structuredContent 被压成 [Object]，提供更机器可读 JSON 输出
 
 Progress: [##########] 100%
 
@@ -80,9 +80,10 @@ Recent decisions affecting current work:
 | 3 | 把 haaabit-mcp 的中英双触发词与示例落实到项目文档，并提交本次 Skill/文档更新 | 2026-03-10 | 8ae50ce | [3-haaabit-mcp-skill](./quick/3-haaabit-mcp-skill/) |
 | 4 | 更新整体文档，说明机器人如何连接 MCP 与 Skill，并推送 GitHub | 2026-03-10 | 23dd215 | [4-ai-agent-docs-github](./quick/4-ai-agent-docs-github/) |
 | 5 | 修复 @haaabit/mcp 0.1.2 发布包 CLI 启动即退出导致标准 MCP host Connection closed | 2026-03-11 | d86bf81 | [5-haaabit-mcp-0-1-2-cli-mcp-host-connectio](./quick/5-haaabit-mcp-0-1-2-cli-mcp-host-connectio/) |
+| 6 | 改进 @haaabit/mcp tool 返回格式，避免 structuredContent 被压成 [Object]，提供更机器可读 JSON 输出 | 2026-03-11 | ffc0bb4 | [6-haaabit-mcp-tool-structuredcontent-objec](./quick/6-haaabit-mcp-tool-structuredcontent-objec/) |
 
 ## Session Continuity
 
-Last session: 2026-03-11T01:34:00+08:00
-Stopped at: Quick task 5 complete; next step is start a new milestone
+Last session: 2026-03-11T02:07:00+08:00
+Stopped at: Quick task 6 complete; next step is start a new milestone
 Resume file: .planning/ROADMAP.md
