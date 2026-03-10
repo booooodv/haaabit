@@ -111,12 +111,13 @@ Haaabit also ships a standalone MCP package for generic MCP clients:
 - Tool surface: habits, today, and stats read/write coverage
 - Built-in AI guidance: actionable tool descriptions plus one workflow prompt and one read-only workflow resource for hosts that support MCP prompts/resources
 - Project skill: [`.agents/skills/haaabit-mcp`](./.agents/skills/haaabit-mcp/SKILL.md) for agents that support repo-local Skills
+- Bilingual trigger coverage: the project Skill recognizes both English and Chinese habit-assistant requests such as `What should I do today?` / `今天该做什么？` and `Mark reading as done.` / `帮我把阅读打卡。`
 
 Recommended AI integration strategy:
 
 1. Connect the MCP server first so the host can call the real Haaabit tools.
 2. If the host supports MCP prompts/resources, load `haaabit_assistant_workflow` or read `haaabit://guides/workflow` to teach safe sequencing.
-3. If the agent also supports project Skills, invoke `$haaabit-mcp` for the strongest today-first, read-before-write behavior.
+3. If the agent also supports project Skills, invoke `$haaabit-mcp` for the strongest today-first, read-before-write behavior, including bilingual trigger phrases like `今天还剩哪些习惯没做？`, `撤销刚才的打卡。`, or `How am I doing this week?`.
 
 See [`packages/mcp/README.md`](./packages/mcp/README.md) for setup examples, AI guidance details, and the full tool list.
 

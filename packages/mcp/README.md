@@ -123,6 +123,14 @@ Recommended usage:
 
 If your agent platform supports repo-local Skills, Haaabit also ships [`.agents/skills/haaabit-mcp`](../../.agents/skills/haaabit-mcp/SKILL.md), which wraps the same workflow into a project-level Skill.
 
+The `haaabit-mcp` Skill is documented as a bilingual trigger layer for Skill-aware agents. Typical requests include:
+
+- `What should I do today?` / `今天该做什么？`
+- `What habits are still left today?` / `今天还剩哪些习惯没做？`
+- `Mark reading as done.` / `帮我把阅读打卡。`
+- `Undo the last check-in.` / `撤销刚才的打卡。`
+- `How am I doing this week?` / `我这周做得怎么样？`
+
 ## Notes
 
 - This package does not support browser-session or admin-only routes.
