@@ -10,7 +10,9 @@
     "typecheck": "pnpm -r exec tsc --noEmit",
     "test": "pnpm --filter @haaabit/api vitest run",
     "test:e2e": "pnpm --filter @haaabit/web playwright test",
-    "prisma:validate": "prisma validate"
+    "prisma:validate": "prisma validate",
+    "verify:openclaw": "pnpm typecheck && pnpm --filter @haaabit/mcp exec vitest run test/config/env.test.ts test/server/cli.test.ts test/bootstrap/bootstrap-token.test.ts test/server/stdio-integration.test.ts test/server/stdio-read-integration.test.ts test/server/stdio-mutation-integration.test.ts test/docs/openclaw-smoke.test.ts test/docs/readme-smoke.test.ts",
+    "verify:openclaw:full": "pnpm typecheck && pnpm --filter @haaabit/mcp build && pnpm --filter @haaabit/mcp exec vitest run && pnpm --filter @haaabit/api exec vitest run test/auth/api-token-auth.test.ts"
   },
   "devDependencies": {
     "@playwright/test": "^1.53.2",

@@ -1,5 +1,20 @@
 # Milestones
 
+## v1.6 OpenClaw Compatibility (Shipped: 2026-03-10)
+
+**Phases completed:** 4 phases, 11 plans, 22 tasks
+
+**Key accomplishments:**
+- Shipped a workspace-visible `skills/haaabit-mcp/SKILL.md` plus one canonical `packages/mcp/examples/openclaw.jsonc` asset so OpenClaw operators have a single host-facing setup contract.
+- Hardened MCP startup diagnostics around `HAAABIT_API_URL` and `HAAABIT_API_TOKEN`, including wrong-shape hints and a supported `bootstrap-token` handoff for operators who start from account credentials.
+- Aligned the repo README, package README, skill guidance, and troubleshooting docs so OpenClaw clearly separates workflow guidance, MCP runtime wiring, and secret injection.
+- Added `docs/openclaw-validation-checklist.md`, `pnpm verify:openclaw`, and `pnpm verify:openclaw:full` as the reusable release gate for OpenClaw plus generic MCP-client regressions.
+- Closed the milestone without regressing the shipped generic `stdio` MCP path or the underlying API contract behavior.
+
+**Audit outcome:** `tech_debt` accepted for archival. See `milestones/v1.6-MILESTONE-AUDIT.md`.
+
+---
+
 ## v1.5 MCP Integration (Shipped: 2026-03-09)
 
 **Phases completed:** 4 phases, 11 plans, 22 tasks

@@ -12,10 +12,10 @@ This package is usable today with generic MCP clients and operators. It stays th
 
 Runtime configuration:
 
-- `HAAABIT_API_URL` — required
-- `HAAABIT_API_TOKEN` — required
-- `--api-url` — optional CLI override for `HAAABIT_API_URL`
-- `--timeout` — optional request timeout in milliseconds
+- `HAAABIT_API_URL` - required
+- `HAAABIT_API_TOKEN` - required
+- `--api-url` - optional CLI override for `HAAABIT_API_URL`
+- `--timeout` - optional request timeout in milliseconds
 
 ## Generic MCP Client Setup
 
@@ -88,6 +88,44 @@ npx -y @modelcontextprotocol/inspector npx -y @haaabit/mcp
 
 Inspector reference: [modelcontextprotocol.io/docs/tools/inspector](https://modelcontextprotocol.io/docs/tools/inspector)
 
+## OpenClaw Setup
+
+OpenClaw-style hosts need two aligned layers:
+
+1. Workspace skill discovery through [`../../skills/haaabit-mcp/SKILL.md`](../../skills/haaabit-mcp/SKILL.md)
+2. A paired MCP-capable runner or bridge that actually launches `npx -y @haaabit/mcp`
+
+Use [`examples/openclaw.jsonc`](./examples/openclaw.jsonc) as the canonical setup asset. It keeps the same runtime contract as every other Haaabit MCP client:
+
+- `HAAABIT_API_URL`
+- `HAAABIT_API_TOKEN`
+- `haaabit_assistant_workflow`
+- `haaabit://guides/workflow`
+
+That example intentionally shows both the workspace skill settings and the paired MCP server block because OpenClaw can see the skill without automatically providing the Haaabit tool transport.
+
+### Connection order
+
+1. Decide whether you already have a personal API token.
+2. If not, run the one-shot `bootstrap-token` helper first so runtime still uses `HAAABIT_API_TOKEN` instead of an account password.
+3. Store the returned token in the same secret slot that your workspace skill and MCP runner will both read.
+4. Apply [`examples/openclaw.jsonc`](./examples/openclaw.jsonc) with your real URL, token secret reference, and optional prompt/resource wiring.
+5. Start the paired MCP runner and then load the workspace skill.
+
+The steady-state runtime never accepts account passwords in place of `HAAABIT_API_TOKEN`. `bootstrap-token` is a one-shot setup helper for turning account credentials into the personal token that OpenClaw should inject afterward.
+
+Example bootstrap flow:
+
+```bash
+npx -y @haaabit/mcp bootstrap-token \
+  --api-url https://your-haaabit.example.com/api \
+  --email you@example.com
+```
+
+If the account already has a personal API token, the helper may require `--force` before rotating it. Keep the returned token in your OpenClaw secret store and continue using the normal runtime env names only.
+
+For a broader explanation of workspace skills vs MCP transport and host-specific guidance, see [AI Agent Integration / AI 机器人接入](../../docs/ai-agent-integration.md). For symptom-driven fixes such as missing `HAAABIT_API_TOKEN`, `bootstrap-token`, or skill-visible/tools-missing failures, see [OpenClaw Troubleshooting](../../docs/openclaw-troubleshooting.md). For the milestone-close validation path, see [OpenClaw Validation Checklist](../../docs/openclaw-validation-checklist.md).
+
 ## Tool Surface
 
 All tools use the authenticated Haaabit API behind the scenes and return structured data that matches the existing contracts.
@@ -108,7 +146,7 @@ All tools use the authenticated Haaabit API behind the scenes and return structu
 
 ## AI Guidance
 
-Besides the tool catalog, the MCP server now exposes a small workflow layer for hosts that support MCP prompts and resources:
+Besides the tool catalog, the MCP server exposes a small workflow layer for hosts that support MCP prompts and resources:
 
 - Prompt: `haaabit_assistant_workflow`
 - Resource: `haaabit://guides/workflow`
@@ -121,9 +159,9 @@ Recommended usage:
 3. Mutate only on explicit user intent; if multiple habits could match, clarify before calling a write tool.
 4. Use `stats_get_overview` for review and trend questions, optionally pairing it with `today_get_summary` for concrete next steps.
 
-If your agent platform supports repo-local Skills, Haaabit also ships [`.agents/skills/haaabit-mcp`](../../.agents/skills/haaabit-mcp/SKILL.md), which wraps the same workflow into a project-level Skill.
+If your agent platform supports repo-local Skills, Haaabit also ships both [`.agents/skills/haaabit-mcp`](../../.agents/skills/haaabit-mcp/SKILL.md) for Codex/Claude-style agents and [`../../skills/haaabit-mcp/SKILL.md`](../../skills/haaabit-mcp/SKILL.md) for OpenClaw-style workspace skill discovery.
 
-For a broader explanation of when to connect MCP only, when Skill-aware agents should also load `$haaabit-mcp`, and how to explain this to robot operators, see [AI Agent Integration / AI 机器人接入](../../docs/ai-agent-integration.md).
+For a broader explanation of when to connect MCP only, how to pair OpenClaw workspace skills with a real MCP runner, and how to explain this to robot operators, see [AI Agent Integration / AI 机器人接入](../../docs/ai-agent-integration.md).
 
 The `haaabit-mcp` Skill is documented as a bilingual trigger layer for Skill-aware agents. Typical requests include:
 
@@ -137,4 +175,5 @@ The `haaabit-mcp` Skill is documented as a bilingual trigger layer for Skill-awa
 
 - This package does not support browser-session or admin-only routes.
 - This package currently targets local `stdio` MCP usage, not remote Streamable HTTP transport.
+- OpenClaw compatibility in this repository is a host-contract layer on top of the same package/runtime surface; it does not introduce a second server mode.
 - The package version is still `0.x`, but the generic-client flow above is intended for real use now.

@@ -2,7 +2,7 @@
 
 ## What This Is
 
-Haaabit is a shipped, self-hostable habit tracking product for individual users that is designed AI-first rather than UI-first. It now includes a publishable MCP package alongside the web app and REST API, so AI hosts can query and act on habits through the same personal-token-compatible backend semantics.
+Haaabit is a shipped, self-hostable habit tracking product for individual users that is designed AI-first rather than UI-first. It now ships a web app, a bearer-authenticated REST API, a publishable `@haaabit/mcp` package, and an OpenClaw-ready host integration path so AI hosts can discover guidance, launch MCP tools, and inject secrets through one documented setup story.
 
 ## Core Value
 
@@ -10,12 +10,14 @@ Let AI accurately understand what the user needs to do today and reliably comple
 
 ## Current State
 
-- **Latest shipped milestone:** v1.5 MCP Integration (archived on 2026-03-09)
-- **Delivered surfaces:** web product, bearer-authenticated REST API, bilingual docs/UI, self-host deployment stack, and publishable `@haaabit/mcp`
+- **Latest shipped milestone:** v1.6 OpenClaw Compatibility (shipped 2026-03-10, archived 2026-03-11)
+- **Delivered surfaces:** web product, bearer-authenticated REST API, bilingual docs/UI, self-host deployment stack, publishable `@haaabit/mcp`, and OpenClaw-ready operator guidance
 - **Current MCP baseline:** local `stdio` transport, generic-client-ready package docs, full habits/today/stats read+write tool coverage, centralized MCP-facing error semantics, and release-gated build/test/API parity
+- **Current interoperability baseline:** Haaabit now ships a workspace-visible `skills/haaabit-mcp/SKILL.md`, a canonical `packages/mcp/examples/openclaw.jsonc`, aligned repo/package docs, a dedicated troubleshooting guide, and an explicit OpenClaw validation checklist
+- **Current auth baseline:** steady-state MCP auth remains `HAAABIT_API_URL` plus personal API token, and `bootstrap-token` is the supported one-shot handoff for operators who start from account credentials
+- **Current verification baseline:** `pnpm verify:openclaw` and `pnpm verify:openclaw:full` now serve as the reusable release gate for OpenClaw plus generic MCP-client regressions
 - **Current stack:** Next.js 16, Fastify, Better Auth, Prisma with SQLite/libsql, Vitest, Playwright, Docker Compose, Caddy, and the MCP SDK
-- **Milestone stats:** 4 phases, 11 plans, 22 planned tasks, 38 changed files in the working milestone set, and roughly 4h22m from first execution artifact to final verification
-- **Accepted deferred scope:** remote Streamable HTTP transport, MCP registry publication metadata, and minor publication polish items such as `error.tsx`, `not-found.tsx`, and Docker `pnpm` parity
+- **Accepted tech debt:** v1.6 archived with non-blocking process debt (missing standalone `22-VERIFICATION.md` through `25-VERIFICATION.md`, `wave_0_complete: false` in the v1.6 validation docs, and real OpenClaw UI/secret-store validation still marked external-host-only); older accepted archive debt from v1.2/v1.3/v1.4 remains historical context only
 
 ## Next Milestone Goals
 
@@ -23,9 +25,10 @@ No next milestone is defined yet.
 
 Use `$gsd-new-milestone` to choose the next direction. Likely candidates from the current backlog:
 
-- Remote MCP transport and deployment packaging
-- MCP registry metadata and publication polish
-- Broader product capability work such as notifications, dark mode, or keyboard-first productivity
+- Remote Streamable HTTP transport and deployment packaging for Haaabit MCP
+- MCP Registry metadata and publication polish for the package distribution story
+- Additional host-ready integration bundles beyond OpenClaw once the canonical host contract is stable
+- Broader product capability work such as notifications, dark theme parity, or keyboard-first productivity
 
 ## Key Decisions
 
@@ -38,84 +41,40 @@ Use `$gsd-new-milestone` to choose the next direction. Likely candidates from th
 | Open-source prep should fix safety/publication blockers before optional polish | Security and repository quality mattered more than cosmetic extras before public release | ✓ Good |
 | MCP lives in `packages/mcp` as a thin adapter over the shipped REST API | Reuses `@haaabit/contracts`, avoids drift, and keeps API and MCP versioned together | ✓ Good |
 | v1.5 targets generic MCP clients through local `stdio` first | Matches current operator expectations and avoids premature remote auth complexity | ✓ Good |
+| v1.6 optimizes host interoperability without assuming repo-local Skill support or automatic skill-to-MCP binding | OpenClaw-style hosts can separate guidance discovery from actual tool wiring | ✓ Good |
+| OpenClaw compatibility ships as a workspace-visible skill plus a paired MCP runtime contract | Operators need one canonical path that explains guidance, runtime, and secret injection together | ✓ Good |
+| Steady-state MCP auth remains token-oriented, with account credentials handled only through explicit bootstrap handoff | This resolves setup friction without turning passwords into the runtime auth model | ✓ Good |
+| Verification ships as explicit scripts plus a checklist, with external-host-only steps called out honestly | Milestone close needs reproducible in-repo evidence without pretending to emulate the full host UI | ✓ Good |
 
 ## Historical Context
 
 <details>
-<summary>Archived project context through v1.5 planning</summary>
+<summary>Archived context through v1.6 completion</summary>
 
-# Haaabit
+### Shipped Baseline Through v1.6
 
-## What This Is
+- v1.0 delivered the web product, core API, habit model, and self-host deployment baseline.
+- v1.1 established the design system, responsive polish, and accessibility/reduced-motion release gates.
+- v1.2 added the shared Simplified Chinese and English localization system across product and docs.
+- v1.3 fixed shipped bugs around today semantics, analytics correctness, registration control, and UI regressions.
+- v1.4 hardened secret handling and repository open-source readiness.
+- v1.5 added the publishable `@haaabit/mcp` package and generic MCP-client `stdio` integration path.
+- v1.6 closed the OpenClaw interoperability gap with a canonical host-facing skill, config asset, bootstrap handoff, troubleshooting docs, and named verification gates.
 
-Haaabit is a shipped, self-hostable habit tracking product for individual users that is designed AI-first rather than UI-first. It combines a calm web interface for daily execution, history, analytics, API access, self-host operations, and bilingual use with a stable backend that lets an AI assistant query what should be done today and complete habit check-ins on the user's behalf.
+### Historical Deferred Scope
 
-## Core Value
+- Remote Streamable HTTP transport is still deferred beyond the archived local-host path.
+- MCP Registry ownership/metadata and extra publication polish remain backlog candidates rather than archived blockers.
+- Browser-session/admin auth routes remain intentionally out of scope for MCP tools because the supported model is personal-token based.
 
-Let AI accurately understand what the user needs to do today and reliably complete habit check-ins on the user's behalf.
+### Historical Archive Notes
 
-## Current State
-
-- **Latest shipped milestone:** v1.4 Open Source Readiness (completed locally and archived on 2026-03-09)
-- **Delivered surfaces:** auth, Today-first dashboard, habits management/detail, API Access, bilingual quickstart and self-host docs, locale-aware API docs UI, bearer-authenticated REST API, and Docker-first self-host deployment
-- **Current stack:** Next.js 16, Fastify, Better Auth, Prisma with SQLite/libsql, Vitest, Playwright, Docker Compose, and Caddy
-- **Frontend baseline:** shared tokens, typography, primitives, overlays, responsive shell grammar, keyboard/focus-safe interaction patterns, and reduced-motion-safe behavior
-- **Localization baseline:** Simplified Chinese and English supported across the shipped product and docs, with browser-based defaulting, remembered manual override, and stable English technical literals for commands/contracts
-- **Open-source baseline:** API tokens are hashed at rest, browser auth drafts avoid password persistence, repository ignore rules and MIT licensing are in place, and duplicated API hygiene helpers/mappers are centralized
-- **Accepted tech debt:** v1.2 archive-time process debt includes a missing `12-VALIDATION.md`; v1.3 closed product bugs in code, but its planning archive was not preserved in the tracked repository docs; v1.4 was archived without a standalone milestone audit file
-
-## Current Milestone: v1.5 MCP Integration
-
-**Goal:** Add a generic-client-friendly MCP server package inside the monorepo so AI hosts can use Haaabit's existing personal-token API surface through MCP without introducing a second backend or a second auth model.
-
-**Target features:**
-- Ship a standalone `packages/mcp` workspace package that can also be published as `@haaabit/mcp`
-- Expose the full personal-token-compatible habits, today, and stats API surface as MCP tools
-- Reuse `@haaabit/contracts` and existing API semantics so MCP tool schemas stay aligned with REST behavior
-- Support generic MCP clients through local `stdio` launch, env-based configuration, and npm/npx usage docs
-
-## Requirements
-
-### Validated
-
-- ✓ Provide a usable web interface for viewing today's habits, completed habits, history, and core statistics — v1.0
-- ✓ Let users create, edit, archive, and manually check in habits with flexible frequency and target definitions — v1.0
-- ✓ Expose stable REST API endpoints so AI assistants can query today's pending/completed habits, habit details, and statistics, and update check-in state — v1.0
-- ✓ Support standard account login for self-hosted personal use without adding unnecessary operational complexity — v1.0
-- ✓ Make self-hosted deployment straightforward with Docker-first setup and clear project documentation — v1.0
-- ✓ Establish a shared design system foundation instead of continuing page-by-page inline styling — v1.1
-- ✓ Make the full signed-in and signed-out experience feel visually consistent, production-ready, and clearly tiered in priority — v1.1
-- ✓ Improve interaction polish, responsive behavior, and system states without changing the underlying habit/check-in semantics — v1.1
-- ✓ Resolve the UI-adjacent v1 tech debt that would undermine a broader release push — v1.1
-- ✓ Add one shared locale system for Simplified Chinese and English with browser default detection, English fallback, and remembered manual switching — v1.2
-- ✓ Localize shipped product-owned UI copy and docs without translating user-authored habit data or changing API payload contracts — v1.2
-- ✓ Verify bilingual product behavior across desktop/mobile routing, focus continuity, reduced motion, and API/docs surfaces — v1.2
-- ✓ Fix the shipped bug clusters around today semantics, analytics correctness, registration control, and UI regressions without widening product scope — v1.3
-- ✓ Persistent secrets are no longer recoverable from database rows or browser storage in the default shipped paths — v1.4
-- ✓ The repository can be published without leaking local machine artifacts, AI tooling state, test output, or unclear usage rights — v1.4
-- ✓ Open-source first impression meets a minimum cleanliness bar through removal of obvious dead code and low-value duplication — v1.4
-
-### Active
-
-- [ ] Ship a standalone MCP server package inside the monorepo instead of adding a parallel service or forking domain logic.
-- [ ] Make the existing bearer-authenticated habits, today, and stats capabilities callable as MCP tools without redefining schemas by hand.
-- [ ] Keep MCP configuration on the existing API base URL plus personal API token model; do not add a second auth system.
-- [ ] Make the package usable by generic MCP clients via `stdio`, npm publication, and copy-pasteable setup docs.
-
-### Out of Scope
-
-- Team collaboration and multi-user workspace features — the product remains focused on personal self-use.
-- Multi-tenant SaaS operations — the architecture remains intentionally self-host-first and operator-simple.
-- Passkeys, OAuth providers, or broader auth-model expansion — keep the auth model simple unless a future milestone deliberately reopens it.
-- New habit semantics or recurrence-rule expansion — preserve stable domain behavior unless a future milestone requires it.
-- Automatic translation of user-entered habit names or categories — preserve user data exactly as entered.
-- API payload localization for AI clients — keep API response contracts stable unless a future milestone explicitly reopens them.
-- Browser-session auth flows and admin registration management as MCP tools — those routes are interactive/cookie-oriented and do not fit the personal-token MCP path.
-- Remote Streamable HTTP deployment for Haaabit MCP — v1.5 targets a local `stdio` package first, with remote transport possible later if needed.
-- Token bootstrap or token rotation from inside the MCP server — the MCP package should consume an existing personal token, not manage its own bootstrap secrets.
-- Optional publication-polish leftovers such as `error.tsx`, `not-found.tsx`, and Docker `pnpm` version parity — useful, but deferred behind MCP delivery.
+- v1.2 archive-time process debt included a missing `12-VALIDATION.md`.
+- v1.3 shipped in the codebase, but its planning archive was not preserved in this repository snapshot.
+- v1.4 was archived without a standalone milestone audit file.
+- v1.6 was audited as `tech_debt`, not `gaps_found`, because the remaining issues were process evidence gaps rather than runtime blockers.
 
 </details>
 
 ---
-*Last updated: 2026-03-09 after completing and archiving milestone v1.5 MCP Integration*
+*Last updated: 2026-03-11 after completing and archiving v1.6 OpenClaw Compatibility*

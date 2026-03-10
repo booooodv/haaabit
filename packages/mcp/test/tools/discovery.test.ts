@@ -78,6 +78,8 @@ describe("server discovery wiring", () => {
 
     expect(listRegisteredPrompts()).toEqual([HAAABIT_WORKFLOW_PROMPT]);
     expect(listRegisteredResources()).toEqual([HAAABIT_WORKFLOW_RESOURCE]);
+    expect(HAAABIT_WORKFLOW_PROMPT.name).toBe("haaabit_assistant_workflow");
+    expect(HAAABIT_WORKFLOW_RESOURCE.uri).toBe("haaabit://guides/workflow");
     expect(WORKFLOW_GUIDE_TEXT).toContain("today_get_summary");
     expect(WORKFLOW_GUIDE_TEXT).toContain("read-first");
   });

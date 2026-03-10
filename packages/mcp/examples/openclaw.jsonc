@@ -1,0 +1,35 @@
+{
+  // OpenClaw workspace-side skill settings. Keep the same env names the MCP runtime expects.
+  // If you only have account credentials, run `npx -y @haaabit/mcp bootstrap-token` first
+  // and store the returned personal API token under the same secret ref used below.
+  "skills": {
+    "entries": {
+      "haaabit-mcp": {
+        "apiKey": "<same secret as HAAABIT_API_TOKEN>",
+        "env": {
+          "HAAABIT_API_URL": "https://your-haaabit.example.com/api",
+          "HAAABIT_API_TOKEN": "<openclaw secret ref or literal personal api token>"
+        }
+      }
+    }
+  },
+
+  // Pair OpenClaw with an MCP-capable runner or bridge that actually launches @haaabit/mcp.
+  // Do not put account passwords here; the runtime still expects HAAABIT_API_TOKEN only.
+  "mcpServers": {
+    "haaabit": {
+      "command": "npx",
+      "args": ["-y", "@haaabit/mcp"],
+      "env": {
+        "HAAABIT_API_URL": "https://your-haaabit.example.com/api",
+        "HAAABIT_API_TOKEN": "<same personal api token>"
+      }
+    }
+  },
+
+  // When the paired MCP runner supports prompts/resources, reuse the shipped Haaabit guidance names.
+  "guidance": {
+    "prompt": "haaabit_assistant_workflow",
+    "resource": "haaabit://guides/workflow"
+  }
+}

@@ -1,11 +1,11 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.5
-milestone_name: MCP Integration
+milestone: none
+milestone_name: none
 status: milestone_completed
-stopped_at: v1.5 archived; next step is start a new milestone
-last_updated: "2026-03-10T13:56:30+08:00"
-last_activity: 2026-03-10 — Completed quick task 4: 更新整体文档，说明机器人如何连接 MCP 与 Skill，并推送 GitHub
+stopped_at: v1.6 archived; next step is define the next milestone
+last_updated: "2026-03-11T00:26:38+08:00"
+last_activity: 2026-03-11 — Archived milestone v1.6 OpenClaw Compatibility
 progress:
   total_phases: 4
   completed_phases: 4
@@ -18,7 +18,7 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-09)
+See: .planning/PROJECT.md (updated 2026-03-11)
 
 **Core value:** Let AI accurately understand what the user needs to do today and reliably complete habit check-ins on the user's behalf.
 **Current focus:** Define the next milestone
@@ -26,36 +26,25 @@ See: .planning/PROJECT.md (updated 2026-03-09)
 ## Current Position
 
 Milestone: none active
-Phase: v1.5 archived
-Plan: all v1.5 plans complete
-Status: The v1.5 MCP Integration milestone is archived; the workspace is ready for a fresh milestone definition
-Last activity: 2026-03-10 — Completed quick task 4: 更新整体文档，说明机器人如何连接 MCP 与 Skill，并推送 GitHub
+Phase: v1.6 archived
+Plan: all v1.6 plans complete
+Status: The v1.6 OpenClaw Compatibility milestone is archived; the workspace is ready for a fresh milestone definition
+Last activity: 2026-03-11 — Archived milestone v1.6 OpenClaw Compatibility
 
-Progress: [██████████] 100%
+Progress: [##########] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 41 across archived milestones represented in tracked planning docs
+- Total plans completed: 49 across archived milestones represented in tracked planning docs
 - Average duration: Not normalized across archived milestones
 - Total execution time: Not tracked consistently in archived roadmap metadata
 
-**By Phase:**
-
-| Phase | Plans | Total | Avg/Plan |
-|-------|-------|-------|----------|
-| 15 | 2 | complete | ~18 min / ~17 min |
-| 16 | 2 | complete | ~6 min / ~5 min |
-| 17 | 3 | complete | ~11 min / ~11 min / ~32 min |
-| 18 | 3 | complete | session-spanning |
-| 19 | 3 | complete | session-spanning |
-| 20 | 3 | complete | ~2 min / ~3 min / ~3 min |
-| 21 | 2 | complete | ~4 min / ~6 min |
-
 **Recent Trend:**
-- The codebase now has a real MCP package foundation, explicit tool inventory, and one verified stdio launch path for generic clients.
-- The MCP package now has verified read and write tool coverage plus centralized MCP-facing error semantics over the existing REST API.
-- The roadmap and requirement set are now archived through v1.5, so the next planning cycle can start cleanly.
+- The codebase now ships a canonical OpenClaw integration path instead of relying on repo-local Skill discovery alone.
+- MCP startup/auth flows now guide operators toward the supported token model and `bootstrap-token` handoff when needed.
+- Repo/package docs now explain host guidance, MCP runtime config, and troubleshooting in one operator-facing story.
+- The milestone is archived with accepted process debt, so the next planning cycle can focus on new scope rather than reopening v1.6 delivery.
 
 ## Accumulated Context
 
@@ -64,20 +53,23 @@ Progress: [██████████] 100%
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
-- v1.5 will add MCP as a monorepo package instead of introducing a separate service.
-- MCP will reuse the existing API base URL and personal API token model rather than adding a second auth path.
-- v1.5 should prioritize generic MCP clients and local `stdio` launch before remote HTTP transport.
-- The package should cover the full personal-token-compatible habits, today, and stats API surface.
+- v1.6 focused on OpenClaw interoperability before widening scope to remote MCP transport.
+- The milestone preferred one canonical host-ready integration path instead of assuming repo-local Skill support was enough.
+- OpenClaw compatibility now ships as a workspace-visible skill plus a paired MCP runtime contract instead of treating skill visibility as tool connectivity.
+- Steady-state MCP auth remains token-oriented; account credentials are only used by the explicit one-shot `bootstrap-token` handoff.
+- Verification now ships as explicit `pnpm verify:openclaw` / `pnpm verify:openclaw:full` scripts plus `docs/openclaw-validation-checklist.md`, with real OpenClaw UI steps recorded as external-host-only.
 
 ### Pending Todos
 
 - Run `$gsd-new-milestone` to define the next milestone and create a fresh `.planning/REQUIREMENTS.md`.
-- Decide whether the next milestone should focus on MCP transport/publishing follow-through or on product capabilities outside MCP.
+- Decide whether the next milestone should focus on MCP transport/publishing follow-through, more host bundles, or product capabilities outside MCP.
+- If needed, separately backfill v1.6 process artifacts (`22-VERIFICATION.md` through `25-VERIFICATION.md`) without reopening the shipped milestone scope.
 
 ### Blockers/Concerns
 
-- MCP registry metadata and remote transport remain intentionally deferred beyond this phase.
-- MCP should continue avoiding browser-session/admin routes that do not fit the personal-token model.
+- Remote Streamable HTTP transport and MCP Registry metadata remain intentionally deferred beyond the archived local-host path.
+- Real OpenClaw workspace UI and secret-store validation still require an external host environment outside this repository harness.
+- Future host integrations should build on the now-verified token/runtime baseline instead of reopening v1.6 auth or docs scope.
 
 ### Quick Tasks Completed
 
@@ -90,6 +82,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-09T23:55:00+08:00
-Stopped at: v1.5 archived; next step is start a new milestone
+Last session: 2026-03-11T00:26:38+08:00
+Stopped at: v1.6 archived; next step is start a new milestone
 Resume file: .planning/ROADMAP.md

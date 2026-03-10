@@ -29,6 +29,13 @@
   - `milestones/v1.5-ROADMAP.md`
   - `milestones/v1.5-REQUIREMENTS.md`
   - `milestones/v1.5-MILESTONE-AUDIT.md`
+- ✅ **v1.6 OpenClaw Compatibility** — Phases 22-25, 11/11 plans complete, shipped 2026-03-10 and archived 2026-03-11.
+  Archive:
+  - `milestones/v1.6-ROADMAP.md`
+  - `milestones/v1.6-REQUIREMENTS.md`
+  - `milestones/v1.6-MILESTONE-AUDIT.md`
+  Notes:
+  - Archived with accepted non-blocking `tech_debt`: missing standalone `22-VERIFICATION.md` through `25-VERIFICATION.md`, `wave_0_complete: false` across the v1.6 validation docs, and real OpenClaw UI/secret-store checks remaining external-host-only.
 
 ## Active Milestone
 
@@ -39,8 +46,8 @@ Run `$gsd-new-milestone` to define the next version, create a fresh `.planning/R
 ## Carry-Forward Candidates
 
 - Remote Streamable HTTP transport for Haaabit MCP
-- MCP registry publication metadata
-- Web-publication polish such as `error.tsx`, `not-found.tsx`, and Docker `pnpm` parity
+- MCP Registry publication metadata
+- Additional host-ready integration bundles beyond OpenClaw
 - Future product expansion items from archived requirements (`NOTF-01`, `NOTF-02`, `VISX-01`, `PROD-01`)
 
 ---

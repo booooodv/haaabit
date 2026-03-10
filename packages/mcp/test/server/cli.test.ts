@@ -4,8 +4,9 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it, vi } from "vitest";
 
+import { formatBootstrapError, formatStartupError } from "../../src/config/env";
 import { createServer } from "../../src/server/create-server";
-import { formatStartupError } from "../../src/config/env";
+import { resolveCliMode, runCli } from "../../src/cli";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const packageRoot = path.resolve(__dirname, "../..");
@@ -63,7 +64,7 @@ describe("mcp package bootstrap", () => {
     expect(pkg.exports).toEqual({
       ".": "./dist/index.js",
     });
-    expect(pkg.files).toEqual(["dist"]);
+    expect(pkg.files).toEqual(["dist", "examples"]);
   });
 
   it("creates a stdio-ready server with package metadata", async () => {
@@ -83,16 +84,56 @@ describe("mcp package bootstrap", () => {
     });
   });
 
-  it("formats startup errors without leaking token values", () => {
-    const error = new Error("Missing required configuration: HAAABIT_API_TOKEN");
-    const stderr = vi.spyOn(console, "error").mockImplementation(() => {});
+  it("treats zero arguments as the normal stdio server path and keeps bootstrap as an explicit subcommand", async () => {
+    const connectServer = vi.fn(async () => undefined);
+    const bootstrapToken = vi.fn(async () => undefined);
 
-    formatStartupError(error, {
-      HAAABIT_API_TOKEN: "super-secret-token",
+    expect(resolveCliMode([])).toBe("server");
+    expect(resolveCliMode(["bootstrap-token"])).toBe("bootstrap-token");
+
+    await runCli([], {
+      env: {},
+      stdin: process.stdin,
+      stdout: process.stdout,
+      connectServer,
+      bootstrapToken,
+    });
+    await runCli(["bootstrap-token", "--api-url", "https://habit.example.com/api"], {
+      env: {},
+      stdin: process.stdin,
+      stdout: process.stdout,
+      connectServer,
+      bootstrapToken,
     });
 
-    expect(stderr).toHaveBeenCalledWith("Failed to start Haaabit MCP server: Missing required configuration: HAAABIT_API_TOKEN");
-    expect(stderr.mock.calls.join(" ")).not.toContain("super-secret-token");
+    expect(connectServer).toHaveBeenCalledTimes(1);
+    expect(connectServer).toHaveBeenCalledWith([], {});
+    expect(bootstrapToken).toHaveBeenCalledTimes(1);
+    expect(bootstrapToken).toHaveBeenCalledWith(
+      ["--api-url", "https://habit.example.com/api"],
+      {},
+      process.stdin,
+      process.stdout,
+    );
+  });
+
+  it("formats startup and bootstrap errors without leaking token or password values", () => {
+    const stderr = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    formatStartupError(new Error("Missing required configuration: HAAABIT_API_TOKEN. Run bootstrap-token before starting the MCP server. token secret-token"), {
+      HAAABIT_API_TOKEN: "secret-token",
+    });
+    formatBootstrapError(new Error("Invalid email or password password123 cookie session=abc123"), {
+      env: {
+        HAAABIT_BOOTSTRAP_PASSWORD: "password123",
+      },
+      secrets: ["abc123"],
+    });
+
+    expect(stderr.mock.calls.join(" ")).not.toContain("secret-token");
+    expect(stderr.mock.calls.join(" ")).not.toContain("password123");
+    expect(stderr.mock.calls.join(" ")).not.toContain("abc123");
+    expect(stderr.mock.calls.join(" ")).toContain("bootstrap-token");
 
     stderr.mockRestore();
   });

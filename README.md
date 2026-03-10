@@ -110,16 +110,20 @@ Haaabit also ships a standalone MCP package for generic MCP clients:
 - Auth model: existing `HAAABIT_API_URL` + personal API token
 - Tool surface: habits, today, and stats read/write coverage
 - Built-in AI guidance: actionable tool descriptions plus one workflow prompt and one read-only workflow resource for hosts that support MCP prompts/resources
+- OpenClaw workspace skill: [`skills/haaabit-mcp`](./skills/haaabit-mcp/SKILL.md) for hosts that discover workspace Skills from the repo `skills/` directory
 - Project skill: [`.agents/skills/haaabit-mcp`](./.agents/skills/haaabit-mcp/SKILL.md) for agents that support repo-local Skills
+- Canonical OpenClaw setup asset: [`packages/mcp/examples/openclaw.jsonc`](./packages/mcp/examples/openclaw.jsonc)
 - Bilingual trigger coverage: the project Skill recognizes both English and Chinese habit-assistant requests such as `What should I do today?` / `今天该做什么？` and `Mark reading as done.` / `帮我把阅读打卡。`
 
 Recommended AI integration strategy:
 
 1. Connect the MCP server first so the host can call the real Haaabit tools.
 2. If the host supports MCP prompts/resources, load `haaabit_assistant_workflow` or read `haaabit://guides/workflow` to teach safe sequencing.
-3. If the agent also supports project Skills, invoke `$haaabit-mcp` for the strongest today-first, read-before-write behavior, including bilingual trigger phrases like `今天还剩哪些习惯没做？`, `撤销刚才的打卡。`, or `How am I doing this week?`.
+3. If the host discovers workspace Skills separately from tool transport, use [`skills/haaabit-mcp`](./skills/haaabit-mcp/SKILL.md) for the workflow layer and keep the paired MCP runner on the same `HAAABIT_API_URL` + `HAAABIT_API_TOKEN` contract shown in [`packages/mcp/examples/openclaw.jsonc`](./packages/mcp/examples/openclaw.jsonc).
+4. If you only have account credentials, run `npx -y @haaabit/mcp bootstrap-token --api-url <...> --email <...>` once, then store the returned personal API token as `HAAABIT_API_TOKEN` for the normal runtime.
+5. If the agent also supports repo-local Skills, invoke `$haaabit-mcp` for the strongest today-first, read-before-write behavior, including bilingual trigger phrases like `今天还剩哪些习惯没做？`, `撤销刚才的打卡。`, or `How am I doing this week?`.
 
-See [`packages/mcp/README.md`](./packages/mcp/README.md) for setup examples, AI guidance details, and the full tool list. For a host-by-host explanation of how robots should connect MCP and Skills, see [AI Agent Integration / AI 机器人接入](./docs/ai-agent-integration.md).
+See [`packages/mcp/README.md`](./packages/mcp/README.md) for setup examples, AI guidance details, and the full tool list. For a host-by-host explanation of how robots should connect MCP and Skills, including when to use `bootstrap-token`, see [AI Agent Integration / AI 机器人接入](./docs/ai-agent-integration.md). For symptom-driven OpenClaw fixes, see [OpenClaw Troubleshooting](./docs/openclaw-troubleshooting.md).
 
 ## Project Structure / 项目结构
 

@@ -33,6 +33,17 @@ describe("package README smoke", () => {
     expect(readme).toContain(`"args": ["-y", "${packageJson.name}"]`);
     expect(readme).toContain("Claude Code");
     expect(readme).toContain("MCP Inspector");
+    expect(readme).toContain("OpenClaw");
+    expect(readme).toContain("examples/openclaw.jsonc");
+    expect(readme.indexOf("## Generic MCP Client Setup")).toBeGreaterThan(-1);
+    expect(readme.indexOf("## OpenClaw Setup")).toBeGreaterThan(readme.indexOf("## Generic MCP Client Setup"));
+    expect(readme).toContain("bootstrap-token");
+    expect(readme).toContain("one-shot");
+    expect(readme).toContain("Connection order");
+    expect(readme).toContain("runtime still uses `HAAABIT_API_TOKEN`");
+    expect(readme).toContain("docs/ai-agent-integration.md");
+    expect(readme).toContain("openclaw-troubleshooting.md");
+    expect(readme).toContain("openclaw-validation-checklist.md");
     expect(readme).toContain("## AI Guidance");
     expect(readme).toContain("haaabit_assistant_workflow");
     expect(readme).toContain("haaabit://guides/workflow");

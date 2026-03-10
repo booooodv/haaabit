@@ -7,6 +7,12 @@ description: Today-first workflow for agents using Haaabit MCP tools. Use when a
 
 Use the connected Haaabit MCP tools like a habit assistant, not like a generic REST wrapper.
 
+## Host Notes
+
+- OpenClaw workspace discovery should use `skills/haaabit-mcp/SKILL.md`; this `.agents` copy remains the repo-local Skill surface for Codex/Claude-style agents.
+- The Skill only adds workflow guidance. Connect Haaabit MCP first so the host can call the real tools. If you only have account credentials, run `bootstrap-token` first and then keep using `HAAABIT_API_TOKEN` at runtime.
+- If the host exposes MCP prompts/resources, keep using `haaabit_assistant_workflow` and `haaabit://guides/workflow` instead of inventing a parallel guidance vocabulary.
+
 ## Start Here
 
 - Default to `today_get_summary` for requests about "today", "what should I do", "what is left", "am I done", or Chinese variants like "今天该做什么", "今天还剩什么", and "今天做完了吗".
