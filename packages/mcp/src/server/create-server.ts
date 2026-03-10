@@ -3,6 +3,7 @@ import packageJson from "../../package.json";
 
 import { HaaabitApiClient } from "../client/api-client.js";
 import { createDiscoveryHandlers } from "../tools/inventory.js";
+import { registerGuidance, type GuidancePromptDefinition, type GuidanceResourceDefinition } from "./guidance.js";
 
 export type CreateServerOptions = {
   apiUrl: string;
@@ -27,6 +28,8 @@ export type HaaabitMcpServer = {
     outputSchema: unknown;
     handler: (input: unknown) => Promise<unknown>;
   }>;
+  listRegisteredPrompts: () => GuidancePromptDefinition[];
+  listRegisteredResources: () => GuidanceResourceDefinition[];
 };
 
 export function createServer(options: CreateServerOptions): HaaabitMcpServer {
@@ -57,10 +60,14 @@ export function createServer(options: CreateServerOptions): HaaabitMcpServer {
     );
   }
 
+  const guidance = registerGuidance(server);
+
   return {
     server,
     metadata,
     config: options,
     listRegisteredTools: () => registeredTools,
+    listRegisteredPrompts: () => guidance.prompts,
+    listRegisteredResources: () => guidance.resources,
   };
 }

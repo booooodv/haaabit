@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import { createServer } from "../../src/server/create-server";
+import { HAAABIT_WORKFLOW_PROMPT, HAAABIT_WORKFLOW_RESOURCE, WORKFLOW_GUIDE_TEXT } from "../../src/server/guidance";
 import { toolInventory } from "../../src/tools/inventory";
 
 describe("server discovery wiring", () => {
@@ -66,4 +67,19 @@ describe("server discovery wiring", () => {
       },
     });
   });
+
+  it("registers prompt and resource guidance alongside the tool catalog", () => {
+    const { listRegisteredPrompts, listRegisteredResources } = createServer({
+      apiUrl: "https://habit.example.com/api",
+      apiToken: "secret-token",
+      timeoutMs: 2500,
+      fetch: vi.fn<typeof fetch>(),
+    });
+
+    expect(listRegisteredPrompts()).toEqual([HAAABIT_WORKFLOW_PROMPT]);
+    expect(listRegisteredResources()).toEqual([HAAABIT_WORKFLOW_RESOURCE]);
+    expect(WORKFLOW_GUIDE_TEXT).toContain("today_get_summary");
+    expect(WORKFLOW_GUIDE_TEXT).toContain("read-first");
+  });
+
 });

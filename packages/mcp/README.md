@@ -94,17 +94,34 @@ All tools use the authenticated Haaabit API behind the scenes and return structu
 
 | Tool | Route | Description |
 |------|-------|-------------|
-| `habits_list` | `GET /habits` | List habits for the authenticated user. |
-| `habits_add` | `POST /habits` | Create a habit for the authenticated user. |
-| `habits_get_detail` | `GET /habits/:habitId` | Get full habit detail including stats and trends. |
-| `habits_edit` | `PATCH /habits/:habitId` | Update an existing habit. |
-| `habits_archive` | `POST /habits/:habitId/archive` | Archive a habit while preserving its history. |
-| `habits_restore` | `POST /habits/:habitId/restore` | Restore an archived habit. |
-| `today_get_summary` | `GET /today` | Get the canonical today summary. |
-| `today_complete` | `POST /today/complete` | Complete a boolean habit for today. |
-| `today_set_total` | `POST /today/set-total` | Set today's total for a quantified habit. |
-| `today_undo` | `POST /today/undo` | Undo today's latest mutation. |
-| `stats_get_overview` | `GET /stats/overview` | Get overview analytics for the authenticated user. |
+| `habits_list` | `GET /habits` | List the user's habits so you can identify a target before editing, archiving, or summarizing by name, category, kind, or status. |
+| `habits_add` | `POST /habits` | Create a new habit definition when the user explicitly wants to add a habit, recurrence rule, target, or category. |
+| `habits_get_detail` | `GET /habits/:habitId` | Read one habit's full configuration, stats, and history before non-trivial edits or when the user asks for deep detail about that habit. |
+| `habits_edit` | `PATCH /habits/:habitId` | Change an existing habit's settings after you have identified the correct habit and confirmed the user wants to modify it. |
+| `habits_archive` | `POST /habits/:habitId/archive` | Archive a habit only when the user explicitly wants to shelve it without losing history. |
+| `habits_restore` | `POST /habits/:habitId/restore` | Restore an archived habit only when the user explicitly wants it active again. |
+| `today_get_summary` | `GET /today` | Read today's canonical checklist first when the user asks what is due, what remains, or whether today is already complete. |
+| `today_complete` | `POST /today/complete` | Mark a boolean habit complete for today only when the user clearly asks to check off a specific today item. |
+| `today_set_total` | `POST /today/set-total` | Set today's numeric progress for a quantified habit when the user gives a concrete amount, total, or measurement for today. |
+| `today_undo` | `POST /today/undo` | Undo today's latest mutation only when the user explicitly asks to revert or correct the most recent today action. |
+| `stats_get_overview` | `GET /stats/overview` | Read high-level analytics when the user wants a progress review, trend summary, or overall habit health snapshot. |
+
+## AI Guidance
+
+Besides the tool catalog, the MCP server now exposes a small workflow layer for hosts that support MCP prompts and resources:
+
+- Prompt: `haaabit_assistant_workflow`
+- Resource: `haaabit://guides/workflow`
+- Purpose: teach a today-first, read-before-write tool sequence so hosts do not have to infer safe mutation behavior from route names alone
+
+Recommended usage:
+
+1. Start with `today_get_summary` for anything about today's checklist or next actions.
+2. Use `habits_list` / `habits_get_detail` to identify the correct habit before editing or archiving.
+3. Mutate only on explicit user intent; if multiple habits could match, clarify before calling a write tool.
+4. Use `stats_get_overview` for review and trend questions, optionally pairing it with `today_get_summary` for concrete next steps.
+
+If your agent platform supports repo-local Skills, Haaabit also ships [`.agents/skills/haaabit-mcp`](../../.agents/skills/haaabit-mcp/SKILL.md), which wraps the same workflow into a project-level Skill.
 
 ## Notes
 

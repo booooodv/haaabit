@@ -11,7 +11,7 @@ export const todayTools: InventoryTool[] = [
     name: "today_get_summary",
     method: "GET",
     path: "/today",
-    description: "Get the canonical today summary.",
+    description: "Read today's canonical checklist first when the user asks what is due, what remains, or whether today is already complete.",
     responseSchema: todaySummaryResponseSchema,
     outputSchema: z.object({
       today: todaySummarySchema,
@@ -22,7 +22,7 @@ export const todayTools: InventoryTool[] = [
     name: "today_complete",
     method: "POST",
     path: "/today/complete",
-    description: "Complete a boolean habit for today.",
+    description: "Mark a boolean habit complete for today only when the user clearly asks to check off a specific today item.",
     inputSchema: completeHabitInputSchema,
     responseSchema: todayActionResponseSchema,
     outputSchema: z.object({
@@ -35,7 +35,7 @@ export const todayTools: InventoryTool[] = [
     name: "today_set_total",
     method: "POST",
     path: "/today/set-total",
-    description: "Set today's total for a quantified habit.",
+    description: "Set today's numeric progress for a quantified habit when the user gives a concrete amount, total, or measurement for today.",
     inputSchema: setHabitTotalInputSchema,
     responseSchema: todayActionResponseSchema,
     outputSchema: z.object({
@@ -48,7 +48,7 @@ export const todayTools: InventoryTool[] = [
     name: "today_undo",
     method: "POST",
     path: "/today/undo",
-    description: "Undo today's latest mutation.",
+    description: "Undo today's latest mutation only when the user explicitly asks to revert or correct the most recent today action.",
     inputSchema: undoHabitInputSchema,
     responseSchema: todayActionResponseSchema,
     outputSchema: z.object({

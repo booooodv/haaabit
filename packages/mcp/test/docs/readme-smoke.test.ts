@@ -33,6 +33,10 @@ describe("package README smoke", () => {
     expect(readme).toContain(`"args": ["-y", "${packageJson.name}"]`);
     expect(readme).toContain("Claude Code");
     expect(readme).toContain("MCP Inspector");
+    expect(readme).toContain("## AI Guidance");
+    expect(readme).toContain("haaabit_assistant_workflow");
+    expect(readme).toContain("haaabit://guides/workflow");
+    expect(readme).toContain(".agents/skills/haaabit-mcp");
     expect(binPath).toBe("dist/cli.js");
   });
 
