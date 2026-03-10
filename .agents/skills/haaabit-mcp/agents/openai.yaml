@@ -1,4 +1,4 @@
 interface:
   display_name: "Haaabit MCP"
-  short_description: "Use Haaabit MCP with safe today-first workflows."
-  default_prompt: "Use $haaabit-mcp to inspect or update today's habits through the connected Haaabit MCP server."
+  short_description: "Today-first routing for Haaabit MCP habit tasks."
+  default_prompt: "Use $haaabit-mcp to route today's habits, 打卡, 进度, 修改习惯, or stats requests through the safest Haaabit MCP tool sequence."
