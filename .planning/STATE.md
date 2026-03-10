@@ -4,8 +4,8 @@ milestone: v1.5
 milestone_name: MCP Integration
 status: milestone_completed
 stopped_at: v1.5 archived; next step is start a new milestone
-last_updated: "2026-03-10T13:16:50+08:00"
-last_activity: 2026-03-10 — Completed quick task 2: 补齐 Haaabit MCP 的 AI 引导层：增强 tool descriptions、添加 haaabit-mcp Skill、补充 README AI 使用指引
+last_updated: "2026-03-10T13:35:10+08:00"
+last_activity: 2026-03-10 — Completed quick task 3: 把 haaabit-mcp 的中英双触发词与示例落实到项目文档，并提交本次 Skill/文档更新
 progress:
   total_phases: 4
   completed_phases: 4
@@ -29,7 +29,7 @@ Milestone: none active
 Phase: v1.5 archived
 Plan: all v1.5 plans complete
 Status: The v1.5 MCP Integration milestone is archived; the workspace is ready for a fresh milestone definition
-Last activity: 2026-03-10 — Completed quick task 2: 补齐 Haaabit MCP 的 AI 引导层：增强 tool descriptions、添加 haaabit-mcp Skill、补充 README AI 使用指引
+Last activity: 2026-03-10 — Completed quick task 3: 把 haaabit-mcp 的中英双触发词与示例落实到项目文档，并提交本次 Skill/文档更新
 
 Progress: [██████████] 100%
 
@@ -85,6 +85,7 @@ Recent decisions affecting current work:
 |---|-------------|------|--------|-----------|
 | 1 | 修掉 @haaabit/mcp npm 发布后的 CLI/bin 问题，并补发可验证版本 | 2026-03-09 | 705e1b1 | [1-haaabit-mcp-npm-cli-bin](./quick/1-haaabit-mcp-npm-cli-bin/) |
 | 2 | 补齐 Haaabit MCP 的 AI 引导层：增强 tool descriptions、添加 haaabit-mcp Skill、补充 README AI 使用指引 | 2026-03-10 | 78d5b81 | [2-haaabit-mcp-ai-tool-descriptions-haaabit](./quick/2-haaabit-mcp-ai-tool-descriptions-haaabit/) |
+| 3 | 把 haaabit-mcp 的中英双触发词与示例落实到项目文档，并提交本次 Skill/文档更新 | 2026-03-10 | 8ae50ce | [3-haaabit-mcp-skill](./quick/3-haaabit-mcp-skill/) |
 
 ## Session Continuity
 
