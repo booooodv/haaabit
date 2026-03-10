@@ -18,8 +18,9 @@ describe("mutation error semantics", () => {
         },
       },
     });
+    const result = toMcpErrorResult(error);
 
-    expect(toMcpErrorResult(error)).toMatchObject({
+    expect(result).toMatchObject({
       isError: true,
       structuredContent: {
         category: "validation",
@@ -30,6 +31,21 @@ describe("mutation error semantics", () => {
         },
       },
     });
+    expect(result.content?.[1]).toEqual({
+      type: "text",
+      text: JSON.stringify({
+        category: "validation",
+        status: 400,
+        code: "BAD_REQUEST",
+        message: "Invalid habit payload",
+        issues: {
+          formErrors: [],
+          fieldErrors: {
+            targetValue: ["Quantified habits require targetValue"],
+          },
+        },
+      }),
+    });
   });
 
   it("explains wrong-kind failures and points to the correct today tool", () => {
@@ -38,19 +54,23 @@ describe("mutation error semantics", () => {
       code: "BAD_REQUEST",
       message: "Only quantified habits can use set-total",
     });
+    const result = toMcpErrorResult(error, { toolName: "today_set_total" });
+    const machine = JSON.parse((result.structuredContent as { _haaabit_json: string })._haaabit_json) as {
+      hint: string;
+      message: string;
+    };
 
-    expect(toMcpErrorResult(error, { toolName: "today_set_total" })).toMatchObject({
+    expect(result).toMatchObject({
       structuredContent: {
         category: "validation",
         hint: expect.stringContaining("today_complete"),
       },
-      content: [
-        {
-          type: "text",
-          text: expect.stringContaining("today_complete"),
-        },
-      ],
     });
+    expect(result.content?.[0]).toEqual({
+      type: "text",
+      text: machine.message,
+    });
+    expect(machine.hint).toContain("today_complete");
   });
 
   it("turns archived-habit conflicts into restore guidance with read-only hint", () => {
@@ -60,17 +80,17 @@ describe("mutation error semantics", () => {
       message: "Archived habits are read-only until restored",
     });
 
-    expect(toMcpErrorResult(error, { toolName: "today_set_total" })).toMatchObject({
+    const result = toMcpErrorResult(error, { toolName: "today_set_total" });
+
+    expect(result).toMatchObject({
       structuredContent: {
         category: "conflict",
         hint: expect.stringContaining("habits_restore"),
       },
-      content: [
-        {
-          type: "text",
-          text: expect.stringContaining("archived"),
-        },
-      ],
+    });
+    expect(result.content?.[0]).toMatchObject({
+      type: "text",
+      text: expect.stringContaining("archived"),
     });
   });
 
@@ -81,16 +101,16 @@ describe("mutation error semantics", () => {
       message: "This habit is not actionable in today right now",
     });
 
-    expect(toMcpErrorResult(error, { toolName: "today_complete" })).toMatchObject({
+    const result = toMcpErrorResult(error, { toolName: "today_complete" });
+
+    expect(result).toMatchObject({
       structuredContent: {
         category: "validation",
       },
-      content: [
-        {
-          type: "text",
-          text: "Today this habit cannot be acted on right now.",
-        },
-      ],
+    });
+    expect(result.content?.[0]).toEqual({
+      type: "text",
+      text: "Today this habit cannot be acted on right now.",
     });
   });
 

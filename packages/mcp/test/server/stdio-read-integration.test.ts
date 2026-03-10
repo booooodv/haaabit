@@ -192,6 +192,7 @@ describe("stdio read integration", () => {
           name: "Deep Work",
         }),
       ],
+      _haaabit_json: expect.any(String),
     });
     expect(habitDetail.structuredContent).toMatchObject({
       item: {
@@ -213,6 +214,41 @@ describe("stdio read integration", () => {
         },
       },
     });
+    const habitsListJson = JSON.parse((habitsList.structuredContent as { _haaabit_json: string })._haaabit_json) as {
+      items: Array<{ name: string; targetValue: number; unit: string | null }>;
+    };
+    const habitDetailJson = JSON.parse((habitDetail.structuredContent as { _haaabit_json: string })._haaabit_json) as {
+      item: {
+        habit: {
+          targetValue: number;
+          unit: string | null;
+        };
+      };
+    };
+    const todaySummaryJson = JSON.parse((todaySummary.structuredContent as { _haaabit_json: string })._haaabit_json) as {
+      today: {
+        pendingItems: Array<{ progress: { unit: string | null; targetValue: number | null } }>;
+      };
+    };
+
+    expect(habitsList.content?.[1]).toEqual({
+      type: "text",
+      text: JSON.stringify(habitsListJson),
+    });
+    expect(habitDetail.content?.[1]).toEqual({
+      type: "text",
+      text: JSON.stringify(habitDetailJson),
+    });
+    expect(todaySummary.content?.[1]).toEqual({
+      type: "text",
+      text: JSON.stringify(todaySummaryJson),
+    });
+    expect(habitsListJson.items[0]?.unit).toBe("blocks");
+    expect(habitsListJson.items[0]?.targetValue).toBe(4);
+    expect(habitDetailJson.item.habit.unit).toBe("blocks");
+    expect(habitDetailJson.item.habit.targetValue).toBe(4);
+    expect(todaySummaryJson.today.pendingItems[0]?.progress.unit).toBe("blocks");
+    expect(todaySummaryJson.today.pendingItems[0]?.progress.targetValue).toBe(4);
     expect(JSON.stringify(habitsList.content)).toContain("default active filter");
     expect(JSON.stringify(todaySummary.content)).toContain("today");
     expect(JSON.stringify(statsOverview.content)).toContain("active habits");

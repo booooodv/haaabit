@@ -12,13 +12,13 @@ export function createMutationToolResult(toolName: string, payload: unknown, sum
   return createSuccessToolResult(toolName, payload, summary);
 }
 
-function createSuccessToolResult(toolName: string, payload: unknown, summary: string): CallToolResult {
-  const structuredContent = adaptToolResult(toolName, payload);
-
-  if (!isRecord(structuredContent)) {
-    throw new Error(`Expected object structuredContent for tool ${toolName}`);
-  }
-
+export function buildMachineReadableToolResult(
+  summary: string,
+  structuredContent: Record<string, unknown>,
+  options: {
+    isError?: boolean;
+  } = {},
+): CallToolResult {
   const serializedContent = serializeStructuredContent(structuredContent);
 
   return {
@@ -32,11 +32,22 @@ function createSuccessToolResult(toolName: string, payload: unknown, summary: st
         text: serializedContent,
       },
     ],
+    ...(options.isError ? { isError: true } : {}),
     structuredContent: {
       ...structuredContent,
       [MACHINE_JSON_FIELD]: serializedContent,
     },
   };
+}
+
+function createSuccessToolResult(toolName: string, payload: unknown, summary: string): CallToolResult {
+  const structuredContent = adaptToolResult(toolName, payload);
+
+  if (!isRecord(structuredContent)) {
+    throw new Error(`Expected object structuredContent for tool ${toolName}`);
+  }
+
+  return buildMachineReadableToolResult(summary, structuredContent);
 }
 
 export function formatNameList(names: string[], limit = 5) {
@@ -51,7 +62,7 @@ export function formatNameList(names: string[], limit = 5) {
 }
 
 function serializeStructuredContent(value: Record<string, unknown>) {
-  return JSON.stringify(value, null, 2);
+  return JSON.stringify(value);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

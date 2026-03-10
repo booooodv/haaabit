@@ -7,6 +7,9 @@ describe("createReadToolResult", () => {
     const result = createReadToolResult("habits_list", {
       items: [{ id: "habit_1" }],
     }, "2 active habits");
+    const machineJson = JSON.stringify({
+      items: [{ id: "habit_1" }],
+    });
 
     expect(result.content).toEqual([
       {
@@ -15,16 +18,12 @@ describe("createReadToolResult", () => {
       },
       {
         type: "text",
-        text: JSON.stringify({
-          items: [{ id: "habit_1" }],
-        }, null, 2),
+        text: machineJson,
       },
     ]);
     expect(result.structuredContent).toEqual({
       items: [{ id: "habit_1" }],
-      _haaabit_json: JSON.stringify({
-        items: [{ id: "habit_1" }],
-      }, null, 2),
+      _haaabit_json: machineJson,
     });
   });
 
@@ -48,13 +47,13 @@ describe("createReadToolResult", () => {
       today: { date: "2026-03-09" },
       _haaabit_json: JSON.stringify({
         today: { date: "2026-03-09" },
-      }, null, 2),
+      }),
     });
     expect(statsResult.structuredContent).toEqual({
       stats: { date: "2026-03-09" },
       _haaabit_json: JSON.stringify({
         stats: { date: "2026-03-09" },
-      }, null, 2),
+      }),
     });
   });
 
@@ -95,7 +94,7 @@ describe("createReadToolResult", () => {
     expect(parsed.item.stats.todayProgress.unit).toBe("pages");
     expect(result.content?.[1]).toEqual({
       type: "text",
-      text: JSON.stringify(parsed, null, 2),
+      text: JSON.stringify(parsed),
     });
   });
 });

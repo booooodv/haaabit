@@ -1,5 +1,7 @@
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 
+import { buildMachineReadableToolResult } from "../tools/read-results.js";
+
 type HaaabitApiErrorOptions = {
   status: number;
   code: string;
@@ -59,15 +61,9 @@ function createMcpErrorResult(input: {
   const message = sanitizeErrorMessage(input.message);
   const hint = input.hint ? sanitizeErrorMessage(input.hint) : undefined;
 
-  return {
-    content: [
-      {
-        type: "text",
-        text: message,
-      },
-    ],
-    isError: true,
-    structuredContent: {
+  return buildMachineReadableToolResult(
+    message,
+    {
       category: input.category,
       status: input.status,
       code: input.code,
@@ -75,7 +71,10 @@ function createMcpErrorResult(input: {
       ...(input.issues ? { issues: input.issues } : {}),
       ...(hint ? { hint } : {}),
     },
-  };
+    {
+      isError: true,
+    },
+  );
 }
 
 function categorizeError(error: HaaabitApiError) {

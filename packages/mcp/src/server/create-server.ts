@@ -1,4 +1,5 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { z } from "zod";
 import packageJson from "../../package.json";
 
 import { HaaabitApiClient } from "../client/api-client.js";
@@ -54,7 +55,7 @@ export function createServer(options: CreateServerOptions): HaaabitMcpServer {
       {
         description: tool.description,
         inputSchema: tool.inputSchema,
-        outputSchema: tool.outputSchema,
+        outputSchema: augmentOutputSchema(tool.outputSchema),
       },
       tool.handler,
     );
@@ -70,4 +71,14 @@ export function createServer(options: CreateServerOptions): HaaabitMcpServer {
     listRegisteredPrompts: () => guidance.prompts,
     listRegisteredResources: () => guidance.resources,
   };
+}
+
+function augmentOutputSchema(outputSchema: unknown) {
+  if (outputSchema instanceof z.ZodObject) {
+    return outputSchema.extend({
+      _haaabit_json: z.string().optional(),
+    });
+  }
+
+  return outputSchema;
 }
