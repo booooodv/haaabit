@@ -1,16 +1,19 @@
-import { access, readFile } from "node:fs/promises";
+import { access, mkdtemp, readFile, rm, symlink } from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { spawn } from "node:child_process";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { describe, expect, it, vi } from "vitest";
 
 import { formatBootstrapError, formatStartupError } from "../../src/config/env";
 import { createServer } from "../../src/server/create-server";
-import { resolveCliMode, runCli } from "../../src/cli";
+import { isDirectExecution, resolveCliMode, runCli } from "../../src/cli";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const packageRoot = path.resolve(__dirname, "../..");
 const packageJsonPath = path.resolve(__dirname, "../../package.json");
+const builtCliPath = path.resolve(packageRoot, "dist/cli.js");
 
 describe("mcp package bootstrap", () => {
   it("publishes a bin entry that matches the built artifact", async () => {
@@ -115,6 +118,48 @@ describe("mcp package bootstrap", () => {
       process.stdin,
       process.stdout,
     );
+  });
+
+  it("treats a symlinked npm bin shim path as direct execution", () => {
+    const shimPath = "/tmp/.bin/mcp";
+    const resolvePath = vi.fn((target: string) => target === shimPath ? builtCliPath : target);
+
+    expect(isDirectExecution(pathToFileURL(builtCliPath).href, ["node", shimPath], resolvePath)).toBe(true);
+    expect(resolvePath).toHaveBeenCalledWith(builtCliPath);
+    expect(resolvePath).toHaveBeenCalledWith(shimPath);
+  });
+
+  it("does not treat unrelated entrypoints as direct execution", () => {
+    const resolvePath = vi.fn((target: string) => target);
+
+    expect(isDirectExecution(pathToFileURL(builtCliPath).href, ["node", "/tmp/other-file.js"], resolvePath)).toBe(false);
+  });
+
+  it("keeps the built CLI alive when launched through a symlinked bin path", async () => {
+    const tempDir = await mkdtemp(path.join(os.tmpdir(), "haaabit-mcp-bin-"));
+    const shimPath = path.join(tempDir, "mcp");
+    await symlink(builtCliPath, shimPath);
+
+    const child = spawn(process.execPath, [shimPath, "--timeout", "15000"], {
+      env: {
+        ...process.env,
+        HAAABIT_API_URL: "https://habit.example.com/api",
+        HAAABIT_API_TOKEN: "secret-token",
+      },
+      stdio: ["pipe", "pipe", "pipe"],
+    });
+
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 250));
+      expect(child.exitCode).toBeNull();
+    } finally {
+      child.kill();
+      await Promise.race([
+        new Promise((resolve) => child.once("exit", resolve)),
+        new Promise((resolve) => setTimeout(resolve, 1000)),
+      ]);
+      await rm(tempDir, { recursive: true, force: true });
+    }
   });
 
   it("formats startup and bootstrap errors without leaking token or password values", () => {

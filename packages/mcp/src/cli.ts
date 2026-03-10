@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
+import { realpathSync } from "node:fs";
 import { createInterface } from "node:readline/promises";
 import process from "node:process";
-import { pathToFileURL } from "node:url";
+import { fileURLToPath } from "node:url";
 
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 
@@ -46,6 +47,35 @@ async function connectServer(argv: string[], env: NodeJS.ProcessEnv) {
   const transport = new StdioServerTransport();
 
   await server.server.connect(transport);
+  await waitForStdioShutdown(process.stdin);
+}
+
+async function waitForStdioShutdown(stdin: NodeJS.ReadStream) {
+  stdin.resume();
+
+  await new Promise<void>((resolve, reject) => {
+    const cleanup = () => {
+      stdin.off("end", handleEnd);
+      stdin.off("close", handleClose);
+      stdin.off("error", handleError);
+    };
+    const handleEnd = () => {
+      cleanup();
+      resolve();
+    };
+    const handleClose = () => {
+      cleanup();
+      resolve();
+    };
+    const handleError = (error: Error) => {
+      cleanup();
+      reject(error);
+    };
+
+    stdin.once("end", handleEnd);
+    stdin.once("close", handleClose);
+    stdin.once("error", handleError);
+  });
 }
 
 async function runBootstrapTokenCommand(
@@ -95,6 +125,15 @@ async function promptForPassword(stdin: NodeJS.ReadStream, stdout: NodeJS.WriteS
   }
 }
 
+function normalizeExecutionPath(target: string) {
+  try {
+    const realpath = realpathSync.native ?? realpathSync;
+    return realpath(target);
+  } catch {
+    return target;
+  }
+}
+
 export async function main() {
   const args = process.argv.slice(2);
 
@@ -107,9 +146,21 @@ export async function main() {
   });
 }
 
-function isDirectExecution() {
-  const entrypoint = process.argv[1];
-  return Boolean(entrypoint) && import.meta.url === pathToFileURL(entrypoint).href;
+export function isDirectExecution(
+  importMetaUrl = import.meta.url,
+  argv: string[] = process.argv,
+  resolvePath: (target: string) => string = normalizeExecutionPath,
+) {
+  const entrypoint = argv[1];
+
+  if (!entrypoint) {
+    return false;
+  }
+
+  const modulePath = resolvePath(fileURLToPath(importMetaUrl));
+  const entrypointPath = resolvePath(entrypoint);
+
+  return modulePath === entrypointPath;
 }
 
 if (isDirectExecution()) {
