@@ -123,6 +123,8 @@ Recommended usage:
 
 If your agent platform supports repo-local Skills, Haaabit also ships [`.agents/skills/haaabit-mcp`](../../.agents/skills/haaabit-mcp/SKILL.md), which wraps the same workflow into a project-level Skill.
 
+For a broader explanation of when to connect MCP only, when Skill-aware agents should also load `$haaabit-mcp`, and how to explain this to robot operators, see [AI Agent Integration / AI 机器人接入](../../docs/ai-agent-integration.md).
+
 The `haaabit-mcp` Skill is documented as a bilingual trigger layer for Skill-aware agents. Typical requests include:
 
 - `What should I do today?` / `今天该做什么？`

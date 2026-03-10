@@ -119,7 +119,7 @@ Recommended AI integration strategy:
 2. If the host supports MCP prompts/resources, load `haaabit_assistant_workflow` or read `haaabit://guides/workflow` to teach safe sequencing.
 3. If the agent also supports project Skills, invoke `$haaabit-mcp` for the strongest today-first, read-before-write behavior, including bilingual trigger phrases like `今天还剩哪些习惯没做？`, `撤销刚才的打卡。`, or `How am I doing this week?`.
 
-See [`packages/mcp/README.md`](./packages/mcp/README.md) for setup examples, AI guidance details, and the full tool list.
+See [`packages/mcp/README.md`](./packages/mcp/README.md) for setup examples, AI guidance details, and the full tool list. For a host-by-host explanation of how robots should connect MCP and Skills, see [AI Agent Integration / AI 机器人接入](./docs/ai-agent-integration.md).
 
 ## Project Structure / 项目结构
 

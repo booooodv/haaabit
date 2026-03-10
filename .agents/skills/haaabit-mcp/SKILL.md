@@ -13,6 +13,7 @@ Use the connected Haaabit MCP tools like a habit assistant, not like a generic R
 - Default to read before write. Inspect state first unless the mutation target is already exact and unambiguous.
 - Treat route names as insufficient guidance on their own. Follow the workflow below even when the tool list is already visible.
 - If the MCP server exposes `haaabit_assistant_workflow` or `haaabit://guides/workflow`, use them as supporting context instead of inventing a new sequence.
+- Recommended activation order for Skill-aware agents: connect Haaabit MCP first, load MCP guidance when available, then invoke `$haaabit-mcp`.
 
 ## Trigger Examples
 
