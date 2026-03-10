@@ -1,0 +1,4 @@
+interface:
+  display_name: "Haaabit MCP"
+  short_description: "Use Haaabit MCP with safe today-first workflows."
+  default_prompt: "Use $haaabit-mcp to inspect or update today's habits through the connected Haaabit MCP server."

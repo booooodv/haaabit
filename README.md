@@ -109,8 +109,16 @@ Haaabit also ships a standalone MCP package for generic MCP clients:
 - Transport: local `stdio`
 - Auth model: existing `HAAABIT_API_URL` + personal API token
 - Tool surface: habits, today, and stats read/write coverage
+- Built-in AI guidance: actionable tool descriptions plus one workflow prompt and one read-only workflow resource for hosts that support MCP prompts/resources
+- Project skill: [`.agents/skills/haaabit-mcp`](./.agents/skills/haaabit-mcp/SKILL.md) for agents that support repo-local Skills
 
-See [`packages/mcp/README.md`](./packages/mcp/README.md) for setup examples and the full tool list.
+Recommended AI integration strategy:
+
+1. Connect the MCP server first so the host can call the real Haaabit tools.
+2. If the host supports MCP prompts/resources, load `haaabit_assistant_workflow` or read `haaabit://guides/workflow` to teach safe sequencing.
+3. If the agent also supports project Skills, invoke `$haaabit-mcp` for the strongest today-first, read-before-write behavior.
+
+See [`packages/mcp/README.md`](./packages/mcp/README.md) for setup examples, AI guidance details, and the full tool list.
 
 ## Project Structure / 项目结构
 
