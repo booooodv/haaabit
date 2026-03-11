@@ -30,10 +30,14 @@ describe("OpenClaw native docs", () => {
   });
 
   it("routes top-level OpenClaw guidance to the native plugin first", async () => {
+    const rootPackageJson = JSON.parse(await readRepoFile("package.json")) as {
+      scripts?: Record<string, string>;
+    };
     const readme = await readRepoFile("README.md");
     const integration = await readRepoFile("docs/ai-agent-integration.md");
     const checklist = await readRepoFile("docs/openclaw-validation-checklist.md");
     const troubleshooting = await readRepoFile("docs/openclaw-troubleshooting.md");
+    const migration = await readRepoFile("docs/openclaw-migration.md");
 
     expect(readme).toContain("packages/openclaw-plugin/examples/openclaw-plugin.jsonc");
     expect(readme).toContain("@haaabit/openclaw-plugin");
@@ -42,7 +46,13 @@ describe("OpenClaw native docs", () => {
     expect(integration).toContain("@haaabit/mcp");
     expect(checklist).toContain("packages/openclaw-plugin/examples/openclaw-plugin.jsonc");
     expect(checklist).toContain("native plugin");
+    expect(checklist).toContain("verification gate");
+    expect(checklist).toContain("openclaw-migration.md");
     expect(troubleshooting).toContain("packages/openclaw-plugin/examples/openclaw-plugin.jsonc");
     expect(troubleshooting).toContain("wrong_kind");
+    expect(troubleshooting).toContain("openclaw-migration.md");
+    expect(migration).toContain("What stays the same");
+    expect(migration).toContain("What changes");
+    expect(rootPackageJson.scripts?.["verify:openclaw"]).toContain("@haaabit/openclaw-plugin");
   });
 });

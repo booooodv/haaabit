@@ -45,14 +45,21 @@ Check that [`../packages/mcp/README.md`](../packages/mcp/README.md) still docume
 
 ## Automated Repository Checks
 
-Current in-repo quick/full gates still prove the generic MCP baseline:
+The repository now ships a native-plugin-first OpenClaw verification gate:
 
 ```bash
 pnpm verify:openclaw
 pnpm verify:openclaw:full
 ```
 
-At this phase, those commands are still MCP-centric. They do not yet replace real host validation for the native plugin loader.
+The quick/full gates now do two things together:
+
+- prove the native plugin manifest/bootstrap/env/registration/docs contract
+- keep targeted MCP/shared-runtime regressions so the native plugin does not drift from the reused Haaabit API seam
+
+The full gate also proves one real API-backed native read flow and one safe native mutation flow through the plugin boundary.
+
+They still do not replace real host validation for the actual OpenClaw UI/plugin loader.
 
 ## Real OpenClaw Host Checks
 
@@ -72,3 +79,5 @@ When closing verification, record which checks were:
 - automated in-repo via `pnpm verify:openclaw`
 - automated in-repo via `pnpm verify:openclaw:full`
 - external-host-only for native plugin loading and real OpenClaw execution
+
+For operator handoff, also reference [`./openclaw-migration.md`](./openclaw-migration.md).

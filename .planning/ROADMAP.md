@@ -119,8 +119,8 @@ Plans:
 
 Plans:
 
-- [ ] 29-01: Add verification for plugin manifest/runtime loading, env validation, and native tool registration/contract smoke coverage
-- [ ] 29-02: Run end-to-end read/write verification through the native plugin path and capture any migration notes needed from the previous OpenClaw setup
+- [x] 29-01: Add verification for plugin manifest/runtime loading, env validation, and native tool registration/contract smoke coverage
+- [x] 29-02: Run end-to-end read/write verification through the native plugin path and capture any migration notes needed from the previous OpenClaw setup
 
 **Details:**
 - Requirements: `VER-01`

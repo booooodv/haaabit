@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.7
 milestone_name: OpenClaw Native Plugin
 status: phase_in_progress
-stopped_at: Phase 29 planned; next step is execute Phase 29
-last_updated: "2026-03-11T21:33:00+08:00"
-last_activity: 2026-03-11 — Planned Phase 29 Verification Gate and Migration Confidence
+stopped_at: Phase 29 complete; next step is audit or complete milestone
+last_updated: "2026-03-11T22:09:00+08:00"
+last_activity: 2026-03-11 — Completed Phase 29 Verification Gate and Migration Confidence
 progress:
   total_phases: 4
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 11
-  completed_plans: 9
-  percent: 82
+  completed_plans: 11
+  percent: 100
 ---
 
 # Project State
@@ -21,17 +21,17 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-11)
 
 **Core value:** Let AI accurately understand what the user needs to do today and reliably complete habit check-ins on the user's behalf.
-**Current focus:** Phase 29 is planned; execution is next
+**Current focus:** Phase 29 is complete; milestone close-out is next
 
 ## Current Position
 
 Milestone: v1.7 OpenClaw Native Plugin
-Phase: 29 planned (Verification Gate and Migration Confidence)
-Plan: 29-01, 29-02 ready for execution
-Status: The repo now has an executable Phase 29 plan for native verification gates, real API-backed plugin integration evidence, and OpenClaw migration notes
-Last activity: 2026-03-11 — Planned Phase 29 Verification Gate and Migration Confidence
+Phase: 29 complete (Verification Gate and Migration Confidence)
+Plan: 29-01, 29-02 completed
+Status: The repo now has native repository verification, real API-backed plugin integration evidence, and explicit OpenClaw migration notes; the milestone is ready for audit/close-out
+Last activity: 2026-03-11 — Completed Phase 29 Verification Gate and Migration Confidence
 
-Progress: [########--] 82%
+Progress: [##########] 100%
 
 ## Performance Metrics
 
@@ -44,7 +44,9 @@ Progress: [########--] 82%
 - The native plugin now returns one explicit success envelope and a machine-branchable error taxonomy for every Haaabit tool.
 - OpenClaw docs now route operators to the native plugin path first, while keeping the generic MCP story intact for other hosts.
 - Shared MCP/runtime semantics now distinguish timeout/network/wrong-kind/not-found cases sharply enough for agent rerouting.
-- The remaining milestone work is verification and migration confidence in a real OpenClaw host.
+- The repository now proves the native OpenClaw plugin path through manifest/bootstrap/env/registration/read/write verification.
+- Operators now have an explicit migration note from the older OpenClaw MCP bridge path to the native plugin path.
+- The remaining work for v1.7 is milestone audit/close-out plus external-host confirmation in a real OpenClaw session.
 
 ## Accumulated Context
 
@@ -63,15 +65,14 @@ Recent decisions affecting current work:
 
 ### Pending Todos
 
-- Execute Phase 29 to align repository verification with the native plugin path.
-- Add real API-backed native read/write verification without depending on MCP transport.
-- Capture final OpenClaw migration notes from the old bridge path to the native plugin setup.
+- Run milestone audit/close-out for v1.7.
+- Perform an external-host OpenClaw sanity pass if desired before archiving.
+- Decide whether to rename `verify:openclaw` scripts in a later milestone or keep the names as stable operator entrypoints.
 
 ### Blockers/Concerns
 
 - Real OpenClaw host loading still needs external manual confirmation because the repository test harness cannot boot the real host UI/plugin loader.
 - Real OpenClaw workspace UI and secret-store validation still require an external host environment outside this repository harness.
-- Repository verification scripts still lean MCP-centric until Phase 29 extends native-plugin-specific release gates.
 
 ### Quick Tasks Completed
 
@@ -88,5 +89,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-03-11T02:31:00+08:00
-Stopped at: Phase 29 planned; next step is execute Phase 29
+Stopped at: Phase 29 complete; next step is audit or complete milestone
 Resume file: .planning/ROADMAP.md

@@ -16,6 +16,7 @@ In this repository:
 
 - Native OpenClaw package: [`../packages/openclaw-plugin/README.md`](../packages/openclaw-plugin/README.md)
 - Canonical OpenClaw-native asset: [`../packages/openclaw-plugin/examples/openclaw-plugin.jsonc`](../packages/openclaw-plugin/examples/openclaw-plugin.jsonc)
+- Migration note: [`./openclaw-migration.md`](./openclaw-migration.md)
 - Generic MCP package: [`../packages/mcp/README.md`](../packages/mcp/README.md)
 - Workspace skill: [`../skills/haaabit-mcp/SKILL.md`](../skills/haaabit-mcp/SKILL.md)
 - Repo-local skill: [`../.agents/skills/haaabit-mcp/SKILL.md`](../.agents/skills/haaabit-mcp/SKILL.md)
@@ -54,6 +55,8 @@ Recommended connection order:
 5. Optionally add the Haaabit Skill if your OpenClaw build also supports workspace Skills.
 
 Do not route OpenClaw through `skill -> mcporter -> MCP -> API` as the primary path anymore.
+
+If you are switching an existing OpenClaw workspace off the older MCP bridge path, follow [`./openclaw-migration.md`](./openclaw-migration.md).
 
 ## Generic MCP Hosts
 

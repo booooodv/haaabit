@@ -27,7 +27,7 @@ Requirements for the v1.7 `OpenClaw Native Plugin` milestone.
 
 ### Verification and Operator Readiness
 
-- [ ] **VER-01**: v1.7 includes repository verification for plugin manifest/runtime loading, environment validation, and at least one read flow plus one safe mutation flow through the native OpenClaw plugin path.
+- [x] **VER-01**: v1.7 includes repository verification for plugin manifest/runtime loading, environment validation, and at least one read flow plus one safe mutation flow through the native OpenClaw plugin path.
 - [x] **VER-02**: Haaabit ships one canonical OpenClaw-native setup path and updates docs/examples so operators do not default back to the old `skill -> mcporter -> MCP -> API` route for this host.
 
 ## Future Requirements
@@ -67,7 +67,7 @@ Requirements for the v1.7 `OpenClaw Native Plugin` milestone.
 | RESP-01 | Phase 28 | Complete |
 | RESP-02 | Phase 28 | Complete |
 | RESP-03 | Phase 28 | Complete |
-| VER-01 | Phase 29 | Pending |
+| VER-01 | Phase 29 | Complete |
 | VER-02 | Phase 28 | Complete |
 
 **Coverage:**

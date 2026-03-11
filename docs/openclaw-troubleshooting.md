@@ -77,6 +77,7 @@ After success:
 
 - Native package guide: [`../packages/openclaw-plugin/README.md`](../packages/openclaw-plugin/README.md)
 - Native setup asset: [`../packages/openclaw-plugin/examples/openclaw-plugin.jsonc`](../packages/openclaw-plugin/examples/openclaw-plugin.jsonc)
+- Migration note: [`./openclaw-migration.md`](./openclaw-migration.md)
 - Cross-host integration guide: [`./ai-agent-integration.md`](./ai-agent-integration.md)
 - Validation checklist: [`./openclaw-validation-checklist.md`](./openclaw-validation-checklist.md)
 - Generic MCP package: [`../packages/mcp/README.md`](../packages/mcp/README.md)

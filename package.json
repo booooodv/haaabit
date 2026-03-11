@@ -11,8 +11,8 @@
     "test": "pnpm --filter @haaabit/api vitest run",
     "test:e2e": "pnpm --filter @haaabit/web playwright test",
     "prisma:validate": "prisma validate",
-    "verify:openclaw": "pnpm typecheck && pnpm --filter @haaabit/mcp exec vitest run test/config/env.test.ts test/server/cli.test.ts test/bootstrap/bootstrap-token.test.ts test/server/stdio-integration.test.ts test/server/stdio-read-integration.test.ts test/server/stdio-mutation-integration.test.ts test/docs/openclaw-smoke.test.ts test/docs/readme-smoke.test.ts",
-    "verify:openclaw:full": "pnpm typecheck && pnpm --filter @haaabit/mcp build && pnpm --filter @haaabit/mcp exec vitest run && pnpm --filter @haaabit/api exec vitest run test/auth/api-token-auth.test.ts"
+    "verify:openclaw": "pnpm typecheck && pnpm --filter @haaabit/openclaw-plugin exec vitest run test/plugin-manifest.test.ts test/plugin-bootstrap.test.ts test/plugin-startup-errors.test.ts test/config/env.test.ts test/tool-registration.test.ts test/docs-native-openclaw.test.ts test/verification-smoke.test.ts && pnpm --filter @haaabit/mcp exec vitest run test/client/errors.test.ts test/tools/mutation-errors.test.ts",
+    "verify:openclaw:full": "pnpm typecheck && pnpm --filter @haaabit/openclaw-plugin build && pnpm --filter @haaabit/openclaw-plugin exec vitest run test/plugin-manifest.test.ts test/plugin-bootstrap.test.ts test/plugin-startup-errors.test.ts test/config/env.test.ts test/tool-registration.test.ts test/result-envelope.test.ts test/error-semantics.test.ts test/read-tools.test.ts test/mutation-tools.test.ts test/native-integration.test.ts test/docs-native-openclaw.test.ts test/verification-smoke.test.ts && pnpm --filter @haaabit/mcp exec vitest run test/client/api-client.test.ts test/client/errors.test.ts test/tools/habits-read.test.ts test/tools/habits-write.test.ts test/tools/today-stats-read.test.ts test/tools/today-write.test.ts test/tools/mutation-errors.test.ts && pnpm --filter @haaabit/api exec vitest run test/auth/api-token-auth.test.ts"
   },
   "devDependencies": {
     "@playwright/test": "^1.53.2",
