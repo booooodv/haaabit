@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.7
 milestone_name: OpenClaw Native Plugin
 status: phase_in_progress
-stopped_at: Phase 29 complete; next step is audit or complete milestone
-last_updated: "2026-03-11T22:09:00+08:00"
-last_activity: 2026-03-11 — Completed Phase 29 Verification Gate and Migration Confidence
+stopped_at: Milestone v1.7 audited; next step is complete milestone
+last_updated: "2026-03-11T22:20:00+08:00"
+last_activity: 2026-03-11 — Audited milestone v1.7 OpenClaw Native Plugin
 progress:
   total_phases: 4
   completed_phases: 4
@@ -21,15 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-11)
 
 **Core value:** Let AI accurately understand what the user needs to do today and reliably complete habit check-ins on the user's behalf.
-**Current focus:** Phase 29 is complete; milestone close-out is next
+**Current focus:** Milestone audit passed; close-out is next
 
 ## Current Position
 
 Milestone: v1.7 OpenClaw Native Plugin
-Phase: 29 complete (Verification Gate and Migration Confidence)
-Plan: 29-01, 29-02 completed
-Status: The repo now has native repository verification, real API-backed plugin integration evidence, and explicit OpenClaw migration notes; the milestone is ready for audit/close-out
-Last activity: 2026-03-11 — Completed Phase 29 Verification Gate and Migration Confidence
+Phase: milestone audit complete
+Plan: all v1.7 plans completed and audited
+Status: The repo now has a passing v1.7 milestone audit with all 11 requirements satisfied; milestone completion/archival is the next operation
+Last activity: 2026-03-11 — Audited milestone v1.7 OpenClaw Native Plugin
 
 Progress: [##########] 100%
 
@@ -65,9 +65,9 @@ Recent decisions affecting current work:
 
 ### Pending Todos
 
-- Run milestone audit/close-out for v1.7.
-- Perform an external-host OpenClaw sanity pass if desired before archiving.
-- Decide whether to rename `verify:openclaw` scripts in a later milestone or keep the names as stable operator entrypoints.
+- Complete/archive milestone v1.7.
+- Perform an external-host OpenClaw sanity pass if desired before archival.
+- Carry forward non-blocking host/UI confirmation and script naming choices only if a later milestone needs them.
 
 ### Blockers/Concerns
 
@@ -89,5 +89,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-03-11T02:31:00+08:00
-Stopped at: Phase 29 complete; next step is audit or complete milestone
+Stopped at: Milestone v1.7 audited; next step is complete milestone
 Resume file: .planning/ROADMAP.md
