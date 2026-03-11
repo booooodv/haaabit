@@ -1,17 +1,17 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.7
-milestone_name: OpenClaw Native Plugin
-status: phase_in_progress
-stopped_at: Milestone v1.7 audited; next step is complete milestone
-last_updated: "2026-03-11T22:20:00+08:00"
-last_activity: 2026-03-11 — Audited milestone v1.7 OpenClaw Native Plugin
+milestone: none
+milestone_name: none
+status: awaiting_next_milestone
+stopped_at: Milestone v1.7 archived; next step is start a new milestone
+last_updated: "2026-03-11T22:40:00+08:00"
+last_activity: 2026-03-11 — Archived milestone v1.7 OpenClaw Native Plugin
 progress:
-  total_phases: 4
-  completed_phases: 4
-  total_plans: 11
-  completed_plans: 11
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -21,17 +21,17 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-11)
 
 **Core value:** Let AI accurately understand what the user needs to do today and reliably complete habit check-ins on the user's behalf.
-**Current focus:** Milestone audit passed; close-out is next
+**Current focus:** v1.7 archived; waiting for next milestone definition
 
 ## Current Position
 
-Milestone: v1.7 OpenClaw Native Plugin
-Phase: milestone audit complete
-Plan: all v1.7 plans completed and audited
-Status: The repo now has a passing v1.7 milestone audit with all 11 requirements satisfied; milestone completion/archival is the next operation
-Last activity: 2026-03-11 — Audited milestone v1.7 OpenClaw Native Plugin
+Milestone: none active
+Phase: between milestones
+Plan: start the next milestone with `$gsd-new-milestone`
+Status: v1.7 OpenClaw Native Plugin has been archived, tagged, and moved into milestone history; the repo is ready for the next requirements definition cycle
+Last activity: 2026-03-11 — Archived milestone v1.7 OpenClaw Native Plugin
 
-Progress: [##########] 100%
+Progress: [----------] 0%
 
 ## Performance Metrics
 
@@ -46,7 +46,7 @@ Progress: [##########] 100%
 - Shared MCP/runtime semantics now distinguish timeout/network/wrong-kind/not-found cases sharply enough for agent rerouting.
 - The repository now proves the native OpenClaw plugin path through manifest/bootstrap/env/registration/read/write verification.
 - Operators now have an explicit migration note from the older OpenClaw MCP bridge path to the native plugin path.
-- The remaining work for v1.7 is milestone audit/close-out plus external-host confirmation in a real OpenClaw session.
+- The next planning decision is whether to deepen generic MCP distribution, add another host-native integration, or return to product-surface expansion.
 
 ## Accumulated Context
 
@@ -62,17 +62,18 @@ Recent decisions affecting current work:
 - Verification now ships as explicit `pnpm verify:openclaw` / `pnpm verify:openclaw:full` scripts plus `docs/openclaw-validation-checklist.md`, with real OpenClaw UI steps recorded as external-host-only.
 - v1.7 will replace the OpenClaw MCP bridge with a native plugin package instead of wrapping MCP again inside a new layer.
 - The plugin milestone must reuse shared API client/contracts/auth primitives rather than clone Haaabit domain logic into host-specific code.
+- v1.7 is now archived with a passing milestone audit and local release tag `v1.7`.
 
 ### Pending Todos
 
-- Complete/archive milestone v1.7.
-- Perform an external-host OpenClaw sanity pass if desired before archival.
-- Carry forward non-blocking host/UI confirmation and script naming choices only if a later milestone needs them.
+- Define the next milestone with `$gsd-new-milestone`.
+- Perform an external-host OpenClaw sanity pass only if a later host-facing milestone needs that evidence.
+- Carry forward generic MCP transport/registry ideas and product-expansion backlog into the next requirements set if selected.
 
 ### Blockers/Concerns
 
-- Real OpenClaw host loading still needs external manual confirmation because the repository test harness cannot boot the real host UI/plugin loader.
-- Real OpenClaw workspace UI and secret-store validation still require an external host environment outside this repository harness.
+- No blocking repository-side milestone work is open.
+- Real OpenClaw host loading and secret-store validation still require an external host environment if you want non-repo confirmation later.
 
 ### Quick Tasks Completed
 
@@ -89,5 +90,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-03-11T02:31:00+08:00
-Stopped at: Milestone v1.7 audited; next step is complete milestone
+Stopped at: Milestone v1.7 archived; next step is start a new milestone
 Resume file: .planning/ROADMAP.md
