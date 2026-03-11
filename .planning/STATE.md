@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.7
 milestone_name: OpenClaw Native Plugin
 status: phase_in_progress
-stopped_at: Phase 26 complete; next step is plan or execute Phase 27
-last_updated: "2026-03-11T20:09:20+08:00"
-last_activity: 2026-03-11 — Completed Phase 26 Native Plugin Contract and Package Scaffold
+stopped_at: Phase 27 planned; next step is execute Phase 27
+last_updated: "2026-03-11T20:10:00+08:00"
+last_activity: 2026-03-11 — Planned Phase 27 Shared API Adapter and Native Tool Catalog
 progress:
   total_phases: 4
   completed_phases: 1
@@ -21,15 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-11)
 
 **Core value:** Let AI accurately understand what the user needs to do today and reliably complete habit check-ins on the user's behalf.
-**Current focus:** Phase 26 is complete; Phase 27 is next
+**Current focus:** Phase 27 is planned; execution is next
 
 ## Current Position
 
 Milestone: v1.7 OpenClaw Native Plugin
-Phase: 26 complete (Native Plugin Contract and Package Scaffold)
-Plan: 27-01 pending planning/execution
-Status: The repo now ships a native OpenClaw plugin package scaffold, native tool registration shell, and strict startup diagnostics
-Last activity: 2026-03-11 — Completed Phase 26 Native Plugin Contract and Package Scaffold
+Phase: 27 planned (Shared API Adapter and Native Tool Catalog)
+Plan: 27-01, 27-02, 27-03 ready for execution
+Status: The repo now has an executable Phase 27 plan for shared runtime extraction plus native read/write handler implementation on the OpenClaw plugin path
+Last activity: 2026-03-11 — Planned Phase 27 Shared API Adapter and Native Tool Catalog
 
 Progress: [###-------] 27%
 
@@ -63,15 +63,15 @@ Recent decisions affecting current work:
 
 ### Pending Todos
 
-- Plan and execute Phase 27 to replace the current `PHASE_27_PENDING` placeholders with direct Haaabit API handlers.
-- Confirm during Phase 27 how shared API client/error code should be extracted or exported for reuse by `packages/openclaw-plugin`.
+- Execute Phase 27 to replace the current `PHASE_27_PENDING` placeholders with direct Haaabit API handlers.
+- Confirm during execution whether the cleanest shared seam is extraction or exposure/re-export from existing `packages/mcp` modules.
 - Preserve the old OpenClaw MCP path as historical/generic-host guidance while moving this host to the native plugin default.
 
 ### Blockers/Concerns
 
 - Real OpenClaw host loading still needs external manual confirmation because the repository test harness cannot boot the real host UI/plugin loader.
 - Real OpenClaw workspace UI and secret-store validation still require an external host environment outside this repository harness.
-- Shared client/error code may need a small refactor so the plugin can reuse it cleanly without pulling in MCP-only types.
+- Shared client/error code still needs careful extraction so OpenClaw-native code can reuse it without importing MCP-only serializers.
 
 ### Quick Tasks Completed
 
@@ -88,5 +88,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-03-11T02:31:00+08:00
-Stopped at: Phase 26 complete; next step is plan or execute Phase 27
+Stopped at: Phase 27 planned; next step is execute Phase 27
 Resume file: .planning/ROADMAP.md
