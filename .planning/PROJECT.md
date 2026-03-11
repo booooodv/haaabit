@@ -14,21 +14,27 @@ Let AI accurately understand what the user needs to do today and reliably comple
 - **Delivered surfaces:** web product, bearer-authenticated REST API, bilingual docs/UI, self-host deployment stack, publishable `@haaabit/mcp`, and OpenClaw-ready operator guidance
 - **Current MCP baseline:** local `stdio` transport, generic-client-ready package docs, full habits/today/stats read+write tool coverage, centralized MCP-facing error semantics, and release-gated build/test/API parity
 - **Current interoperability baseline:** Haaabit now ships a workspace-visible `skills/haaabit-mcp/SKILL.md`, a canonical `packages/mcp/examples/openclaw.jsonc`, aligned repo/package docs, a dedicated troubleshooting guide, and an explicit OpenClaw validation checklist
+- **Current OpenClaw gap:** OpenClaw still reaches Haaabit tools through the chain `skill -> mcporter/runner -> MCP -> API`, which adds transport indirection for the host that most needs native tool availability
 - **Current auth baseline:** steady-state MCP auth remains `HAAABIT_API_URL` plus personal API token, and `bootstrap-token` is the supported one-shot handoff for operators who start from account credentials
 - **Current verification baseline:** `pnpm verify:openclaw` and `pnpm verify:openclaw:full` now serve as the reusable release gate for OpenClaw plus generic MCP-client regressions
 - **Current stack:** Next.js 16, Fastify, Better Auth, Prisma with SQLite/libsql, Vitest, Playwright, Docker Compose, Caddy, and the MCP SDK
 - **Accepted tech debt:** v1.6 archived with non-blocking process debt (missing standalone `22-VERIFICATION.md` through `25-VERIFICATION.md`, `wave_0_complete: false` in the v1.6 validation docs, and real OpenClaw UI/secret-store validation still marked external-host-only); older accepted archive debt from v1.2/v1.3/v1.4 remains historical context only
 
-## Next Milestone Goals
+## Current Milestone: v1.7 OpenClaw Native Plugin
 
-No next milestone is defined yet.
+**Goal:** Replace the current OpenClaw `skill -> mcporter -> MCP -> API` path with a native OpenClaw plugin package that calls the shipped Haaabit API directly.
 
-Use `$gsd-new-milestone` to choose the next direction. Likely candidates from the current backlog:
+**Target features:**
+- Ship `packages/openclaw-plugin` as the native OpenClaw integration package and expose the existing Haaabit habits/today/stats tool surface without MCP forwarding
+- Reuse the existing Haaabit API client, contracts/types, and bearer-token auth semantics instead of duplicating business logic or schema definitions
+- Keep plugin runtime config to `HAAABIT_API_URL` and `HAAABIT_API_TOKEN`, with fail-fast diagnostics for missing config, network failures, not-found targets, and wrong-kind mutations
+- Return structured JSON envelopes that agents can consume directly, rather than surfacing raw HTTP responses
+- Publish one canonical OpenClaw-native setup and verification path for fresh sessions, while keeping generic MCP support as a separate integration story
 
-- Remote Streamable HTTP transport and deployment packaging for Haaabit MCP
-- MCP Registry metadata and publication polish for the package distribution story
-- Additional host-ready integration bundles beyond OpenClaw once the canonical host contract is stable
-- Broader product capability work such as notifications, dark theme parity, or keyboard-first productivity
+**Active requirements:**
+- Native OpenClaw tools should be directly callable in a new session without a separate MCP bridge
+- Plugin implementation must stay thin and reuse the shipped API/auth/contracts stack
+- Errors and success payloads must stay structured and agent-readable
 
 ## Key Decisions
 
@@ -45,6 +51,8 @@ Use `$gsd-new-milestone` to choose the next direction. Likely candidates from th
 | OpenClaw compatibility ships as a workspace-visible skill plus a paired MCP runtime contract | Operators need one canonical path that explains guidance, runtime, and secret injection together | ✓ Good |
 | Steady-state MCP auth remains token-oriented, with account credentials handled only through explicit bootstrap handoff | This resolves setup friction without turning passwords into the runtime auth model | ✓ Good |
 | Verification ships as explicit scripts plus a checklist, with external-host-only steps called out honestly | Milestone close needs reproducible in-repo evidence without pretending to emulate the full host UI | ✓ Good |
+| v1.7 should replace the OpenClaw MCP bridge with a native plugin package while preserving the shipped API contract | OpenClaw is the host where extra transport indirection hurts most, but the domain logic already exists in the API layer | — Pending |
+| OpenClaw plugin work should reuse the existing API client/contracts/error semantics instead of forking OpenClaw-only domain code | The transport is changing; the business rules and payload contracts should stay single-sourced | — Pending |
 
 ## Historical Context
 
@@ -77,4 +85,4 @@ Use `$gsd-new-milestone` to choose the next direction. Likely candidates from th
 </details>
 
 ---
-*Last updated: 2026-03-11 after completing and archiving v1.6 OpenClaw Compatibility*
+*Last updated: 2026-03-11 after defining v1.7 OpenClaw Native Plugin*

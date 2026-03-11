@@ -1,17 +1,17 @@
 ---
 gsd_state_version: 1.0
-milestone: none
-milestone_name: none
-status: milestone_completed
-stopped_at: Quick task 7 complete; next step is define the next milestone
-last_updated: "2026-03-11T02:31:00+08:00"
-last_activity: 2026-03-11 — Completed quick task 7: 统一 @haaabit/mcp 工具返回格式，让客户端稳定读取人话摘要 + 完整机器可读 JSON
+milestone: v1.7
+milestone_name: OpenClaw Native Plugin
+status: roadmap_defined
+stopped_at: Milestone v1.7 defined; next step is plan Phase 26
+last_updated: "2026-03-11T19:03:15+08:00"
+last_activity: 2026-03-11 — Defined milestone v1.7 OpenClaw Native Plugin requirements and roadmap
 progress:
   total_phases: 4
-  completed_phases: 4
+  completed_phases: 0
   total_plans: 11
-  completed_plans: 11
-  percent: 100
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -21,17 +21,17 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-11)
 
 **Core value:** Let AI accurately understand what the user needs to do today and reliably complete habit check-ins on the user's behalf.
-**Current focus:** Define the next milestone
+**Current focus:** Milestone v1.7 definition complete; Phase 26 planning is next
 
 ## Current Position
 
-Milestone: none active
-Phase: v1.6 archived
-Plan: all v1.6 plans complete
-Status: The v1.6 OpenClaw Compatibility milestone is archived; the workspace is ready for a fresh milestone definition
-Last activity: 2026-03-11 — Completed quick task 7: 统一 @haaabit/mcp 工具返回格式，让客户端稳定读取人话摘要 + 完整机器可读 JSON
+Milestone: v1.7 OpenClaw Native Plugin
+Phase: Not started (requirements and roadmap defined)
+Plan: Ready to start Phase 26
+Status: The next milestone is defined around a native OpenClaw plugin that calls the shipped Haaabit API directly without MCP forwarding
+Last activity: 2026-03-11 — Defined milestone v1.7 OpenClaw Native Plugin requirements and roadmap
 
-Progress: [##########] 100%
+Progress: [----------] 0%
 
 ## Performance Metrics
 
@@ -44,7 +44,7 @@ Progress: [##########] 100%
 - The codebase now ships a canonical OpenClaw integration path instead of relying on repo-local Skill discovery alone.
 - MCP startup/auth flows now guide operators toward the supported token model and `bootstrap-token` handoff when needed.
 - Repo/package docs now explain host guidance, MCP runtime config, and troubleshooting in one operator-facing story.
-- The milestone is archived with accepted process debt, so the next planning cycle can focus on new scope rather than reopening v1.6 delivery.
+- The next milestone pivots from OpenClaw MCP bridging toward a native plugin path while preserving the shipped API/auth/contracts baseline.
 
 ## Accumulated Context
 
@@ -58,18 +58,20 @@ Recent decisions affecting current work:
 - OpenClaw compatibility now ships as a workspace-visible skill plus a paired MCP runtime contract instead of treating skill visibility as tool connectivity.
 - Steady-state MCP auth remains token-oriented; account credentials are only used by the explicit one-shot `bootstrap-token` handoff.
 - Verification now ships as explicit `pnpm verify:openclaw` / `pnpm verify:openclaw:full` scripts plus `docs/openclaw-validation-checklist.md`, with real OpenClaw UI steps recorded as external-host-only.
+- v1.7 will replace the OpenClaw MCP bridge with a native plugin package instead of wrapping MCP again inside a new layer.
+- The plugin milestone must reuse shared API client/contracts/auth primitives rather than clone Haaabit domain logic into host-specific code.
 
 ### Pending Todos
 
-- Run `$gsd-new-milestone` to define the next milestone and create a fresh `.planning/REQUIREMENTS.md`.
-- Decide whether the next milestone should focus on MCP transport/publishing follow-through, more host bundles, or product capabilities outside MCP.
-- If needed, separately backfill v1.6 process artifacts (`22-VERIFICATION.md` through `25-VERIFICATION.md`) without reopening the shipped milestone scope.
+- Run `$gsd-plan-phase 26` to break down the native plugin contract and package scaffold.
+- Confirm how shared API client/error code should be extracted or exported for reuse by `packages/openclaw-plugin`.
+- Preserve the old OpenClaw MCP path as historical/generic-host guidance while moving this host to the native plugin default.
 
 ### Blockers/Concerns
 
-- Remote Streamable HTTP transport and MCP Registry metadata remain intentionally deferred beyond the archived local-host path.
+- OpenClaw-native packaging and manifest details must be implemented against the real host plugin contract rather than assumed from the old MCP path.
 - Real OpenClaw workspace UI and secret-store validation still require an external host environment outside this repository harness.
-- Future host integrations should build on the now-verified token/runtime baseline instead of reopening v1.6 auth or docs scope.
+- Shared client/error code may need a small refactor so the plugin can reuse it cleanly without pulling in MCP-only types.
 
 ### Quick Tasks Completed
 
@@ -86,5 +88,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-03-11T02:31:00+08:00
-Stopped at: Quick task 7 complete; next step is start a new milestone
+Stopped at: Milestone v1.7 defined; next step is plan Phase 26
 Resume file: .planning/ROADMAP.md
