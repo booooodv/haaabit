@@ -1,9 +1,9 @@
 ---
 phase: 26
 slug: 26-native-plugin-contract-and-package-scaffold
-status: draft
+status: passed
 nyquist_compliant: true
-wave_0_complete: false
+wave_0_complete: true
 created: 2026-03-11
 ---
 
@@ -38,12 +38,12 @@ created: 2026-03-11
 
 | Task ID | Plan | Wave | Requirement | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|-----------|-------------------|-------------|--------|
-| 26-01-01 | 26-01 | 1 | OCP-03 | contract | `pnpm --filter @haaabit/openclaw-plugin exec vitest run test/plugin-manifest.test.ts test/plugin-bootstrap.test.ts` | ❌ W0 | ⬜ pending |
-| 26-01-02 | 26-01 | 1 | OCP-01, OCP-03 | build/smoke | `pnpm --filter @haaabit/openclaw-plugin build && pnpm --filter @haaabit/openclaw-plugin exec vitest run test/plugin-manifest.test.ts test/plugin-bootstrap.test.ts` | ❌ W0 | ⬜ pending |
-| 26-02-01 | 26-02 | 2 | OCP-01 | catalog | `pnpm --filter @haaabit/openclaw-plugin exec vitest run test/tool-catalog.test.ts test/tool-registration.test.ts` | ❌ W0 | ⬜ pending |
-| 26-02-02 | 26-02 | 2 | OCP-01, OCP-03 | integration/smoke | `pnpm --filter @haaabit/openclaw-plugin exec vitest run test/plugin-bootstrap.test.ts test/tool-registration.test.ts` | ❌ W0 | ⬜ pending |
-| 26-03-01 | 26-03 | 3 | SHRD-02 | unit | `pnpm --filter @haaabit/openclaw-plugin exec vitest run test/config/env.test.ts` | ❌ W0 | ⬜ pending |
-| 26-03-02 | 26-03 | 3 | SHRD-02 | startup/error | `pnpm --filter @haaabit/openclaw-plugin exec vitest run test/config/env.test.ts test/plugin-startup-errors.test.ts` | ❌ W0 | ⬜ pending |
+| 26-01-01 | 26-01 | 1 | OCP-03 | contract | `pnpm --filter @haaabit/openclaw-plugin exec vitest run test/plugin-manifest.test.ts test/plugin-bootstrap.test.ts` | ✅ W0 | ✅ green |
+| 26-01-02 | 26-01 | 1 | OCP-01, OCP-03 | build/smoke | `pnpm --filter @haaabit/openclaw-plugin build && pnpm --filter @haaabit/openclaw-plugin exec vitest run test/plugin-manifest.test.ts test/plugin-bootstrap.test.ts` | ✅ W0 | ✅ green |
+| 26-02-01 | 26-02 | 2 | OCP-01 | catalog | `pnpm --filter @haaabit/openclaw-plugin exec vitest run test/tool-catalog.test.ts test/tool-registration.test.ts` | ✅ W0 | ✅ green |
+| 26-02-02 | 26-02 | 2 | OCP-01, OCP-03 | integration/smoke | `pnpm --filter @haaabit/openclaw-plugin exec vitest run test/plugin-bootstrap.test.ts test/tool-registration.test.ts` | ✅ W0 | ✅ green |
+| 26-03-01 | 26-03 | 3 | SHRD-02 | unit | `pnpm --filter @haaabit/openclaw-plugin exec vitest run test/config/env.test.ts` | ✅ W0 | ✅ green |
+| 26-03-02 | 26-03 | 3 | SHRD-02 | startup/error | `pnpm --filter @haaabit/openclaw-plugin exec vitest run test/config/env.test.ts test/plugin-startup-errors.test.ts` | ✅ W0 | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -51,11 +51,11 @@ created: 2026-03-11
 
 ## Wave 0 Requirements
 
-- [ ] `packages/openclaw-plugin/package.json` — workspace package metadata
-- [ ] `packages/openclaw-plugin/openclaw.plugin.json` — native plugin manifest
-- [ ] `packages/openclaw-plugin/vitest.config.ts` — package-local test config
-- [ ] `packages/openclaw-plugin/tsup.config.ts` — package-local build config
-- [ ] `packages/openclaw-plugin/test/` — baseline contract/config smoke tests
+- [x] `packages/openclaw-plugin/package.json` — workspace package metadata
+- [x] `packages/openclaw-plugin/openclaw.plugin.json` — native plugin manifest
+- [x] `packages/openclaw-plugin/vitest.config.ts` — package-local test config
+- [x] `packages/openclaw-plugin/tsup.config.ts` — package-local build config
+- [x] `packages/openclaw-plugin/test/` — baseline contract/config smoke tests
 
 ---
 
@@ -76,4 +76,4 @@ created: 2026-03-11
 - [x] Feedback latency < 150s
 - [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** passed on 2026-03-11 after `pnpm typecheck`, `@haaabit/openclaw-plugin` build/tests, and the targeted `@haaabit/mcp` regression suite all ran green.

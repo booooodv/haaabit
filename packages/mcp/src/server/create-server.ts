@@ -1,4 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { AnySchema, ZodRawShapeCompat } from "@modelcontextprotocol/sdk/server/zod-compat.js";
+import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 import packageJson from "../../package.json";
 
@@ -25,9 +27,9 @@ export type HaaabitMcpServer = {
     method: "GET" | "POST" | "PATCH";
     path: string;
     description: string;
-    inputSchema?: unknown;
-    outputSchema: unknown;
-    handler: (input: unknown) => Promise<unknown>;
+    inputSchema?: AnySchema | ZodRawShapeCompat;
+    outputSchema: AnySchema | ZodRawShapeCompat;
+    handler: (input: unknown) => Promise<CallToolResult>;
   }>;
   listRegisteredPrompts: () => GuidancePromptDefinition[];
   listRegisteredResources: () => GuidanceResourceDefinition[];
@@ -73,7 +75,7 @@ export function createServer(options: CreateServerOptions): HaaabitMcpServer {
   };
 }
 
-function augmentOutputSchema(outputSchema: unknown) {
+function augmentOutputSchema(outputSchema: AnySchema | ZodRawShapeCompat | undefined) {
   if (outputSchema instanceof z.ZodObject) {
     return outputSchema.extend({
       _haaabit_json: z.string().optional(),

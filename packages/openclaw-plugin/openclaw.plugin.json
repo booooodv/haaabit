@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "id": "haaabit",
+  "name": "Haaabit",
+  "description": "Native OpenClaw tools for Haaabit habits, today, and stats.",
+  "runtime": "node",
+  "entry": "./dist/index.js"
+}

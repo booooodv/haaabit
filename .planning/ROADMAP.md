@@ -41,7 +41,7 @@
 
 ### v1.7 OpenClaw Native Plugin
 
-**Status:** Planned
+**Status:** In progress
 **Phases:** 26-29
 **Total Plans:** 11
 
@@ -59,9 +59,9 @@ v1.7 replaces the current OpenClaw `skill -> mcporter -> MCP -> API` chain with 
 
 Plans:
 
-- [ ] 26-01: Confirm the OpenClaw plugin manifest/runtime contract, package entrypoints, and workspace integration points for a native tool package
-- [ ] 26-02: Add `packages/openclaw-plugin` with build/package scaffolding plus the manifest and bootstrap entrypoints OpenClaw expects
-- [ ] 26-03: Implement plugin startup config and fail-fast env validation around `HAAABIT_API_URL` and `HAAABIT_API_TOKEN` without routing through MCP config loaders
+- [x] 26-01: Confirm the OpenClaw plugin manifest/runtime contract, package entrypoints, and workspace integration points for a native tool package
+- [x] 26-02: Add `packages/openclaw-plugin` with build/package scaffolding plus the manifest and bootstrap entrypoints OpenClaw expects
+- [x] 26-03: Implement plugin startup config and fail-fast env validation around `HAAABIT_API_URL` and `HAAABIT_API_TOKEN` without routing through MCP config loaders
 
 **Details:**
 - Requirements: `OCP-01`, `OCP-03`, `SHRD-02`

@@ -230,16 +230,19 @@ describe("stdio read integration", () => {
         pendingItems: Array<{ progress: { unit: string | null; targetValue: number | null } }>;
       };
     };
+    const habitsListContent = (habitsList.content ?? []) as Array<unknown>;
+    const habitDetailContent = (habitDetail.content ?? []) as Array<unknown>;
+    const todaySummaryContent = (todaySummary.content ?? []) as Array<unknown>;
 
-    expect(habitsList.content?.[1]).toEqual({
+    expect(habitsListContent[1]).toEqual({
       type: "text",
       text: JSON.stringify(habitsListJson),
     });
-    expect(habitDetail.content?.[1]).toEqual({
+    expect(habitDetailContent[1]).toEqual({
       type: "text",
       text: JSON.stringify(habitDetailJson),
     });
-    expect(todaySummary.content?.[1]).toEqual({
+    expect(todaySummaryContent[1]).toEqual({
       type: "text",
       text: JSON.stringify(todaySummaryJson),
     });
