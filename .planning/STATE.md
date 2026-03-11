@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.7
 milestone_name: OpenClaw Native Plugin
 status: roadmap_defined
-stopped_at: Milestone v1.7 defined; next step is plan Phase 26
-last_updated: "2026-03-11T19:03:15+08:00"
-last_activity: 2026-03-11 — Defined milestone v1.7 OpenClaw Native Plugin requirements and roadmap
+stopped_at: Phase 26 planned; next step is execute Phase 26
+last_updated: "2026-03-11T19:18:00+08:00"
+last_activity: 2026-03-11 — Planned Phase 26 Native Plugin Contract and Package Scaffold
 progress:
   total_phases: 4
   completed_phases: 0
@@ -21,15 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-11)
 
 **Core value:** Let AI accurately understand what the user needs to do today and reliably complete habit check-ins on the user's behalf.
-**Current focus:** Milestone v1.7 definition complete; Phase 26 planning is next
+**Current focus:** Phase 26 is planned; execution is next
 
 ## Current Position
 
 Milestone: v1.7 OpenClaw Native Plugin
-Phase: Not started (requirements and roadmap defined)
-Plan: Ready to start Phase 26
-Status: The next milestone is defined around a native OpenClaw plugin that calls the shipped Haaabit API directly without MCP forwarding
-Last activity: 2026-03-11 — Defined milestone v1.7 OpenClaw Native Plugin requirements and roadmap
+Phase: 26 planned (Native Plugin Contract and Package Scaffold)
+Plan: 26-01, 26-02, 26-03 ready for execution
+Status: The native OpenClaw plugin milestone now has executable plans for package scaffold, native catalog registration, and startup diagnostics
+Last activity: 2026-03-11 — Planned Phase 26 Native Plugin Contract and Package Scaffold
 
 Progress: [----------] 0%
 
@@ -63,8 +63,8 @@ Recent decisions affecting current work:
 
 ### Pending Todos
 
-- Run `$gsd-plan-phase 26` to break down the native plugin contract and package scaffold.
-- Confirm how shared API client/error code should be extracted or exported for reuse by `packages/openclaw-plugin`.
+- Run `$gsd-execute-phase 26` to implement the native plugin contract and package scaffold.
+- Confirm during execution how shared API client/error code should be extracted or exported for reuse by `packages/openclaw-plugin`.
 - Preserve the old OpenClaw MCP path as historical/generic-host guidance while moving this host to the native plugin default.
 
 ### Blockers/Concerns
@@ -88,5 +88,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-03-11T02:31:00+08:00
-Stopped at: Milestone v1.7 defined; next step is plan Phase 26
+Stopped at: Phase 26 planned; next step is execute Phase 26
 Resume file: .planning/ROADMAP.md
