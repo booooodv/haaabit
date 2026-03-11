@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.7
 milestone_name: OpenClaw Native Plugin
 status: phase_in_progress
-stopped_at: Phase 27 planned; next step is execute Phase 27
-last_updated: "2026-03-11T20:10:00+08:00"
-last_activity: 2026-03-11 — Planned Phase 27 Shared API Adapter and Native Tool Catalog
+stopped_at: Phase 27 complete; next step is plan or execute Phase 28
+last_updated: "2026-03-11T20:55:30+08:00"
+last_activity: 2026-03-11 — Completed Phase 27 Shared API Adapter and Native Tool Catalog
 progress:
   total_phases: 4
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 11
-  completed_plans: 3
-  percent: 27
+  completed_plans: 6
+  percent: 55
 ---
 
 # Project State
@@ -21,17 +21,17 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-11)
 
 **Core value:** Let AI accurately understand what the user needs to do today and reliably complete habit check-ins on the user's behalf.
-**Current focus:** Phase 27 is planned; execution is next
+**Current focus:** Phase 27 is complete; Phase 28 is next
 
 ## Current Position
 
 Milestone: v1.7 OpenClaw Native Plugin
-Phase: 27 planned (Shared API Adapter and Native Tool Catalog)
-Plan: 27-01, 27-02, 27-03 ready for execution
-Status: The repo now has an executable Phase 27 plan for shared runtime extraction plus native read/write handler implementation on the OpenClaw plugin path
-Last activity: 2026-03-11 — Planned Phase 27 Shared API Adapter and Native Tool Catalog
+Phase: 27 complete (Shared API Adapter and Native Tool Catalog)
+Plan: 28-01 pending planning/execution
+Status: The native OpenClaw plugin now uses the shared Haaabit API runtime and exposes real habits/today/stats handlers instead of Phase 27 placeholders
+Last activity: 2026-03-11 — Completed Phase 27 Shared API Adapter and Native Tool Catalog
 
-Progress: [###-------] 27%
+Progress: [######----] 55%
 
 ## Performance Metrics
 
@@ -63,15 +63,15 @@ Recent decisions affecting current work:
 
 ### Pending Todos
 
-- Execute Phase 27 to replace the current `PHASE_27_PENDING` placeholders with direct Haaabit API handlers.
-- Confirm during execution whether the cleanest shared seam is extraction or exposure/re-export from existing `packages/mcp` modules.
+- Plan and execute Phase 28 to harden the native success/error envelope and OpenClaw-facing guidance.
+- Confirm during Phase 28 whether the current thin native result shape should stay `summary + data` or be normalized further for agent ergonomics.
 - Preserve the old OpenClaw MCP path as historical/generic-host guidance while moving this host to the native plugin default.
 
 ### Blockers/Concerns
 
 - Real OpenClaw host loading still needs external manual confirmation because the repository test harness cannot boot the real host UI/plugin loader.
 - Real OpenClaw workspace UI and secret-store validation still require an external host environment outside this repository harness.
-- Shared client/error code still needs careful extraction so OpenClaw-native code can reuse it without importing MCP-only serializers.
+- Native handler coverage is complete, but the final machine-facing success/error contract still needs Phase 28 hardening.
 
 ### Quick Tasks Completed
 
@@ -88,5 +88,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-03-11T02:31:00+08:00
-Stopped at: Phase 27 planned; next step is execute Phase 27
+Stopped at: Phase 27 complete; next step is plan or execute Phase 28
 Resume file: .planning/ROADMAP.md

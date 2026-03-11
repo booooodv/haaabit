@@ -1,50 +1,38 @@
-import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
-import type { z } from "zod";
-
 import type { HaaabitApiClient } from "../client/api-client.js";
 import { HaaabitApiError, createNotImplementedToolResult, toMcpErrorResult } from "../client/errors.js";
-import { createHabitsReadHandlers, createHabitsWriteHandlers, habitsTools } from "./habits.js";
-import { createStatsReadHandlers, statsTools } from "./stats.js";
-import { createTodayReadHandlers, createTodayWriteHandlers, todayTools } from "./today.js";
+import { EXPECTED_TOOL_NAMES, toolInventory } from "./catalog.js";
+import { createMutationToolResult, createReadToolResult } from "./read-results.js";
+import { createToolOperations } from "./runtime.js";
 
-export type ToolAdapter = "passthrough" | "summary_to_today" | "overview_to_stats" | "action_to_today";
-
-export type InventoryTool = {
-  name: string;
-  method: "GET" | "POST" | "PATCH";
-  path: string;
-  description: string;
-  inputSchema?: z.ZodTypeAny;
-  responseSchema: z.ZodTypeAny;
-  outputSchema: z.ZodTypeAny;
-  adapter: ToolAdapter;
-};
-
-export const toolInventory = [...habitsTools, ...todayTools, ...statsTools];
-
-export const EXPECTED_TOOL_NAMES = toolInventory.map((tool) => tool.name);
+export { EXPECTED_TOOL_NAMES, toolInventory } from "./catalog.js";
 
 export function createDiscoveryHandlers(options: { client: HaaabitApiClient }) {
-  const realHandlers: Record<string, (input: unknown) => Promise<CallToolResult>> = {
-    ...createHabitsReadHandlers(options.client),
-    ...createHabitsWriteHandlers(options.client),
-    ...createTodayReadHandlers(options.client),
-    ...createTodayWriteHandlers(options.client),
-    ...createStatsReadHandlers(options.client),
-  };
+  const operations = createToolOperations({
+    client: options.client,
+  });
 
   return toolInventory.map((tool) => ({
     ...tool,
-    handler: realHandlers[tool.name]
-      ? wrapToolHandler(tool.name, realHandlers[tool.name])
+    handler: operations[tool.name]
+      ? wrapToolHandler(tool.name, tool.method !== "GET", operations[tool.name])
       : async (_input: unknown) => createNotImplementedToolResult(tool.name),
   }));
 }
 
-function wrapToolHandler(toolName: string, handler: (input: unknown) => Promise<CallToolResult>) {
+function wrapToolHandler(
+  toolName: string,
+  isMutation: boolean,
+  handler: (input: unknown) => Promise<{
+    payload: unknown;
+    summary: string;
+  }>,
+) {
   return async (input: unknown) => {
     try {
-      return await handler(input);
+      const outcome = await handler(input);
+      return isMutation
+        ? createMutationToolResult(toolName, outcome.payload, outcome.summary)
+        : createReadToolResult(toolName, outcome.payload, outcome.summary);
     } catch (error) {
       if (error instanceof HaaabitApiError) {
         return toMcpErrorResult(error, {

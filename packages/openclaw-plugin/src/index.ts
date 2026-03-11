@@ -1,10 +1,12 @@
 import { parsePluginEnv } from "./config/env.js";
+import { createNativeHandlers } from "./native-handlers.js";
 import { formatStartupError, OpenClawPluginError } from "./errors.js";
 import { registerTools } from "./register-tools.js";
 import { createToolCatalog } from "./tool-catalog.js";
 import type { NativePluginConfig, OpenClawPluginApi, OpenClawToolHandler } from "./types.js";
 
 export { parsePluginEnv } from "./config/env.js";
+export { createNativeHandlers } from "./native-handlers.js";
 export { createToolCatalog, EXPECTED_TOOL_NAMES } from "./tool-catalog.js";
 export { formatStartupError, OpenClawPluginError, redactSecrets } from "./errors.js";
 export type { NativePluginConfig, NativeToolDefinition, OpenClawPluginApi, OpenClawToolHandler } from "./types.js";
@@ -13,16 +15,26 @@ export function activateHaaabitOpenClawPlugin(
   api: OpenClawPluginApi,
   options: {
     env?: NodeJS.ProcessEnv;
+    fetch?: typeof fetch;
     handlers?: Partial<Record<string, OpenClawToolHandler>>;
   } = {},
 ) {
   try {
     const config = parsePluginEnv(options.env ?? process.env);
     const catalog = createToolCatalog();
+    const nativeHandlers = createNativeHandlers(config, {
+      fetch: options.fetch,
+    });
+
+    for (const [toolName, handler] of Object.entries(options.handlers ?? {})) {
+      if (handler) {
+        nativeHandlers[toolName] = handler;
+      }
+    }
+
     const registeredTools = registerTools(api, {
       catalog,
-      config,
-      handlers: options.handlers,
+      handlers: nativeHandlers,
     });
 
     return {

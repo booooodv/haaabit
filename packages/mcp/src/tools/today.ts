@@ -3,8 +3,9 @@ import { todayActionResponseSchema, todayAffectedHabitSchema, todaySummaryRespon
 import { z } from "zod";
 
 import type { HaaabitApiClient } from "../client/api-client.js";
+import type { ToolOperation } from "./operation-types.js";
 import { createMutationToolResult, createReadToolResult, formatNameList } from "./read-results.js";
-import type { InventoryTool } from "./inventory.js";
+import type { InventoryTool } from "./catalog.js";
 
 export const todayTools: InventoryTool[] = [
   {
@@ -60,16 +61,53 @@ export const todayTools: InventoryTool[] = [
 ];
 
 export function createTodayReadHandlers(client: HaaabitApiClient) {
-  return {
-    today_get_summary: async () => {
-      const payload = todaySummaryResponseSchema.parse(await client.request("/today"));
+  const operations = createTodayReadOperations(client);
 
-      return createReadToolResult("today_get_summary", payload, summarizeToday(payload));
+  return {
+    today_get_summary: async (input: unknown) => {
+      const { payload, summary } = await operations.today_get_summary(input);
+
+      return createReadToolResult("today_get_summary", payload, summary);
     },
   };
 }
 
 export function createTodayWriteHandlers(client: HaaabitApiClient) {
+  const operations = createTodayWriteOperations(client);
+
+  return {
+    today_complete: async (input: unknown) => {
+      const { payload, summary } = await operations.today_complete(input);
+
+      return createMutationToolResult("today_complete", payload, summary);
+    },
+    today_set_total: async (input: unknown) => {
+      const { payload, summary } = await operations.today_set_total(input);
+
+      return createMutationToolResult("today_set_total", payload, summary);
+    },
+    today_undo: async (input: unknown) => {
+      const { payload, summary } = await operations.today_undo(input);
+
+      return createMutationToolResult("today_undo", payload, summary);
+    },
+  };
+}
+
+export function createTodayReadOperations(client: HaaabitApiClient): Record<string, ToolOperation> {
+  return {
+    today_get_summary: async () => {
+      const payload = todaySummaryResponseSchema.parse(await client.request("/today"));
+
+      return {
+        payload,
+        summary: summarizeToday(payload),
+      };
+    },
+  };
+}
+
+export function createTodayWriteOperations(client: HaaabitApiClient): Record<string, ToolOperation> {
   return {
     today_complete: async (input: unknown) => {
       const parsed = completeHabitInputSchema.parse(input);
@@ -83,7 +121,10 @@ export function createTodayWriteHandlers(client: HaaabitApiClient) {
         }),
       );
 
-      return createMutationToolResult("today_complete", payload, summarizeCompletedHabit(payload));
+      return {
+        payload,
+        summary: summarizeCompletedHabit(payload),
+      };
     },
     today_set_total: async (input: unknown) => {
       const parsed = setHabitTotalInputSchema.parse(input);
@@ -97,7 +138,10 @@ export function createTodayWriteHandlers(client: HaaabitApiClient) {
         }),
       );
 
-      return createMutationToolResult("today_set_total", payload, summarizeSetTotal(payload));
+      return {
+        payload,
+        summary: summarizeSetTotal(payload),
+      };
     },
     today_undo: async (input: unknown) => {
       const parsed = undoHabitInputSchema.parse(input);
@@ -111,7 +155,10 @@ export function createTodayWriteHandlers(client: HaaabitApiClient) {
         }),
       );
 
-      return createMutationToolResult("today_undo", payload, summarizeUndo(payload));
+      return {
+        payload,
+        summary: summarizeUndo(payload),
+      };
     },
   };
 }

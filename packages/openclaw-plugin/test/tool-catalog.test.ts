@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { EXPECTED_TOOL_NAMES, createToolCatalog } from "../src/tool-catalog";
-import { toolInventory } from "../../mcp/src/tools/inventory";
+import { toolInventory } from "../../mcp/src/tools/catalog";
 
 describe("createToolCatalog", () => {
   it("reuses the shipped Haaabit tool vocabulary", () => {

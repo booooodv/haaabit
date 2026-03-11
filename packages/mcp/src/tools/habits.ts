@@ -10,8 +10,9 @@ import {
 import { z } from "zod";
 
 import type { HaaabitApiClient } from "../client/api-client.js";
+import type { ToolOperation } from "./operation-types.js";
 import { createMutationToolResult, createReadToolResult, formatNameList } from "./read-results.js";
-import type { InventoryTool } from "./inventory.js";
+import type { InventoryTool } from "./catalog.js";
 
 export const editHabitToolInputSchema = z.object({
   habitId: habitPathParamsSchema.shape.habitId,
@@ -81,14 +82,60 @@ export const habitsTools: InventoryTool[] = [
 ];
 
 export function createHabitsReadHandlers(client: HaaabitApiClient) {
+  const operations = createHabitsReadOperations(client);
+
+  return {
+    habits_list: async (input: unknown) => {
+      const { payload, summary } = await operations.habits_list(input);
+
+      return createReadToolResult("habits_list", payload, summary);
+    },
+    habits_get_detail: async (input: unknown) => {
+      const { payload, summary } = await operations.habits_get_detail(input);
+
+      return createReadToolResult("habits_get_detail", payload, summary);
+    },
+  };
+}
+
+export function createHabitsWriteHandlers(client: HaaabitApiClient) {
+  const operations = createHabitsWriteOperations(client);
+
+  return {
+    habits_add: async (input: unknown) => {
+      const { payload, summary } = await operations.habits_add(input);
+
+      return createMutationToolResult("habits_add", payload, summary);
+    },
+    habits_edit: async (input: unknown) => {
+      const { payload, summary } = await operations.habits_edit(input);
+
+      return createMutationToolResult("habits_edit", payload, summary);
+    },
+    habits_archive: async (input: unknown) => {
+      const { payload, summary } = await operations.habits_archive(input);
+
+      return createMutationToolResult("habits_archive", payload, summary);
+    },
+    habits_restore: async (input: unknown) => {
+      const { payload, summary } = await operations.habits_restore(input);
+
+      return createMutationToolResult("habits_restore", payload, summary);
+    },
+  };
+}
+
+export function createHabitsReadOperations(client: HaaabitApiClient): Record<string, ToolOperation> {
   return {
     habits_list: async (input: unknown) => {
       const parsed = habitListFiltersSchema.parse(input ?? {});
       const payload = habitListResponseSchema.parse(await client.request(createHabitsListPath(parsed)));
       const usesDefaultActiveFilter = isDefaultActiveFilter(parsed);
-      const summary = summarizeHabitsList(payload, usesDefaultActiveFilter);
 
-      return createReadToolResult("habits_list", payload, summary);
+      return {
+        payload,
+        summary: summarizeHabitsList(payload, usesDefaultActiveFilter),
+      };
     },
     habits_get_detail: async (input: unknown) => {
       const parsed = habitPathParamsSchema.parse(input);
@@ -96,12 +143,15 @@ export function createHabitsReadHandlers(client: HaaabitApiClient) {
         await client.request(`/habits/${encodeURIComponent(parsed.habitId)}`),
       );
 
-      return createReadToolResult("habits_get_detail", payload, summarizeHabitDetail(payload));
+      return {
+        payload,
+        summary: summarizeHabitDetail(payload),
+      };
     },
   };
 }
 
-export function createHabitsWriteHandlers(client: HaaabitApiClient) {
+export function createHabitsWriteOperations(client: HaaabitApiClient): Record<string, ToolOperation> {
   return {
     habits_add: async (input: unknown) => {
       const parsed = createHabitInputSchema.parse(input);
@@ -115,7 +165,10 @@ export function createHabitsWriteHandlers(client: HaaabitApiClient) {
         }),
       );
 
-      return createMutationToolResult("habits_add", payload, summarizeCreatedHabit(payload.item));
+      return {
+        payload,
+        summary: summarizeCreatedHabit(payload.item),
+      };
     },
     habits_edit: async (input: unknown) => {
       const parsed = editHabitToolInputSchema.parse(input);
@@ -130,7 +183,10 @@ export function createHabitsWriteHandlers(client: HaaabitApiClient) {
         }),
       );
 
-      return createMutationToolResult("habits_edit", payload, summarizeEditedHabit(payload.item, patch));
+      return {
+        payload,
+        summary: summarizeEditedHabit(payload.item, patch),
+      };
     },
     habits_archive: async (input: unknown) => {
       const parsed = habitPathParamsSchema.parse(input);
@@ -140,7 +196,10 @@ export function createHabitsWriteHandlers(client: HaaabitApiClient) {
         }),
       );
 
-      return createMutationToolResult("habits_archive", payload, summarizeArchivedHabit(payload.item.name));
+      return {
+        payload,
+        summary: summarizeArchivedHabit(payload.item.name),
+      };
     },
     habits_restore: async (input: unknown) => {
       const parsed = habitPathParamsSchema.parse(input);
@@ -150,7 +209,10 @@ export function createHabitsWriteHandlers(client: HaaabitApiClient) {
         }),
       );
 
-      return createMutationToolResult("habits_restore", payload, summarizeRestoredHabit(payload.item.name));
+      return {
+        payload,
+        summary: summarizeRestoredHabit(payload.item.name),
+      };
     },
   };
 }

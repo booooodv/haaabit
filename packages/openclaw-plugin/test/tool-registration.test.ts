@@ -2,6 +2,15 @@ import { describe, expect, it, vi } from "vitest";
 
 import { activateHaaabitOpenClawPlugin } from "../src/index";
 
+function createJsonResponse(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: {
+      "content-type": "application/json",
+    },
+  });
+}
+
 describe("native tool registration", () => {
   it("registers descriptions and schemas for the Haaabit tool catalog", () => {
     const registerTool = vi.fn();
@@ -25,8 +34,13 @@ describe("native tool registration", () => {
     });
   });
 
-  it("uses explicit native placeholders until direct API handlers land", async () => {
+  it("uses shared-runtime-backed native handlers by default", async () => {
     const registerTool = vi.fn();
+    const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(
+      createJsonResponse({
+        items: [],
+      }),
+    );
 
     activateHaaabitOpenClawPlugin(
       {
@@ -37,6 +51,7 @@ describe("native tool registration", () => {
           HAAABIT_API_URL: "https://habit.example.com/api",
           HAAABIT_API_TOKEN: "secret-token",
         },
+        fetch: fetchImpl,
       },
     );
 
@@ -44,11 +59,18 @@ describe("native tool registration", () => {
     const handler = habitsList?.[2] as ((input: unknown) => Promise<Record<string, unknown>>) | undefined;
 
     await expect(handler?.({})).resolves.toMatchObject({
-      ok: false,
-      error: {
-        category: "not_implemented",
-        code: "PHASE_27_PENDING",
+      ok: true,
+      data: {
+        items: [],
       },
     });
+    expect(fetchImpl).toHaveBeenCalledWith(
+      "https://habit.example.com/api/habits?status=active",
+      expect.objectContaining({
+        headers: {
+          authorization: "Bearer secret-token",
+        },
+      }),
+    );
   });
 });

@@ -79,9 +79,9 @@ Plans:
 
 Plans:
 
-- [ ] 27-01: Extract or expose the reusable API client/contracts/error primitives needed by the plugin without duplicating domain logic
-- [ ] 27-02: Implement native OpenClaw read tools for habits, today summary, and stats overview on top of the shared API layer
-- [ ] 27-03: Implement native OpenClaw mutation tools for habit management and today actions with the same bearer-authenticated API semantics
+- [x] 27-01: Extract or expose the reusable API client/contracts/error primitives needed by the plugin without duplicating domain logic
+- [x] 27-02: Implement native OpenClaw read tools for habits, today summary, and stats overview on top of the shared API layer
+- [x] 27-03: Implement native OpenClaw mutation tools for habit management and today actions with the same bearer-authenticated API semantics
 
 **Details:**
 - Requirements: `OCP-02`, `SHRD-01`, `SHRD-03`

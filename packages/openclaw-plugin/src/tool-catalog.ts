@@ -1,4 +1,4 @@
-import { EXPECTED_TOOL_NAMES, toolInventory } from "../../mcp/src/tools/inventory.js";
+import { EXPECTED_TOOL_NAMES, toolInventory } from "../../mcp/src/tools/catalog.js";
 
 import type { NativeToolDefinition } from "./types.js";
 
