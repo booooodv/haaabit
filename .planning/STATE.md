@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.7
 milestone_name: OpenClaw Native Plugin
 status: phase_in_progress
-stopped_at: Phase 27 complete; next step is plan or execute Phase 28
-last_updated: "2026-03-11T20:55:30+08:00"
-last_activity: 2026-03-11 — Completed Phase 27 Shared API Adapter and Native Tool Catalog
+stopped_at: Phase 28 planned; next step is execute Phase 28
+last_updated: "2026-03-11T21:05:00+08:00"
+last_activity: 2026-03-11 — Planned Phase 28 Structured Results, Error Semantics, and OpenClaw-native Guidance
 progress:
   total_phases: 4
   completed_phases: 2
@@ -21,15 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-11)
 
 **Core value:** Let AI accurately understand what the user needs to do today and reliably complete habit check-ins on the user's behalf.
-**Current focus:** Phase 27 is complete; Phase 28 is next
+**Current focus:** Phase 28 is planned; execution is next
 
 ## Current Position
 
 Milestone: v1.7 OpenClaw Native Plugin
-Phase: 27 complete (Shared API Adapter and Native Tool Catalog)
-Plan: 28-01 pending planning/execution
-Status: The native OpenClaw plugin now uses the shared Haaabit API runtime and exposes real habits/today/stats handlers instead of Phase 27 placeholders
-Last activity: 2026-03-11 — Completed Phase 27 Shared API Adapter and Native Tool Catalog
+Phase: 28 planned (Structured Results, Error Semantics, and OpenClaw-native Guidance)
+Plan: 28-01, 28-02, 28-03 ready for execution
+Status: The repo now has an executable Phase 28 plan for native result-envelope hardening, explicit error semantics, and OpenClaw-native docs migration
+Last activity: 2026-03-11 — Planned Phase 28 Structured Results, Error Semantics, and OpenClaw-native Guidance
 
 Progress: [######----] 55%
 
@@ -63,15 +63,15 @@ Recent decisions affecting current work:
 
 ### Pending Todos
 
-- Plan and execute Phase 28 to harden the native success/error envelope and OpenClaw-facing guidance.
-- Confirm during Phase 28 whether the current thin native result shape should stay `summary + data` or be normalized further for agent ergonomics.
+- Execute Phase 28 to harden the native success/error envelope and OpenClaw-facing guidance.
+- Confirm during execution whether `summary` should remain top-level in the final success envelope or move into a more explicit metadata field.
 - Preserve the old OpenClaw MCP path as historical/generic-host guidance while moving this host to the native plugin default.
 
 ### Blockers/Concerns
 
 - Real OpenClaw host loading still needs external manual confirmation because the repository test harness cannot boot the real host UI/plugin loader.
 - Real OpenClaw workspace UI and secret-store validation still require an external host environment outside this repository harness.
-- Native handler coverage is complete, but the final machine-facing success/error contract still needs Phase 28 hardening.
+- Native handler coverage is complete, but the final machine-facing contract and native-first docs still need Phase 28 hardening before migration verification.
 
 ### Quick Tasks Completed
 
@@ -88,5 +88,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-03-11T02:31:00+08:00
-Stopped at: Phase 27 complete; next step is plan or execute Phase 28
+Stopped at: Phase 28 planned; next step is execute Phase 28
 Resume file: .planning/ROADMAP.md
