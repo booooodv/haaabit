@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.7
 milestone_name: OpenClaw Native Plugin
 status: phase_in_progress
-stopped_at: Phase 28 complete; next step is plan Phase 29
-last_updated: "2026-03-11T21:23:00+08:00"
-last_activity: 2026-03-11 — Completed Phase 28 Structured Results, Error Semantics, and OpenClaw-native Guidance
+stopped_at: Phase 29 planned; next step is execute Phase 29
+last_updated: "2026-03-11T21:33:00+08:00"
+last_activity: 2026-03-11 — Planned Phase 29 Verification Gate and Migration Confidence
 progress:
   total_phases: 4
   completed_phases: 3
@@ -21,15 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-11)
 
 **Core value:** Let AI accurately understand what the user needs to do today and reliably complete habit check-ins on the user's behalf.
-**Current focus:** Phase 28 is complete; Phase 29 planning is next
+**Current focus:** Phase 29 is planned; execution is next
 
 ## Current Position
 
 Milestone: v1.7 OpenClaw Native Plugin
-Phase: 28 complete (Structured Results, Error Semantics, and OpenClaw-native Guidance)
-Plan: 28-01, 28-02, 28-03 completed
-Status: The repo now ships a locked native success/error contract plus native-first OpenClaw docs; the remaining milestone work is Phase 29 verification and migration confidence
-Last activity: 2026-03-11 — Completed Phase 28 Structured Results, Error Semantics, and OpenClaw-native Guidance
+Phase: 29 planned (Verification Gate and Migration Confidence)
+Plan: 29-01, 29-02 ready for execution
+Status: The repo now has an executable Phase 29 plan for native verification gates, real API-backed plugin integration evidence, and OpenClaw migration notes
+Last activity: 2026-03-11 — Planned Phase 29 Verification Gate and Migration Confidence
 
 Progress: [########--] 82%
 
@@ -63,9 +63,9 @@ Recent decisions affecting current work:
 
 ### Pending Todos
 
-- Plan Phase 29 verification and migration confidence work.
-- Validate the native plugin in a real OpenClaw host/session outside the repo harness.
-- Decide whether the repository-level `verify:openclaw` scripts should be renamed or expanded once native plugin verification lands.
+- Execute Phase 29 to align repository verification with the native plugin path.
+- Add real API-backed native read/write verification without depending on MCP transport.
+- Capture final OpenClaw migration notes from the old bridge path to the native plugin setup.
 
 ### Blockers/Concerns
 
@@ -88,5 +88,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-03-11T02:31:00+08:00
-Stopped at: Phase 28 complete; next step is plan Phase 29
+Stopped at: Phase 29 planned; next step is execute Phase 29
 Resume file: .planning/ROADMAP.md
