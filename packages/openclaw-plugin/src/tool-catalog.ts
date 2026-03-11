@@ -1,6 +1,6 @@
 import { EXPECTED_TOOL_NAMES, toolInventory } from "../../mcp/src/tools/catalog.js";
 
-import type { NativeToolDefinition } from "./types.js";
+import { nativeSuccessEnvelopeSchema, type NativeToolDefinition } from "./types.js";
 
 export { EXPECTED_TOOL_NAMES };
 
@@ -9,6 +9,6 @@ export function createToolCatalog(): NativeToolDefinition[] {
     name: tool.name,
     description: tool.description,
     inputSchema: tool.inputSchema,
-    outputSchema: tool.outputSchema,
+    outputSchema: nativeSuccessEnvelopeSchema(tool.outputSchema),
   }));
 }

@@ -2,7 +2,7 @@
   "name": "@haaabit/openclaw-plugin",
   "version": "0.1.0",
   "private": true,
-  "description": "Native OpenClaw plugin scaffold for Haaabit habits, today, and stats tools.",
+  "description": "Native OpenClaw plugin for Haaabit habits, today, and stats tools with structured JSON results.",
   "license": "MIT",
   "type": "module",
   "engines": {
@@ -10,7 +10,9 @@
   },
   "files": [
     "dist",
-    "openclaw.plugin.json"
+    "openclaw.plugin.json",
+    "README.md",
+    "examples"
   ],
   "exports": {
     ".": "./dist/index.js"

@@ -39,6 +39,9 @@ export function toMcpErrorResult(
     message: payload.message,
     hint: payload.hint,
     issues: payload.issues,
+    retryable: payload.retryable,
+    resolution: payload.resolution,
+    suggestedTool: payload.suggestedTool,
   });
 }
 
@@ -58,6 +61,9 @@ function createMcpErrorResult(input: {
   message: string;
   hint?: string;
   issues?: unknown;
+  retryable?: boolean;
+  resolution?: string;
+  suggestedTool?: string;
 }): CallToolResult {
   const message = sanitizeErrorMessage(input.message);
   const hint = input.hint ? sanitizeErrorMessage(input.hint) : undefined;
@@ -71,6 +77,9 @@ function createMcpErrorResult(input: {
       message,
       ...(input.issues ? { issues: input.issues } : {}),
       ...(hint ? { hint } : {}),
+      ...(typeof input.retryable === "boolean" ? { retryable: input.retryable } : {}),
+      ...(input.resolution ? { resolution: input.resolution } : {}),
+      ...(input.suggestedTool ? { suggestedTool: input.suggestedTool } : {}),
     },
     {
       isError: true,

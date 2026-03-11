@@ -9,26 +9,26 @@ Requirements for the v1.7 `OpenClaw Native Plugin` milestone.
 
 ### Native OpenClaw Plugin Surface
 
-- [ ] **OCP-01**: OpenClaw can load one native Haaabit plugin package and see callable habits, today, and stats tools without requiring a separate MCP runner, bridge, or mcporter hop.
-- [ ] **OCP-02**: The native OpenClaw plugin exposes the same intent coverage as the shipped Haaabit tool surface so agents can still read today state, manage habits, and review stats through one consistent tool vocabulary.
-- [ ] **OCP-03**: Haaabit ships the plugin manifest and runtime entrypoints required for a fresh OpenClaw session to register the tools reliably.
+- [x] **OCP-01**: OpenClaw can load one native Haaabit plugin package and see callable habits, today, and stats tools without requiring a separate MCP runner, bridge, or mcporter hop.
+- [x] **OCP-02**: The native OpenClaw plugin exposes the same intent coverage as the shipped Haaabit tool surface so agents can still read today state, manage habits, and review stats through one consistent tool vocabulary.
+- [x] **OCP-03**: Haaabit ships the plugin manifest and runtime entrypoints required for a fresh OpenClaw session to register the tools reliably.
 
 ### Shared API Runtime and Auth Reuse
 
-- [ ] **SHRD-01**: The OpenClaw plugin reuses the existing Haaabit API client, shared contracts/types, and bearer-token auth semantics instead of copying business logic or schema definitions into a second OpenClaw-only implementation.
-- [ ] **SHRD-02**: The plugin reads `HAAABIT_API_URL` and `HAAABIT_API_TOKEN` from environment variables and fails fast with explicit startup errors when either value is missing, empty, or malformed for runtime use.
-- [ ] **SHRD-03**: The OpenClaw-native transport layer stays thin, with all habit/today/stats domain behavior still enforced by the shipped Haaabit API.
+- [x] **SHRD-01**: The OpenClaw plugin reuses the existing Haaabit API client, shared contracts/types, and bearer-token auth semantics instead of copying business logic or schema definitions into a second OpenClaw-only implementation.
+- [x] **SHRD-02**: The plugin reads `HAAABIT_API_URL` and `HAAABIT_API_TOKEN` from environment variables and fails fast with explicit startup errors when either value is missing, empty, or malformed for runtime use.
+- [x] **SHRD-03**: The OpenClaw-native transport layer stays thin, with all habit/today/stats domain behavior still enforced by the shipped Haaabit API.
 
 ### Structured Results and Failure Semantics
 
-- [ ] **RESP-01**: Every native plugin tool returns structured JSON intended for agent consumption rather than exposing raw HTTP response objects or transport-specific wrappers.
-- [ ] **RESP-02**: Network and upstream API failures return structured errors that clearly distinguish connectivity/timeouts from authenticated API rejections.
-- [ ] **RESP-03**: Missing habit targets and wrong-kind mutations return clear structured errors that tell the agent whether it needs a different `habitId` or a different tool.
+- [x] **RESP-01**: Every native plugin tool returns structured JSON intended for agent consumption rather than exposing raw HTTP response objects or transport-specific wrappers.
+- [x] **RESP-02**: Network and upstream API failures return structured errors that clearly distinguish connectivity/timeouts from authenticated API rejections.
+- [x] **RESP-03**: Missing habit targets and wrong-kind mutations return clear structured errors that tell the agent whether it needs a different `habitId` or a different tool.
 
 ### Verification and Operator Readiness
 
 - [ ] **VER-01**: v1.7 includes repository verification for plugin manifest/runtime loading, environment validation, and at least one read flow plus one safe mutation flow through the native OpenClaw plugin path.
-- [ ] **VER-02**: Haaabit ships one canonical OpenClaw-native setup path and updates docs/examples so operators do not default back to the old `skill -> mcporter -> MCP -> API` route for this host.
+- [x] **VER-02**: Haaabit ships one canonical OpenClaw-native setup path and updates docs/examples so operators do not default back to the old `skill -> mcporter -> MCP -> API` route for this host.
 
 ## Future Requirements
 
@@ -58,17 +58,17 @@ Requirements for the v1.7 `OpenClaw Native Plugin` milestone.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| OCP-01 | Phase 26 | Pending |
-| OCP-02 | Phase 27 | Pending |
-| OCP-03 | Phase 26 | Pending |
-| SHRD-01 | Phase 27 | Pending |
-| SHRD-02 | Phase 26 | Pending |
-| SHRD-03 | Phase 27 | Pending |
-| RESP-01 | Phase 28 | Pending |
-| RESP-02 | Phase 28 | Pending |
-| RESP-03 | Phase 28 | Pending |
+| OCP-01 | Phase 26 | Complete |
+| OCP-02 | Phase 27 | Complete |
+| OCP-03 | Phase 26 | Complete |
+| SHRD-01 | Phase 27 | Complete |
+| SHRD-02 | Phase 26 | Complete |
+| SHRD-03 | Phase 27 | Complete |
+| RESP-01 | Phase 28 | Complete |
+| RESP-02 | Phase 28 | Complete |
+| RESP-03 | Phase 28 | Complete |
 | VER-01 | Phase 29 | Pending |
-| VER-02 | Phase 28 | Pending |
+| VER-02 | Phase 28 | Complete |
 
 **Coverage:**
 - v1.7 requirements: 11 total
@@ -77,4 +77,4 @@ Requirements for the v1.7 `OpenClaw Native Plugin` milestone.
 
 ---
 *Requirements defined: 2026-03-11*
-*Last updated: 2026-03-11 after initial definition of v1.7 OpenClaw Native Plugin*
+*Last updated: 2026-03-11 after Phase 28 completed native result/error hardening and docs migration*

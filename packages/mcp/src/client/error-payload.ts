@@ -5,13 +5,37 @@ type HaaabitApiErrorLike = {
   details?: unknown;
 };
 
+export type HaaabitToolErrorCategory =
+  | "timeout"
+  | "network"
+  | "auth"
+  | "validation"
+  | "wrong_kind"
+  | "not_found"
+  | "conflict"
+  | "upstream"
+  | "unknown";
+
+export type HaaabitToolErrorResolution =
+  | "retry"
+  | "reauth"
+  | "fix_input"
+  | "switch_tool"
+  | "check_habit_id"
+  | "restore_habit"
+  | "wait_until_due"
+  | "inspect_upstream";
+
 export type HaaabitToolErrorPayload = {
-  category: string;
+  category: HaaabitToolErrorCategory;
   status: number;
   code: string;
   message: string;
   hint?: string;
   issues?: unknown;
+  retryable?: boolean;
+  resolution?: HaaabitToolErrorResolution;
+  suggestedTool?: string;
 };
 
 export function toToolErrorPayload(
@@ -20,15 +44,21 @@ export function toToolErrorPayload(
     toolName?: string;
   } = {},
 ): HaaabitToolErrorPayload {
-  const message = deriveMessage(error, context.toolName);
+  const category = categorizeError(error, context.toolName);
+  const hint = deriveHint(error, category, context.toolName);
+  const resolution = deriveResolution(error, category);
+  const suggestedTool = deriveSuggestedTool(error, category, context.toolName);
 
   return {
-    category: categorizeError(error),
+    category,
     status: error.status,
     code: error.code,
-    message,
+    message: deriveMessage(error, context.toolName),
     ...(extractIssues(error.details) ? { issues: extractIssues(error.details) } : {}),
-    ...(deriveHint(error, context.toolName) ? { hint: deriveHint(error, context.toolName) } : {}),
+    ...(hint ? { hint } : {}),
+    ...(typeof isRetryable(category) === "boolean" ? { retryable: isRetryable(category) } : {}),
+    ...(resolution ? { resolution } : {}),
+    ...(suggestedTool ? { suggestedTool } : {}),
   };
 }
 
@@ -38,13 +68,21 @@ export function sanitizeErrorMessage(message: string) {
     .replace(/token\s+\S+/gi, "token [REDACTED]");
 }
 
-function categorizeError(error: HaaabitApiErrorLike) {
+function categorizeError(error: HaaabitApiErrorLike, toolName: string | undefined): HaaabitToolErrorCategory {
+  if (error.code === "TIMEOUT" || error.status === 504) {
+    return "timeout";
+  }
+
+  if (error.code === "NETWORK_ERROR") {
+    return "network";
+  }
+
   if (error.status === 401 || error.status === 403) {
     return "auth";
   }
 
-  if (error.status === 400) {
-    return "validation";
+  if (isWrongKindError(error, toolName)) {
+    return "wrong_kind";
   }
 
   if (error.status === 404) {
@@ -53,6 +91,14 @@ function categorizeError(error: HaaabitApiErrorLike) {
 
   if (error.status === 409) {
     return "conflict";
+  }
+
+  if (error.status >= 500) {
+    return "upstream";
+  }
+
+  if (error.status === 400) {
+    return "validation";
   }
 
   return "unknown";
@@ -84,36 +130,126 @@ function deriveMessage(error: HaaabitApiErrorLike, toolName: string | undefined)
   return message;
 }
 
-function deriveHint(error: HaaabitApiErrorLike, toolName: string | undefined) {
+function deriveHint(
+  error: HaaabitApiErrorLike,
+  category: HaaabitToolErrorCategory,
+  toolName: string | undefined,
+) {
   const message = sanitizeErrorMessage(error.message);
 
-  if (error.status === 401 || error.status === 403) {
-    return "Check HAAABIT_API_TOKEN and confirm the token can access this Haaabit API.";
+  switch (category) {
+    case "timeout":
+      return "Retry the same tool call. If this keeps timing out, check API latency or raise the timeout budget.";
+    case "network":
+      return "Retry after confirming HAAABIT_API_URL is reachable from this runtime.";
+    case "auth":
+      return "Check HAAABIT_API_TOKEN and confirm the token can access this Haaabit API.";
+    case "not_found":
+      return toolName?.startsWith("habits_") || toolName?.startsWith("today_")
+        ? "Check the habitId and make sure that habit still exists for this user."
+        : "Check the requested resource identifier and try again.";
+    case "wrong_kind":
+      if (message === "Only boolean habits can use complete" && toolName === "today_complete") {
+        return "Use today_set_total for quantity habits.";
+      }
+
+      if (message === "Only quantified habits can use set-total" && toolName === "today_set_total") {
+        return "Use today_complete for boolean habits.";
+      }
+      return "Use the today tool that matches the habit kind.";
+    case "conflict":
+      if (error.code === "HABIT_INACTIVE" || message === "Archived habits are read-only until restored") {
+        return "Archived habits are read-only; run habits_restore before mutating this habit.";
+      }
+      return undefined;
+    case "validation":
+      if (message === "This habit is not actionable in today right now") {
+        return "Try again on a scheduled day or after the habit start date.";
+      }
+      return undefined;
+    case "upstream":
+      return "The Haaabit API failed upstream. Retry once, then inspect server health if it persists.";
+    default:
+      return undefined;
+  }
+}
+
+function deriveResolution(
+  error: HaaabitApiErrorLike,
+  category: HaaabitToolErrorCategory,
+): HaaabitToolErrorResolution | undefined {
+  const message = sanitizeErrorMessage(error.message);
+
+  switch (category) {
+    case "timeout":
+    case "network":
+      return "retry";
+    case "auth":
+      return "reauth";
+    case "wrong_kind":
+      return "switch_tool";
+    case "not_found":
+      return "check_habit_id";
+    case "conflict":
+      if (error.code === "HABIT_INACTIVE" || message === "Archived habits are read-only until restored") {
+        return "restore_habit";
+      }
+      return undefined;
+    case "validation":
+      if (message === "This habit is not actionable in today right now") {
+        return "wait_until_due";
+      }
+      return "fix_input";
+    case "upstream":
+      return "inspect_upstream";
+    default:
+      return undefined;
+  }
+}
+
+function deriveSuggestedTool(
+  error: HaaabitApiErrorLike,
+  category: HaaabitToolErrorCategory,
+  toolName: string | undefined,
+) {
+  const message = sanitizeErrorMessage(error.message);
+
+  if (category === "wrong_kind") {
+    if (message === "Only boolean habits can use complete" && toolName === "today_complete") {
+      return "today_set_total";
+    }
+
+    if (message === "Only quantified habits can use set-total" && toolName === "today_set_total") {
+      return "today_complete";
+    }
   }
 
-  if (error.status === 404) {
-    return toolName?.startsWith("habits_") || toolName?.startsWith("today_")
-      ? "Check the habitId and make sure that habit still exists for this user."
-      : "Check the requested resource identifier and try again.";
-  }
-
-  if (error.code === "HABIT_INACTIVE" || message === "Archived habits are read-only until restored") {
-    return "Archived habits are read-only; run habits_restore before mutating this habit.";
-  }
-
-  if (message === "Only boolean habits can use complete" && toolName === "today_complete") {
-    return "Use today_set_total for quantity habits.";
-  }
-
-  if (message === "Only quantified habits can use set-total" && toolName === "today_set_total") {
-    return "Use today_complete for boolean habits.";
-  }
-
-  if (message === "This habit is not actionable in today right now") {
-    return "Try again on a scheduled day or after the habit start date.";
+  if (category === "conflict" && (error.code === "HABIT_INACTIVE" || message === "Archived habits are read-only until restored")) {
+    return "habits_restore";
   }
 
   return undefined;
+}
+
+function isRetryable(category: HaaabitToolErrorCategory) {
+  if (category === "timeout" || category === "network" || category === "upstream") {
+    return true;
+  }
+
+  if (category === "auth" || category === "validation" || category === "wrong_kind" || category === "not_found" || category === "conflict") {
+    return false;
+  }
+
+  return undefined;
+}
+
+function isWrongKindError(error: HaaabitApiErrorLike, toolName: string | undefined) {
+  const message = sanitizeErrorMessage(error.message);
+
+  return (
+    (message === "Only boolean habits can use complete" && toolName === "today_complete") ||
+    (message === "Only quantified habits can use set-total" && toolName === "today_set_total")
+  );
 }
 
 function extractIssues(details: unknown) {

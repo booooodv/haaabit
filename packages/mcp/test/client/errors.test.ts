@@ -33,6 +33,36 @@ describe("toMcpErrorResult", () => {
     });
   });
 
+  it("distinguishes timeout and network failures from auth failures", () => {
+    const timeoutError = new HaaabitApiError({
+      status: 504,
+      code: "TIMEOUT",
+      message: "Request timed out after 10000ms",
+    });
+    const networkError = new HaaabitApiError({
+      status: 503,
+      code: "NETWORK_ERROR",
+      message: "fetch failed",
+    });
+
+    expect(toMcpErrorResult(timeoutError)).toMatchObject({
+      isError: true,
+      structuredContent: {
+        category: "timeout",
+        resolution: "retry",
+        retryable: true,
+      },
+    });
+    expect(toMcpErrorResult(networkError)).toMatchObject({
+      isError: true,
+      structuredContent: {
+        category: "network",
+        resolution: "retry",
+        retryable: true,
+      },
+    });
+  });
+
   it("never includes raw token values in the returned content", () => {
     const error = new HaaabitApiError({
       status: 403,

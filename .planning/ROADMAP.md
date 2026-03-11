@@ -99,9 +99,9 @@ Plans:
 
 Plans:
 
-- [ ] 28-01: Define and implement the native plugin success envelope so every tool returns machine-readable JSON rather than raw HTTP output
-- [ ] 28-02: Map network failures, not-found targets, and wrong-kind mutations into clear structured plugin errors with actionable hints
-- [ ] 28-03: Update OpenClaw-facing docs/examples so operators follow the native plugin path first and understand how it differs from the generic MCP story
+- [x] 28-01: Define and implement the native plugin success envelope so every tool returns machine-readable JSON rather than raw HTTP output
+- [x] 28-02: Map network failures, not-found targets, and wrong-kind mutations into clear structured plugin errors with actionable hints
+- [x] 28-03: Update OpenClaw-facing docs/examples so operators follow the native plugin path first and understand how it differs from the generic MCP story
 
 **Details:**
 - Requirements: `RESP-01`, `RESP-02`, `RESP-03`, `VER-02`

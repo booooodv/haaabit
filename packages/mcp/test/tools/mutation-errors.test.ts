@@ -44,6 +44,8 @@ describe("mutation error semantics", () => {
             targetValue: ["Quantified habits require targetValue"],
           },
         },
+        retryable: false,
+        resolution: "fix_input",
       }),
     });
   });
@@ -62,8 +64,10 @@ describe("mutation error semantics", () => {
 
     expect(result).toMatchObject({
       structuredContent: {
-        category: "validation",
+        category: "wrong_kind",
         hint: expect.stringContaining("today_complete"),
+        resolution: "switch_tool",
+        suggestedTool: "today_complete",
       },
     });
     expect(result.content?.[0]).toEqual({
@@ -130,12 +134,14 @@ describe("mutation error semantics", () => {
       structuredContent: {
         category: "auth",
         hint: expect.any(String),
+        resolution: "reauth",
       },
     });
     expect(toMcpErrorResult(notFoundError, { toolName: "habits_edit" })).toMatchObject({
       structuredContent: {
         category: "not_found",
         hint: expect.stringContaining("habitId"),
+        resolution: "check_habit_id",
       },
     });
   });

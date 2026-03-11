@@ -90,29 +90,26 @@ Inspector reference: [modelcontextprotocol.io/docs/tools/inspector](https://mode
 
 ## OpenClaw Setup
 
-OpenClaw-style hosts need two aligned layers:
+OpenClaw should now prefer the native plugin path:
 
-1. Workspace skill discovery through [`../../skills/haaabit-mcp/SKILL.md`](../../skills/haaabit-mcp/SKILL.md)
-2. A paired MCP-capable runner or bridge that actually launches `npx -y @haaabit/mcp`
+- Native package: [`../openclaw-plugin/README.md`](../openclaw-plugin/README.md)
+- Canonical native asset: [`../openclaw-plugin/examples/openclaw-plugin.jsonc`](../openclaw-plugin/examples/openclaw-plugin.jsonc)
 
-Use [`examples/openclaw.jsonc`](./examples/openclaw.jsonc) as the canonical setup asset. It keeps the same runtime contract as every other Haaabit MCP client:
+Keep `@haaabit/mcp` for these cases:
 
-- `HAAABIT_API_URL`
-- `HAAABIT_API_TOKEN`
-- `haaabit_assistant_workflow`
-- `haaabit://guides/workflow`
-
-That example intentionally shows both the workspace skill settings and the paired MCP server block because OpenClaw can see the skill without automatically providing the Haaabit tool transport.
+- generic MCP hosts
+- `bootstrap-token`
+- hosts that still require MCP transport and cannot load the native OpenClaw plugin
 
 ### Connection order
 
 1. Decide whether you already have a personal API token.
 2. If not, run the one-shot `bootstrap-token` helper first so runtime still uses `HAAABIT_API_TOKEN` instead of an account password.
-3. Store the returned token in the same secret slot that your workspace skill and MCP runner will both read.
-4. Apply [`examples/openclaw.jsonc`](./examples/openclaw.jsonc) with your real URL, token secret reference, and optional prompt/resource wiring.
-5. Start the paired MCP runner and then load the workspace skill.
+3. Store the returned token in the secret slot that your host will later expose as `HAAABIT_API_TOKEN`.
+4. For OpenClaw, switch to the native plugin asset instead of the older MCP example.
+5. Use this MCP package only when the host still needs MCP transport.
 
-The steady-state runtime never accepts account passwords in place of `HAAABIT_API_TOKEN`. `bootstrap-token` is a one-shot setup helper for turning account credentials into the personal token that OpenClaw should inject afterward.
+The steady-state runtime never accepts account passwords in place of `HAAABIT_API_TOKEN`. `bootstrap-token` is a one-shot setup helper for turning account credentials into the personal token that a native plugin or MCP host should inject afterward.
 
 Example bootstrap flow:
 
@@ -122,7 +119,7 @@ npx -y @haaabit/mcp bootstrap-token \
   --email you@example.com
 ```
 
-If the account already has a personal API token, the helper may require `--force` before rotating it. Keep the returned token in your OpenClaw secret store and continue using the normal runtime env names only.
+If the account already has a personal API token, the helper may require `--force` before rotating it. Keep the returned token in your host secret store and continue using the normal runtime env names only.
 
 For a broader explanation of workspace skills vs MCP transport and host-specific guidance, see [AI Agent Integration / AI 机器人接入](../../docs/ai-agent-integration.md). For symptom-driven fixes such as missing `HAAABIT_API_TOKEN`, `bootstrap-token`, or skill-visible/tools-missing failures, see [OpenClaw Troubleshooting](../../docs/openclaw-troubleshooting.md). For the milestone-close validation path, see [OpenClaw Validation Checklist](../../docs/openclaw-validation-checklist.md).
 

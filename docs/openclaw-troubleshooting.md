@@ -1,50 +1,63 @@
 # OpenClaw Troubleshooting
 
-Use this guide when the documented Haaabit OpenClaw setup still does not work after you copied [`../packages/mcp/examples/openclaw.jsonc`](../packages/mcp/examples/openclaw.jsonc).
+Use this guide when the documented native OpenClaw setup still does not work after you copied [`../packages/openclaw-plugin/examples/openclaw-plugin.jsonc`](../packages/openclaw-plugin/examples/openclaw-plugin.jsonc).
 
-This is a troubleshooting guide, not a second primary setup path. The supported runtime contract is still:
+This is a troubleshooting guide, not a second setup path.
+
+Supported native runtime contract:
 
 - `HAAABIT_API_URL`
 - `HAAABIT_API_TOKEN`
-- optional MCP guidance names `haaabit_assistant_workflow` and `haaabit://guides/workflow`
-
-If you only have account credentials, run `bootstrap-token` first and then return to the normal runtime contract above.
+- optional Skill layer via [`../skills/haaabit-mcp/SKILL.md`](../skills/haaabit-mcp/SKILL.md)
 
 ## Symptom Matrix
 
 | Symptom | What it usually means | Supported fix |
 |---------|------------------------|---------------|
-| `skill visible, tools missing` | OpenClaw found `skills/haaabit-mcp/SKILL.md`, but no MCP runner is actually launching `@haaabit/mcp` | Re-check the `mcpServers.haaabit` block in [`../packages/mcp/examples/openclaw.jsonc`](../packages/mcp/examples/openclaw.jsonc) and confirm the runner or bridge really starts `npx -y @haaabit/mcp`. |
-| Startup says `HAAABIT_API_TOKEN` is missing | The steady-state runtime did not receive the token env at all | Put the personal API token into the secret store entry that resolves to `HAAABIT_API_TOKEN`; do not replace it with an email or password. |
-| Startup says the token `looks more like an email address` or `looks more like a URL` | The wrong credential shape was injected into `HAAABIT_API_TOKEN` | Keep the API URL in `HAAABIT_API_URL` and inject a personal API token into `HAAABIT_API_TOKEN` instead. |
-| You only have email/password credentials | You are still before the supported runtime step | Run `npx -y @haaabit/mcp bootstrap-token --api-url <...> --email <...>` once, then store the returned personal API token as `HAAABIT_API_TOKEN`. |
-| `bootstrap-token` warns about rotating an existing token | The account already has a personal token and reset/rotation is the only way to recover a new plaintext token | Decide whether rotation is acceptable; if yes, re-run with `--force` and update every consumer that still depends on the old token. |
-| Prompts/resources do not appear | The host or bridge may not expose MCP prompts/resources even though the tools work | Keep using the same tools and workspace/repo-local skills. Prompt/resource support is recommended, not required, and the canonical names remain `haaabit_assistant_workflow` and `haaabit://guides/workflow`. |
+| `plugin not loading` | OpenClaw is not loading `@haaabit/openclaw-plugin` at all | Re-check the plugin block in [`../packages/openclaw-plugin/examples/openclaw-plugin.jsonc`](../packages/openclaw-plugin/examples/openclaw-plugin.jsonc) and confirm the host can resolve the package. |
+| Startup says `HAAABIT_API_TOKEN` is missing | The native plugin runtime did not receive the token env | Put a personal API token into the secret that resolves to `HAAABIT_API_TOKEN`. Do not inject an email or password. |
+| Startup says the token looks like an email or URL | The wrong secret shape was injected | Keep the API URL in `HAAABIT_API_URL` and inject a personal API token into `HAAABIT_API_TOKEN`. |
+| Tool returns `error.category = "auth"` | The token reached the plugin, but it is rejected by the API | Replace or rotate `HAAABIT_API_TOKEN` and retry. |
+| Tool returns `error.category = "not_found"` | The `habitId` does not exist for this user anymore | Re-read with `habits_list` or inspect the target habit before mutating. |
+| Tool returns `error.category = "wrong_kind"` | The mutation tool does not match the habit kind | Follow `error.suggestedTool`, for example `today_complete` vs `today_set_total`. |
+| Tool returns `error.category = "timeout"` or `"network"` | The plugin could not reach the API reliably | Retry once, then inspect network reachability and `HAAABIT_API_URL`. |
+| You only have account credentials | You are still before steady-state runtime setup | Run `npx -y @haaabit/mcp bootstrap-token --api-url <...> --email <...>` once, then store the returned token as `HAAABIT_API_TOKEN`. |
 
 ## Decision Points
 
-### 1. The skill shows up, but Haaabit tools do not
-
-This almost always means the workflow layer is connected but the transport layer is not.
+## 1. The plugin does not load
 
 Checklist:
 
-1. Confirm OpenClaw is reading `skills/haaabit-mcp/SKILL.md`.
-2. Confirm the paired MCP runner or bridge is configured with `mcpServers.haaabit`.
-3. Confirm that runner really launches `npx -y @haaabit/mcp`.
-4. Confirm both the skill-facing env block and the MCP runner env block resolve to the same `HAAABIT_API_URL` and `HAAABIT_API_TOKEN` values.
+1. Confirm OpenClaw is using [`../packages/openclaw-plugin/examples/openclaw-plugin.jsonc`](../packages/openclaw-plugin/examples/openclaw-plugin.jsonc).
+2. Confirm the host can resolve `@haaabit/openclaw-plugin`.
+3. Confirm `HAAABIT_API_URL` and `HAAABIT_API_TOKEN` are injected into the plugin runtime.
 
 ## 2. The runtime rejects the token value
 
-The Haaabit runtime is intentionally strict here.
+The plugin is intentionally strict here.
 
 - `HAAABIT_API_URL` should be your API base URL such as `https://your-haaabit.example.com/api`.
-- `HAAABIT_API_TOKEN` should be a personal API token, not an email address, not a URL, and not an account password.
-- If the startup diagnostic says the value `looks more like an email address` or `looks more like a URL`, fix the secret mapping instead of trying alternate env names.
+- `HAAABIT_API_TOKEN` should be a personal API token.
+- If startup says the value looks like an email or URL, fix secret mapping instead of trying alternate env names.
 
-## 3. You only have account credentials and no token yet
+## 3. A tool returns a structured error
 
-That is a setup problem, not a runtime mode.
+Do not branch on the prose first. Branch on machine-readable fields:
+
+- `error.category`
+- `error.retryable`
+- `error.resolution`
+- `error.suggestedTool`
+
+Typical cases:
+
+- `wrong_kind` -> switch to the tool named by `suggestedTool`
+- `not_found` -> re-read and get a valid `habitId`
+- `auth` -> replace token and retry
+- `timeout` / `network` -> safe retry path
+
+## 4. You only have account credentials and no token yet
 
 Use the one-shot helper:
 
@@ -58,27 +71,12 @@ After success:
 
 1. Save the returned personal API token in the secret store used by OpenClaw.
 2. Put that token into `HAAABIT_API_TOKEN`.
-3. Go back to the normal runtime setup from [`../packages/mcp/examples/openclaw.jsonc`](../packages/mcp/examples/openclaw.jsonc).
-
-## 4. `bootstrap-token` says rotation needs `--force`
-
-This is expected when the account already has a token. Haaabit does not reveal existing plaintext personal tokens, so bootstrapping a fresh usable token may rotate the old one.
-
-Only continue with `--force` if you are ready to replace the previous token everywhere it is used.
-
-## 5. Prompt/resource support is missing
-
-Prompt/resource support depends on the MCP host or bridge.
-
-- Tools still come from `@haaabit/mcp`.
-- Workflow guidance still comes from `skills/haaabit-mcp/SKILL.md` or `.agents/skills/haaabit-mcp/SKILL.md`.
-- Prompts/resources are optional helpers, not a second runtime contract.
+3. Go back to the native plugin setup from [`../packages/openclaw-plugin/examples/openclaw-plugin.jsonc`](../packages/openclaw-plugin/examples/openclaw-plugin.jsonc).
 
 ## Canonical References
 
-- Package setup guide: [`../packages/mcp/README.md`](../packages/mcp/README.md)
+- Native package guide: [`../packages/openclaw-plugin/README.md`](../packages/openclaw-plugin/README.md)
+- Native setup asset: [`../packages/openclaw-plugin/examples/openclaw-plugin.jsonc`](../packages/openclaw-plugin/examples/openclaw-plugin.jsonc)
 - Cross-host integration guide: [`./ai-agent-integration.md`](./ai-agent-integration.md)
 - Validation checklist: [`./openclaw-validation-checklist.md`](./openclaw-validation-checklist.md)
-- Canonical asset: [`../packages/mcp/examples/openclaw.jsonc`](../packages/mcp/examples/openclaw.jsonc)
-- Workspace skill: [`../skills/haaabit-mcp/SKILL.md`](../skills/haaabit-mcp/SKILL.md)
-- Repo-local skill: [`../.agents/skills/haaabit-mcp/SKILL.md`](../.agents/skills/haaabit-mcp/SKILL.md)
+- Generic MCP package: [`../packages/mcp/README.md`](../packages/mcp/README.md)

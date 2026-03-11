@@ -1,0 +1,20 @@
+{
+  // Canonical OpenClaw-native Haaabit setup.
+  // Load the native plugin directly; do not proxy Haaabit through MCP for this host.
+  "plugins": {
+    "haaabit": {
+      "package": "@haaabit/openclaw-plugin",
+      "env": {
+        "HAAABIT_API_URL": "https://your-haaabit.example.com/api",
+        "HAAABIT_API_TOKEN": "${secrets.HAAABIT_API_TOKEN}"
+      }
+    }
+  },
+
+  // Optional workflow guidance if your OpenClaw build also supports workspace Skills.
+  "skills": {
+    "entries": {
+      "haaabit-mcp": "./skills/haaabit-mcp/SKILL.md"
+    }
+  }
+}

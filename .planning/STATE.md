@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.7
 milestone_name: OpenClaw Native Plugin
 status: phase_in_progress
-stopped_at: Phase 28 planned; next step is execute Phase 28
-last_updated: "2026-03-11T21:05:00+08:00"
-last_activity: 2026-03-11 — Planned Phase 28 Structured Results, Error Semantics, and OpenClaw-native Guidance
+stopped_at: Phase 28 complete; next step is plan Phase 29
+last_updated: "2026-03-11T21:23:00+08:00"
+last_activity: 2026-03-11 — Completed Phase 28 Structured Results, Error Semantics, and OpenClaw-native Guidance
 progress:
   total_phases: 4
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 11
-  completed_plans: 6
-  percent: 55
+  completed_plans: 9
+  percent: 82
 ---
 
 # Project State
@@ -21,17 +21,17 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-11)
 
 **Core value:** Let AI accurately understand what the user needs to do today and reliably complete habit check-ins on the user's behalf.
-**Current focus:** Phase 28 is planned; execution is next
+**Current focus:** Phase 28 is complete; Phase 29 planning is next
 
 ## Current Position
 
 Milestone: v1.7 OpenClaw Native Plugin
-Phase: 28 planned (Structured Results, Error Semantics, and OpenClaw-native Guidance)
-Plan: 28-01, 28-02, 28-03 ready for execution
-Status: The repo now has an executable Phase 28 plan for native result-envelope hardening, explicit error semantics, and OpenClaw-native docs migration
-Last activity: 2026-03-11 — Planned Phase 28 Structured Results, Error Semantics, and OpenClaw-native Guidance
+Phase: 28 complete (Structured Results, Error Semantics, and OpenClaw-native Guidance)
+Plan: 28-01, 28-02, 28-03 completed
+Status: The repo now ships a locked native success/error contract plus native-first OpenClaw docs; the remaining milestone work is Phase 29 verification and migration confidence
+Last activity: 2026-03-11 — Completed Phase 28 Structured Results, Error Semantics, and OpenClaw-native Guidance
 
-Progress: [######----] 55%
+Progress: [########--] 82%
 
 ## Performance Metrics
 
@@ -41,10 +41,10 @@ Progress: [######----] 55%
 - Total execution time: Not tracked consistently in archived roadmap metadata
 
 **Recent Trend:**
-- The codebase now ships a canonical OpenClaw integration path instead of relying on repo-local Skill discovery alone.
-- MCP startup/auth flows now guide operators toward the supported token model and `bootstrap-token` handoff when needed.
-- Repo/package docs now explain host guidance, MCP runtime config, and troubleshooting in one operator-facing story.
-- The next milestone pivots from OpenClaw MCP bridging toward a native plugin path while preserving the shipped API/auth/contracts baseline.
+- The native plugin now returns one explicit success envelope and a machine-branchable error taxonomy for every Haaabit tool.
+- OpenClaw docs now route operators to the native plugin path first, while keeping the generic MCP story intact for other hosts.
+- Shared MCP/runtime semantics now distinguish timeout/network/wrong-kind/not-found cases sharply enough for agent rerouting.
+- The remaining milestone work is verification and migration confidence in a real OpenClaw host.
 
 ## Accumulated Context
 
@@ -63,15 +63,15 @@ Recent decisions affecting current work:
 
 ### Pending Todos
 
-- Execute Phase 28 to harden the native success/error envelope and OpenClaw-facing guidance.
-- Confirm during execution whether `summary` should remain top-level in the final success envelope or move into a more explicit metadata field.
-- Preserve the old OpenClaw MCP path as historical/generic-host guidance while moving this host to the native plugin default.
+- Plan Phase 29 verification and migration confidence work.
+- Validate the native plugin in a real OpenClaw host/session outside the repo harness.
+- Decide whether the repository-level `verify:openclaw` scripts should be renamed or expanded once native plugin verification lands.
 
 ### Blockers/Concerns
 
 - Real OpenClaw host loading still needs external manual confirmation because the repository test harness cannot boot the real host UI/plugin loader.
 - Real OpenClaw workspace UI and secret-store validation still require an external host environment outside this repository harness.
-- Native handler coverage is complete, but the final machine-facing contract and native-first docs still need Phase 28 hardening before migration verification.
+- Repository verification scripts still lean MCP-centric until Phase 29 extends native-plugin-specific release gates.
 
 ### Quick Tasks Completed
 
@@ -88,5 +88,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-03-11T02:31:00+08:00
-Stopped at: Phase 28 planned; next step is execute Phase 28
+Stopped at: Phase 28 complete; next step is plan Phase 29
 Resume file: .planning/ROADMAP.md

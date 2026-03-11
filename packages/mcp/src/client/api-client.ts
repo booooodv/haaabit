@@ -59,7 +59,11 @@ export class HaaabitApiClient {
         });
       }
 
-      throw error;
+      throw new HaaabitApiError({
+        status: 503,
+        code: "NETWORK_ERROR",
+        message: error instanceof Error ? error.message : "Network request failed",
+      });
     } finally {
       clearTimeout(timeout);
     }

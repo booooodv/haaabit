@@ -61,6 +61,7 @@ describe("native read tools", () => {
 
     await expect(handlers.habits_list?.({})).resolves.toMatchObject({
       ok: true,
+      toolName: "habits_list",
       summary: expect.stringContaining("default active filter"),
       data: {
         items: [expect.objectContaining({ name: "Deep Work" })],
@@ -124,6 +125,7 @@ describe("native read tools", () => {
 
     await expect(handlers.habits_get_detail?.({ habitId: "habit_1" })).resolves.toMatchObject({
       ok: true,
+      toolName: "habits_get_detail",
       summary: expect.stringContaining("needs attention today"),
       data: {
         item: {
@@ -170,6 +172,7 @@ describe("native read tools", () => {
 
     await expect(handlers.today_get_summary?.({})).resolves.toMatchObject({
       ok: true,
+      toolName: "today_get_summary",
       data: {
         today: {
           totalCount: 2,
@@ -222,6 +225,7 @@ describe("native read tools", () => {
 
     await expect(handlers.stats_get_overview?.({})).resolves.toMatchObject({
       ok: true,
+      toolName: "stats_get_overview",
       data: {
         stats: {
           metrics: {

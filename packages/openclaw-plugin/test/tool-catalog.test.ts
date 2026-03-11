@@ -17,6 +17,31 @@ describe("createToolCatalog", () => {
 
     expect(habitsAdd?.description).toContain("Create a new habit definition");
     expect(habitsAdd?.inputSchema).toBeDefined();
-    expect(habitsAdd?.outputSchema).toBeDefined();
+    expect(
+      (habitsAdd?.outputSchema as { safeParse: (value: unknown) => { success: boolean } }).safeParse({
+        ok: true,
+        toolName: "habits_add",
+        summary: "Created Read (quantity, 30 pages, daily).",
+        data: {
+          item: {
+            id: "habit_read",
+            userId: "user_1",
+            name: "Read",
+            kind: "quantity",
+            description: null,
+            category: "learning",
+            targetValue: 30,
+            unit: "pages",
+            startDate: "2026-03-01",
+            isActive: true,
+            frequencyType: "daily",
+            frequencyCount: null,
+            weekdays: [],
+            createdAt: "2026-03-01T08:00:00.000Z",
+            updatedAt: "2026-03-01T08:00:00.000Z",
+          },
+        },
+      }).success,
+    ).toBe(true);
   });
 });

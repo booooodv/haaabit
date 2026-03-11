@@ -62,10 +62,13 @@ describe("shared native runtime", () => {
       }),
     ).resolves.toMatchObject({
       ok: false,
+      toolName: "today_set_total",
       error: {
-        category: "validation",
+        category: "wrong_kind",
         code: "BAD_REQUEST",
         hint: "Use today_complete for boolean habits.",
+        resolution: "switch_tool",
+        suggestedTool: "today_complete",
       },
     });
   });

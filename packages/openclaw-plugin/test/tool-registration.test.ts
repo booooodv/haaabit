@@ -60,6 +60,7 @@ describe("native tool registration", () => {
 
     await expect(handler?.({})).resolves.toMatchObject({
       ok: true,
+      toolName: "habits_list",
       data: {
         items: [],
       },

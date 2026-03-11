@@ -1,9 +1,9 @@
 ---
 phase: 28
 slug: 28-structured-results-error-semantics-and-openclaw-native-guidance
-status: draft
+status: passed
 nyquist_compliant: true
-wave_0_complete: false
+wave_0_complete: true
 created: 2026-03-11
 ---
 
@@ -38,12 +38,12 @@ created: 2026-03-11
 
 | Task ID | Plan | Wave | Requirement | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|-----------|-------------------|-------------|--------|
-| 28-01-01 | 28-01 | 1 | RESP-01 | envelope | `pnpm --filter @haaabit/openclaw-plugin exec vitest run test/result-envelope.test.ts` | ❌ W0 | ⬜ pending |
-| 28-01-02 | 28-01 | 1 | RESP-01 | regression | `pnpm typecheck && pnpm --filter @haaabit/openclaw-plugin exec vitest run test/result-envelope.test.ts test/read-tools.test.ts test/mutation-tools.test.ts` | ❌ W0 | ⬜ pending |
-| 28-02-01 | 28-02 | 2 | RESP-02, RESP-03 | error-semantics | `pnpm --filter @haaabit/openclaw-plugin exec vitest run test/error-semantics.test.ts` | ❌ W0 | ⬜ pending |
-| 28-02-02 | 28-02 | 2 | RESP-02, RESP-03 | full plugin semantics | `pnpm typecheck && pnpm --filter @haaabit/openclaw-plugin exec vitest run test/error-semantics.test.ts test/mutation-tools.test.ts test/plugin-bootstrap.test.ts test/tool-registration.test.ts && pnpm --filter @haaabit/mcp exec vitest run test/client/errors.test.ts test/tools/mutation-errors.test.ts` | ❌ W0 | ⬜ pending |
-| 28-03-01 | 28-03 | 3 | VER-02 | doc/example smoke | `pnpm --filter @haaabit/openclaw-plugin exec vitest run test/docs-native-openclaw.test.ts` | ❌ W0 | ⬜ pending |
-| 28-03-02 | 28-03 | 3 | VER-02, RESP-01 | docs + runtime regression | `pnpm typecheck && pnpm --filter @haaabit/openclaw-plugin build && pnpm --filter @haaabit/openclaw-plugin exec vitest run test/docs-native-openclaw.test.ts test/result-envelope.test.ts test/error-semantics.test.ts test/read-tools.test.ts test/mutation-tools.test.ts && pnpm --filter @haaabit/mcp exec vitest run test/client/api-client.test.ts test/client/errors.test.ts test/tools/habits-read.test.ts test/tools/habits-write.test.ts test/tools/today-stats-read.test.ts test/tools/today-write.test.ts test/tools/mutation-errors.test.ts` | ❌ W0 | ⬜ pending |
+| 28-01-01 | 28-01 | 1 | RESP-01 | envelope | `pnpm --filter @haaabit/openclaw-plugin exec vitest run test/result-envelope.test.ts` | ✅ | ✅ green |
+| 28-01-02 | 28-01 | 1 | RESP-01 | regression | `pnpm typecheck && pnpm --filter @haaabit/openclaw-plugin exec vitest run test/result-envelope.test.ts test/read-tools.test.ts test/mutation-tools.test.ts` | ✅ | ✅ green |
+| 28-02-01 | 28-02 | 2 | RESP-02, RESP-03 | error-semantics | `pnpm --filter @haaabit/openclaw-plugin exec vitest run test/error-semantics.test.ts` | ✅ | ✅ green |
+| 28-02-02 | 28-02 | 2 | RESP-02, RESP-03 | full plugin semantics | `pnpm typecheck && pnpm --filter @haaabit/openclaw-plugin exec vitest run test/error-semantics.test.ts test/mutation-tools.test.ts test/plugin-bootstrap.test.ts test/tool-registration.test.ts && pnpm --filter @haaabit/mcp exec vitest run test/client/errors.test.ts test/tools/mutation-errors.test.ts` | ✅ | ✅ green |
+| 28-03-01 | 28-03 | 3 | VER-02 | doc/example smoke | `pnpm --filter @haaabit/openclaw-plugin exec vitest run test/docs-native-openclaw.test.ts` | ✅ | ✅ green |
+| 28-03-02 | 28-03 | 3 | VER-02, RESP-01 | docs + runtime regression | `pnpm typecheck && pnpm --filter @haaabit/openclaw-plugin build && pnpm --filter @haaabit/openclaw-plugin exec vitest run test/docs-native-openclaw.test.ts test/result-envelope.test.ts test/error-semantics.test.ts test/read-tools.test.ts test/mutation-tools.test.ts && pnpm --filter @haaabit/mcp exec vitest run test/client/api-client.test.ts test/client/errors.test.ts test/tools/habits-read.test.ts test/tools/habits-write.test.ts test/tools/today-stats-read.test.ts test/tools/today-write.test.ts test/tools/mutation-errors.test.ts` | ✅ | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -51,9 +51,9 @@ created: 2026-03-11
 
 ## Wave 0 Requirements
 
-- [ ] `packages/openclaw-plugin/test/result-envelope.test.ts` — native success envelope coverage
-- [ ] `packages/openclaw-plugin/test/error-semantics.test.ts` — native error semantics coverage
-- [ ] `packages/openclaw-plugin/test/docs-native-openclaw.test.ts` — OpenClaw-native docs/example smoke coverage
+- [x] `packages/openclaw-plugin/test/result-envelope.test.ts` — native success envelope coverage
+- [x] `packages/openclaw-plugin/test/error-semantics.test.ts` — native error semantics coverage
+- [x] `packages/openclaw-plugin/test/docs-native-openclaw.test.ts` — OpenClaw-native docs/example smoke coverage
 
 ---
 
@@ -74,4 +74,4 @@ created: 2026-03-11
 - [x] Feedback latency < 180s
 - [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** passed on 2026-03-11 after targeted and full regression commands stayed green

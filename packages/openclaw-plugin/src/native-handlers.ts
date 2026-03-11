@@ -36,6 +36,7 @@ export function createNativeHandlers(
 
           return {
             ok: true,
+            toolName,
             summary,
             data,
           };
@@ -43,6 +44,7 @@ export function createNativeHandlers(
           if (error instanceof HaaabitApiError) {
             return {
               ok: false,
+              toolName,
               error: toToolErrorPayload(error, {
                 toolName,
               }),

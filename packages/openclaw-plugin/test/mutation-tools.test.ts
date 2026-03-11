@@ -69,6 +69,7 @@ describe("native mutation tools", () => {
       }),
     ).resolves.toMatchObject({
       ok: true,
+      toolName: "habits_add",
       summary: expect.stringContaining("Created Read"),
       data: {
         item: {
@@ -114,6 +115,7 @@ describe("native mutation tools", () => {
       }),
     ).resolves.toMatchObject({
       ok: true,
+      toolName: "habits_edit",
       summary: expect.stringContaining("Updated Read 30 min"),
     });
     expect(fetchImpl.mock.calls[0]?.[0]).toBe("https://habit.example.com/api/habits/habit_read");
@@ -171,10 +173,12 @@ describe("native mutation tools", () => {
 
     await expect(handlers.habits_archive?.({ habitId: "habit_run" })).resolves.toMatchObject({
       ok: true,
+      toolName: "habits_archive",
       summary: expect.stringContaining("Archived Run"),
     });
     await expect(handlers.habits_restore?.({ habitId: "habit_run" })).resolves.toMatchObject({
       ok: true,
+      toolName: "habits_restore",
       summary: expect.stringContaining("Restored Run"),
     });
   });
@@ -258,6 +262,7 @@ describe("native mutation tools", () => {
       }),
     ).resolves.toMatchObject({
       ok: true,
+      toolName: "today_complete",
       data: {
         habit: {
           id: "habit_walk",
@@ -275,6 +280,7 @@ describe("native mutation tools", () => {
       }),
     ).resolves.toMatchObject({
       ok: true,
+      toolName: "today_set_total",
       data: {
         habit: {
           id: "habit_read",
@@ -338,6 +344,7 @@ describe("native mutation tools", () => {
       }),
     ).resolves.toMatchObject({
       ok: true,
+      toolName: "today_undo",
       summary: expect.stringContaining("Undid today's set total"),
       data: {
         habit: {
@@ -370,10 +377,12 @@ describe("native mutation tools", () => {
       }),
     ).resolves.toMatchObject({
       ok: false,
+      toolName: "habits_archive",
       error: {
         category: "not_found",
         code: "NOT_FOUND",
         hint: expect.stringContaining("habitId"),
+        resolution: "check_habit_id",
       },
     });
   });
