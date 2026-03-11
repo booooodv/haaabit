@@ -1,18 +1,11 @@
 ---
 name: haaabit-mcp
-description: OpenClaw workspace skill for choosing the correct Haaabit MCP tool and payload with minimal ambiguity.
-metadata:
-  openclaw:
-    primaryEnv: HAAABIT_API_TOKEN
-    requires:
-      env:
-        - HAAABIT_API_URL
-        - HAAABIT_API_TOKEN
+description: Haaabit MCP skill for choosing the correct tool and payload with minimal ambiguity.
 ---
 
 # Haaabit MCP
 
-Route Haaabit requests by intent. Pick the narrowest correct tool. Do not infer payload shape from read responses.
+Route Haaabit requests by intent. Pick the narrowest correct tool. Do not infer write payloads from read responses.
 
 This skill does not provide tools by itself. Connect the Haaabit MCP server first, or use a runner that launches `@haaabit/mcp` with the same `HAAABIT_API_URL` and `HAAABIT_API_TOKEN`. If you only have account credentials, run `bootstrap-token` first.
 
@@ -52,7 +45,7 @@ Follow the shortest safe rule set:
 Write routing:
 
 - Boolean habit, explicit check-off -> `today_complete`
-- Quantity habit, explicit numeric amount -> `today_set_total`
+- Quantity habit, explicit numeric total for today -> `today_set_total`
 - Explicit revert / undo -> `today_undo`
 
 After a successful today write, summarize the affected habit. Refresh today state when the user asked about today or when the write changes what is left.
@@ -75,11 +68,13 @@ Preferred clarification style:
 
 ## Payload Patterns
 
-Use minimal valid payloads. Treat field names below as patterns, not a license to mirror read responses.
+Use common successful payloads. Treat field names below as patterns, not a license to mirror read responses.
 
 ### `today_complete`
 
 Use for boolean habits only.
+
+Do not use `today_complete` for quantity habits. Use `today_set_total`.
 
 ```json
 {
@@ -91,14 +86,16 @@ Use for boolean habits only.
 
 Use for quantity habits only.
 
+Treat `喝水 3 杯` / `set water to 3` as today's final total = `3`. Use `today_set_total`.
+
+Treat `又喝了一杯` / `add 1 cup` as increment intent. Do not assume the tool supports increments. Read the current value first with `today_get_summary` or ask one clarifying question.
+
 ```json
 {
   "habitId": "habit_456",
   "total": 3
 }
 ```
-
-If the user says "add 1 cup" but the tool expects today's final total, do not invent an increment payload. Read first or ask one clarifying question.
 
 ### `today_undo`
 
@@ -112,22 +109,29 @@ Use only for explicit revert of the latest today action.
 
 Creation input and read output may be asymmetric. Do not copy fields from `habits_get_detail` or `habits_list` back into `habits_add`.
 
-Minimum boolean habit example:
+Boolean daily example:
 
 ```json
 {
-  "name": "Read 20 min",
-  "kind": "boolean"
+  "name": "吃维生素",
+  "kind": "boolean",
+  "frequency": {
+    "type": "daily"
+  }
 }
 ```
 
-Minimum quantity habit example:
+Quantity daily example:
 
 ```json
 {
-  "name": "Drink water",
+  "name": "喝水",
   "kind": "quantity",
-  "unit": "cup"
+  "targetValue": 5,
+  "unit": "杯",
+  "frequency": {
+    "type": "daily"
+  }
 }
 ```
 
@@ -161,6 +165,7 @@ Map natural language directly:
 - "今天该做什么" / "what's left today" / `✅` -> `today_get_summary`
 - "把阅读打卡" / "mark reading done" -> `today_complete` if the habit is known boolean, otherwise read first
 - "喝水记 3 杯" / "set water to 3" -> `today_set_total`
+- "又喝了一杯" / "add 1 cup" -> do not write blindly; read first or ask one clarifying question
 - "撤销刚才的打卡" / "undo that" -> `today_undo`
 - "帮我新建一个习惯：冥想" -> `habits_add`
 - "把阅读改成 30 分钟" -> `habits_edit`
@@ -174,7 +179,7 @@ Map natural language directly:
 - Read before write unless the mutation is exact, unique, and complete.
 - Use `habits_list` to resolve names before edit/archive/restore.
 - Use `habits_get_detail` before complex edits.
-- For mixed requests like "今天还剩什么，顺便看看这周表现", call `today_get_summary` and `stats_get_overview`.
+- For mixed requests like "今天还剩什么，顺便看看这周表现", call `today_get_summary` and `stats_get_overview`. If ordered calls are needed, call `today_get_summary` first, then `stats_get_overview`.
 
 ## Host Notes
 
