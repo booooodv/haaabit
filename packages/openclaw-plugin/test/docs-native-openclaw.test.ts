@@ -17,15 +17,22 @@ describe("OpenClaw native docs", () => {
   it("ships a package-local README and native setup asset", async () => {
     const pkg = JSON.parse(await readPackageFile("package.json")) as {
       files: string[];
+      openclaw?: {
+        extensions?: string[];
+      };
     };
     const readme = await readPackageFile("README.md");
     const example = await readPackageFile("examples/openclaw-plugin.jsonc");
 
     expect(pkg.files).toEqual(expect.arrayContaining(["README.md", "examples"]));
+    expect(pkg.openclaw?.extensions).toEqual(["./dist/index.js"]);
     expect(readme).toContain("native OpenClaw integration");
+    expect(readme).toContain("openclaw.extensions");
+    expect(readme).toContain("@haaabit/openclaw-plugin");
     expect(readme).toContain("ok\": true");
     expect(readme).toContain("error.category");
     expect(example).toContain("\"package\": \"@haaabit/openclaw-plugin\"");
+    expect(example).toContain("\"@haaabit/openclaw-plugin\"");
     expect(example).not.toContain("\"mcpServers\"");
   });
 

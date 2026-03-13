@@ -20,6 +20,9 @@ describe("openclaw plugin manifest", () => {
       ".": "./dist/index.js",
     });
     expect(pkg.files).toEqual(expect.arrayContaining(["dist", "openclaw.plugin.json"]));
+    expect(pkg.openclaw).toMatchObject({
+      extensions: ["./dist/index.js"],
+    });
   });
 
   it("ships a native OpenClaw manifest that points at the built entrypoint", async () => {
@@ -27,9 +30,10 @@ describe("openclaw plugin manifest", () => {
 
     expect(manifest).toMatchObject({
       schemaVersion: 1,
-      id: "haaabit",
+      id: "@haaabit/openclaw-plugin",
       name: "Haaabit",
       entry: "./dist/index.js",
+      configSchema: {},
     });
     expect(String(manifest.description)).toContain("Haaabit");
   });

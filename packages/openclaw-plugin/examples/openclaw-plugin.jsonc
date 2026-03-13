@@ -2,7 +2,7 @@
   // Canonical OpenClaw-native Haaabit setup.
   // Load the native plugin directly; do not proxy Haaabit through MCP for this host.
   "plugins": {
-    "haaabit": {
+    "@haaabit/openclaw-plugin": {
       "package": "@haaabit/openclaw-plugin",
       "env": {
         "HAAABIT_API_URL": "https://your-haaabit.example.com/api",

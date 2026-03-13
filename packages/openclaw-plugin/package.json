@@ -17,6 +17,11 @@
   "exports": {
     ".": "./dist/index.js"
   },
+  "openclaw": {
+    "extensions": [
+      "./dist/index.js"
+    ]
+  },
   "scripts": {
     "build": "tsup",
     "test": "vitest run",

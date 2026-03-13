@@ -21,8 +21,9 @@ Use the native plugin first:
 
 1. Install or link `@haaabit/openclaw-plugin` in the OpenClaw plugin environment.
 2. Inject `HAAABIT_API_URL` and `HAAABIT_API_TOKEN`.
-3. Load the plugin. It registers the Haaabit `habits_*`, `today_*`, and `stats_get_overview` tools directly.
-4. If your OpenClaw build also supports workspace Skills, add [`../../skills/haaabit-mcp/SKILL.md`](../../skills/haaabit-mcp/SKILL.md) as an optional guidance layer. Do not use it as a transport substitute.
+3. Load the plugin. The published package advertises `./dist/index.js` through `package.json -> openclaw.extensions`, and the shipped `openclaw.plugin.json` uses the same plugin id as the package name: `@haaabit/openclaw-plugin`.
+4. OpenClaw should discover and enable the built plugin without any local manifest patching. It registers the Haaabit `habits_*`, `today_*`, and `stats_get_overview` tools directly.
+5. If your OpenClaw build also supports workspace Skills, add [`../../skills/haaabit-mcp/SKILL.md`](../../skills/haaabit-mcp/SKILL.md) as an optional guidance layer. Do not use it as a transport substitute.
 
 This path is native-first. Do not launch `@haaabit/mcp` just to make OpenClaw talk to Haaabit.
 
