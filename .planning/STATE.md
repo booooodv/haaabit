@@ -4,8 +4,8 @@ milestone: none
 milestone_name: none
 status: awaiting_next_milestone
 stopped_at: Milestone v1.7 archived; next step is start a new milestone
-last_updated: "2026-03-13T18:50:11+08:00"
-last_activity: 2026-03-13 — Completed quick task 9: 修复 OpenClaw Haaabit 插件 tool schema default 导致注册失败
+last_updated: "2026-03-13T20:05:34+08:00"
+last_activity: 2026-03-13 — Completed quick task 10: 修复 Haaabit OpenClaw 插件发布元数据，确保 OpenClaw 可直接发现加载启用
 progress:
   total_phases: 0
   completed_phases: 0
@@ -29,7 +29,7 @@ Milestone: none active
 Phase: between milestones
 Plan: start the next milestone with `$gsd-new-milestone`
 Status: v1.7 OpenClaw Native Plugin has been archived, tagged, and moved into milestone history; the repo is ready for the next requirements definition cycle
-Last activity: 2026-03-13 — Completed quick task 9: 修复 OpenClaw Haaabit 插件 tool schema default 导致注册失败
+Last activity: 2026-03-13 — Completed quick task 10: 修复 Haaabit OpenClaw 插件发布元数据，确保 OpenClaw 可直接发现加载启用
 
 Progress: [----------] 0%
 
@@ -88,6 +88,7 @@ Recent decisions affecting current work:
 | 7 | 统一 @haaabit/mcp 工具返回格式，让客户端稳定读取人话摘要 + 完整机器可读 JSON | 2026-03-11 | 004e229 | [7-haaabit-mcp-json](./quick/7-haaabit-mcp-json/) |
 | 8 | 修复亚洲上海时区用户第二天习惯不重置的问题 | 2026-03-13 | fc85a4c | [8-shanghai-timezone-reset](./quick/8-shanghai-timezone-reset/) |
 | 9 | 修复 OpenClaw Haaabit 插件 tool schema default 导致注册失败 | 2026-03-13 | 2116cf9 | [9-openclaw-haaabit-tool-schema-default](./quick/9-openclaw-haaabit-tool-schema-default/) |
+| 10 | 修复 Haaabit OpenClaw 插件发布元数据，确保 OpenClaw 可直接发现加载启用 | 2026-03-13 | 0e17c04 | [10-haaabit-openclaw-openclaw](./quick/10-haaabit-openclaw-openclaw/) |
 
 ## Session Continuity
 
