@@ -1,5 +1,15 @@
 import { z } from "zod";
 
+export type ProviderSafeJsonSchema =
+  | null
+  | boolean
+  | number
+  | string
+  | ProviderSafeJsonSchema[]
+  | {
+      [key: string]: ProviderSafeJsonSchema;
+    };
+
 export const nativeSuccessEnvelopeSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
   z.object({
     ok: z.literal(true),
@@ -29,8 +39,8 @@ export type OpenClawToolHandler = (input: unknown) => Promise<OpenClawToolResult
 
 export type OpenClawToolRegistration = {
   description: string;
-  inputSchema?: unknown;
-  outputSchema?: unknown;
+  inputSchema?: ProviderSafeJsonSchema;
+  outputSchema?: ProviderSafeJsonSchema;
 };
 
 export type OpenClawPluginApi = {
@@ -40,8 +50,8 @@ export type OpenClawPluginApi = {
 export type NativeToolDefinition = {
   name: string;
   description: string;
-  inputSchema?: unknown;
-  outputSchema?: unknown;
+  inputSchema?: ProviderSafeJsonSchema;
+  outputSchema?: ProviderSafeJsonSchema;
 };
 
 export type NativePluginConfig = {

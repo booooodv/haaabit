@@ -3,6 +3,18 @@ import { describe, expect, it, vi } from "vitest";
 import { activateHaaabitOpenClawPlugin } from "../src/index";
 import { createNativeHandlers } from "../src/native-handlers";
 
+function hasSchemaKey(value: unknown, targetKey: string): boolean {
+  if (Array.isArray(value)) {
+    return value.some((item) => hasSchemaKey(item, targetKey));
+  }
+
+  if (value && typeof value === "object") {
+    return Object.entries(value).some(([key, nestedValue]) => key === targetKey || hasSchemaKey(nestedValue, targetKey));
+  }
+
+  return false;
+}
+
 function createJsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
@@ -83,7 +95,7 @@ describe("native success envelope", () => {
     });
   });
 
-  it("registers output schemas that describe the native success envelope instead of bare payloads", () => {
+  it("registers provider-safe JSON Schemas that describe the native success envelope", () => {
     const registerTool = vi.fn();
 
     activateHaaabitOpenClawPlugin(
@@ -101,23 +113,26 @@ describe("native success envelope", () => {
     const habitsList = registerTool.mock.calls.find(([name]) => name === "habits_list");
     expect(habitsList?.[1].outputSchema).toBeDefined();
 
-    const outputSchema = habitsList?.[1].outputSchema as {
-      safeParse: (value: unknown) => { success: boolean };
-    };
-    expect(
-      outputSchema.safeParse({
-        ok: true,
-        toolName: "habits_list",
-        summary: "No habits matched the default active filter.",
-        data: {
-          items: [],
-        },
-      }).success,
-    ).toBe(true);
-    expect(
-      outputSchema.safeParse({
-        items: [],
-      }).success,
-    ).toBe(false);
+    expect(habitsList?.[1].outputSchema).toMatchObject({
+      type: "object",
+      required: ["ok", "toolName", "summary", "data"],
+      additionalProperties: false,
+      properties: expect.objectContaining({
+        ok: expect.objectContaining({
+          const: true,
+        }),
+        toolName: expect.objectContaining({
+          type: "string",
+        }),
+        summary: expect.objectContaining({
+          type: "string",
+        }),
+        data: expect.objectContaining({
+          type: "object",
+        }),
+      }),
+    });
+    expect(hasSchemaKey(habitsList?.[1].outputSchema, "default")).toBe(false);
+    expect(hasSchemaKey(habitsList?.[1].outputSchema, "$schema")).toBe(false);
   });
 });
