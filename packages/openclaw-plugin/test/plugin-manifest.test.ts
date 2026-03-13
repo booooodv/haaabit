@@ -63,6 +63,9 @@ describe("openclaw plugin manifest", () => {
     await writeFile(path.join(tempDistDir, "index.js"), distSource, "utf8");
 
     await expect(import(pathToFileURL(path.join(tempDistDir, "index.js")).href)).resolves.toMatchObject({
+      default: expect.any(Function),
+      register: expect.any(Function),
+      activate: expect.any(Function),
       activateHaaabitOpenClawPlugin: expect.any(Function),
     });
   });

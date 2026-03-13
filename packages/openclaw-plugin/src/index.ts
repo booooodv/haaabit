@@ -11,13 +11,15 @@ export { createToolCatalog, EXPECTED_TOOL_NAMES } from "./tool-catalog.js";
 export { formatStartupError, OpenClawPluginError, redactSecrets } from "./errors.js";
 export type { NativePluginConfig, NativeToolDefinition, OpenClawPluginApi, OpenClawToolHandler } from "./types.js";
 
+export type PluginActivationOptions = {
+  env?: NodeJS.ProcessEnv;
+  fetch?: typeof fetch;
+  handlers?: Partial<Record<string, OpenClawToolHandler>>;
+};
+
 export function activateHaaabitOpenClawPlugin(
   api: OpenClawPluginApi,
-  options: {
-    env?: NodeJS.ProcessEnv;
-    fetch?: typeof fetch;
-    handlers?: Partial<Record<string, OpenClawToolHandler>>;
-  } = {},
+  options: PluginActivationOptions = {},
 ) {
   try {
     const config = parsePluginEnv(options.env ?? process.env);
@@ -55,3 +57,13 @@ export function activateHaaabitOpenClawPlugin(
     });
   }
 }
+
+export function register(api: OpenClawPluginApi, options: PluginActivationOptions = {}) {
+  return activateHaaabitOpenClawPlugin(api, options);
+}
+
+export function activate(api: OpenClawPluginApi, options: PluginActivationOptions = {}) {
+  return register(api, options);
+}
+
+export default register;

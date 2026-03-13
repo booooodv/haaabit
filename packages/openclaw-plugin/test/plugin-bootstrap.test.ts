@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 
 import { describe, expect, it, vi } from "vitest";
 
-import { activateHaaabitOpenClawPlugin, EXPECTED_TOOL_NAMES } from "../src/index";
+import defaultRegister, { activate, activateHaaabitOpenClawPlugin, EXPECTED_TOOL_NAMES, register } from "../src/index";
 
 const packageRoot = new URL("../", import.meta.url);
 
@@ -22,6 +22,27 @@ describe("activateHaaabitOpenClawPlugin", () => {
     );
 
     expect(result.registeredTools).toEqual(EXPECTED_TOOL_NAMES);
+    expect(registerTool.mock.calls.map(([name]) => name)).toEqual(EXPECTED_TOOL_NAMES);
+  });
+
+  it("exports OpenClaw-compatible register and activate entrypoints", () => {
+    const registerTool = vi.fn();
+
+    const registration = register(
+      {
+        registerTool,
+      },
+      {
+        env: {
+          HAAABIT_API_URL: "https://habit.example.com/api",
+          HAAABIT_API_TOKEN: "secret-token",
+        },
+      },
+    );
+
+    expect(defaultRegister).toBe(register);
+    expect(activate).not.toBe(register);
+    expect(registration.registeredTools).toEqual(EXPECTED_TOOL_NAMES);
     expect(registerTool.mock.calls.map(([name]) => name)).toEqual(EXPECTED_TOOL_NAMES);
   });
 
