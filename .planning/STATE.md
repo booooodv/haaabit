@@ -4,8 +4,8 @@ milestone: none
 milestone_name: none
 status: awaiting_next_milestone
 stopped_at: Milestone v1.7 archived; next step is start a new milestone
-last_updated: "2026-03-11T22:40:00+08:00"
-last_activity: 2026-03-11 — Archived milestone v1.7 OpenClaw Native Plugin
+last_updated: "2026-03-13T12:16:16+08:00"
+last_activity: 2026-03-13 — Completed quick task 8: 修复亚洲上海时区用户第二天习惯不重置的问题
 progress:
   total_phases: 0
   completed_phases: 0
@@ -29,7 +29,7 @@ Milestone: none active
 Phase: between milestones
 Plan: start the next milestone with `$gsd-new-milestone`
 Status: v1.7 OpenClaw Native Plugin has been archived, tagged, and moved into milestone history; the repo is ready for the next requirements definition cycle
-Last activity: 2026-03-11 — Archived milestone v1.7 OpenClaw Native Plugin
+Last activity: 2026-03-13 — Completed quick task 8: 修复亚洲上海时区用户第二天习惯不重置的问题
 
 Progress: [----------] 0%
 
@@ -86,6 +86,7 @@ Recent decisions affecting current work:
 | 5 | 修复 @haaabit/mcp 0.1.2 发布包 CLI 启动即退出导致标准 MCP host Connection closed | 2026-03-11 | d86bf81 | [5-haaabit-mcp-0-1-2-cli-mcp-host-connectio](./quick/5-haaabit-mcp-0-1-2-cli-mcp-host-connectio/) |
 | 6 | 改进 @haaabit/mcp tool 返回格式，避免 structuredContent 被压成 [Object]，提供更机器可读 JSON 输出 | 2026-03-11 | ffc0bb4 | [6-haaabit-mcp-tool-structuredcontent-objec](./quick/6-haaabit-mcp-tool-structuredcontent-objec/) |
 | 7 | 统一 @haaabit/mcp 工具返回格式，让客户端稳定读取人话摘要 + 完整机器可读 JSON | 2026-03-11 | 004e229 | [7-haaabit-mcp-json](./quick/7-haaabit-mcp-json/) |
+| 8 | 修复亚洲上海时区用户第二天习惯不重置的问题 | 2026-03-13 | fc85a4c | [8-shanghai-timezone-reset](./quick/8-shanghai-timezone-reset/) |
 
 ## Session Continuity
 
