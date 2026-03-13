@@ -4,8 +4,8 @@ milestone: none
 milestone_name: none
 status: awaiting_next_milestone
 stopped_at: Milestone v1.7 archived; next step is start a new milestone
-last_updated: "2026-03-13T20:05:34+08:00"
-last_activity: 2026-03-13 — Completed quick task 10: 修复 Haaabit OpenClaw 插件发布元数据，确保 OpenClaw 可直接发现加载启用
+last_updated: "2026-03-13T20:14:25+08:00"
+last_activity: 2026-03-13 — Completed quick task 11: 修复 Haaabit OpenClaw 插件构建产物对 zod 的运行时依赖，确保 OpenClaw 可直接加载
 progress:
   total_phases: 0
   completed_phases: 0
@@ -29,7 +29,7 @@ Milestone: none active
 Phase: between milestones
 Plan: start the next milestone with `$gsd-new-milestone`
 Status: v1.7 OpenClaw Native Plugin has been archived, tagged, and moved into milestone history; the repo is ready for the next requirements definition cycle
-Last activity: 2026-03-13 — Completed quick task 10: 修复 Haaabit OpenClaw 插件发布元数据，确保 OpenClaw 可直接发现加载启用
+Last activity: 2026-03-13 — Completed quick task 11: 修复 Haaabit OpenClaw 插件构建产物对 zod 的运行时依赖，确保 OpenClaw 可直接加载
 
 Progress: [----------] 0%
 
@@ -89,6 +89,7 @@ Recent decisions affecting current work:
 | 8 | 修复亚洲上海时区用户第二天习惯不重置的问题 | 2026-03-13 | fc85a4c | [8-shanghai-timezone-reset](./quick/8-shanghai-timezone-reset/) |
 | 9 | 修复 OpenClaw Haaabit 插件 tool schema default 导致注册失败 | 2026-03-13 | 2116cf9 | [9-openclaw-haaabit-tool-schema-default](./quick/9-openclaw-haaabit-tool-schema-default/) |
 | 10 | 修复 Haaabit OpenClaw 插件发布元数据，确保 OpenClaw 可直接发现加载启用 | 2026-03-13 | 0e17c04 | [10-haaabit-openclaw-openclaw](./quick/10-haaabit-openclaw-openclaw/) |
+| 11 | 修复 Haaabit OpenClaw 插件构建产物对 zod 的运行时依赖，确保 OpenClaw 可直接加载 | 2026-03-13 | b4ff3dc | [11-haaabit-openclaw-zod-openclaw](./quick/11-haaabit-openclaw-zod-openclaw/) |
 
 ## Session Continuity
 
