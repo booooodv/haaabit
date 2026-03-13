@@ -4,6 +4,7 @@ export async function signUpInBrowser(page: Page, email: string, name = "Accessi
   await page.goto("/");
   const result = await page.evaluate(
     async ({ nextEmail, nextName }) => {
+      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       const response = await fetch("http://127.0.0.1:3001/api/auth/sign-up/email", {
         method: "POST",
         credentials: "include",
@@ -14,6 +15,7 @@ export async function signUpInBrowser(page: Page, email: string, name = "Accessi
           email: nextEmail,
           password: "password123",
           name: nextName,
+          timezone: timeZone,
         }),
       });
 

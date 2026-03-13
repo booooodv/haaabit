@@ -51,6 +51,47 @@ describe("auth flow", () => {
     }
   });
 
+  it("stores the requested timezone on sign up and defaults missing timezone to Asia/Shanghai", async () => {
+    const context = await createTestContext();
+
+    try {
+      const shanghaiUser = await signUp(context.app, {
+        email: "shanghai@example.com",
+        name: "Shanghai User",
+        timezone: "Asia/Shanghai",
+      });
+
+      const storedShanghaiUser = await context.app.db.user.findUniqueOrThrow({
+        where: {
+          id: shanghaiUser.body.user.id,
+        },
+        select: {
+          timezone: true,
+        },
+      });
+
+      expect(storedShanghaiUser.timezone).toBe("Asia/Shanghai");
+
+      const defaultUser = await signUp(context.app, {
+        email: "default@example.com",
+        name: "Default User",
+      });
+
+      const storedDefaultUser = await context.app.db.user.findUniqueOrThrow({
+        where: {
+          id: defaultUser.body.user.id,
+        },
+        select: {
+          timezone: true,
+        },
+      });
+
+      expect(storedDefaultUser.timezone).toBe("Asia/Shanghai");
+    } finally {
+      await context.cleanup();
+    }
+  });
+
   it("marks the first registered user as admin and lets that admin disable future registration", async () => {
     const context = await createTestContext();
 

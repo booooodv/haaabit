@@ -26,6 +26,7 @@ import { registerCors } from "./plugins/cors";
 import { registerDb } from "./plugins/db";
 import { registerEnv } from "./plugins/env";
 import { registerOpenApi } from "./plugins/openapi";
+import { normalizeUserTimeZone } from "./shared/timezone";
 import { sendAuthError } from "./shared/controller-helpers";
 
 type CreateAppOptions = {
@@ -95,6 +96,12 @@ export async function createApp(options: CreateAppOptions = {}) {
 
   app.post("/api/auth/sign-up/email", async (request, reply) => {
     const status = await getRegistrationStatus(app.db);
+    const payload =
+      typeof request.body === "object" && request.body !== null
+        ? (request.body as Record<string, unknown>)
+        : undefined;
+    const requestedTimeZone = typeof payload?.timezone === "string" ? payload.timezone : undefined;
+    const timezone = normalizeUserTimeZone(requestedTimeZone);
 
     if (status.hasUsers && !status.registrationEnabled) {
       reply.status(403).send({
@@ -112,6 +119,14 @@ export async function createApp(options: CreateAppOptions = {}) {
         const parsed = JSON.parse(body) as { user?: { id?: string } };
 
         if (typeof parsed.user?.id === "string") {
+          await app.db.user.update({
+            where: {
+              id: parsed.user.id,
+            },
+            data: {
+              timezone,
+            },
+          });
           await makeFirstUserAdmin(app.db, parsed.user.id);
         }
       } catch {

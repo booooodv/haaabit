@@ -7,6 +7,7 @@ import type {
   UpdateHabitInput,
 } from "@haaabit/contracts/habits";
 import type { PrismaClient } from "../../generated/prisma/client";
+import { normalizeUserTimeZone } from "../../shared/timezone";
 import {
   serializeContractFrequencyType,
   serializeContractHabitKind,
@@ -122,6 +123,7 @@ type CreateHabitParams = {
   userId: string;
   input: unknown;
   today?: string;
+  timestamp?: Date | number | string;
 };
 
 function toFrequencyInput(record: PersistedHabitRecord): HabitFrequency {
@@ -419,8 +421,26 @@ export async function createHabit(
   params: CreateHabitParams,
 ) {
   const parsed = parseCreateHabitInput(params.input);
+  const user = await dependencies.db.user.findUnique({
+    where: {
+      id: params.userId,
+    },
+    select: {
+      timezone: true,
+    },
+  });
+
+  if (!user) {
+    throw new HabitNotFoundError();
+  }
+
   const normalized = normalizeCreateHabitInput(parsed, {
-    today: params.today ?? new Date().toISOString().slice(0, 10),
+    today:
+      params.today ??
+      resolveHabitDay({
+        timestamp: params.timestamp ?? new Date(),
+        timeZone: normalizeUserTimeZone(user.timezone),
+      }).todayKey,
   });
   const record = await createHabitRecord(dependencies.db, {
     userId: params.userId,
@@ -469,7 +489,7 @@ export async function getHabitDetail(
 
   const day = resolveHabitDay({
     timestamp: params.timestamp ?? new Date(),
-    timeZone: user.timezone,
+    timeZone: normalizeUserTimeZone(user.timezone),
   });
   const record = await findOwnedHabitDetailRecord(dependencies.db, {
     userId: params.userId,

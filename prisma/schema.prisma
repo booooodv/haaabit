@@ -14,7 +14,7 @@ model User {
   emailVerified Boolean   @default(false)
   image         String?
   isAdmin       Boolean   @default(false)
-  timezone      String    @default("UTC")
+  timezone      String    @default("Asia/Shanghai")
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   sessions      Session[]

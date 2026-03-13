@@ -58,7 +58,10 @@ export async function createTestContext(): Promise<TestContext> {
   };
 }
 
-export async function signUp(app: FastifyInstance, overrides: Partial<{ email: string; password: string; name: string }> = {}) {
+export async function signUp(
+  app: FastifyInstance,
+  overrides: Partial<{ email: string; password: string; name: string; timezone: string }> = {},
+) {
   const email = overrides.email ?? "alice@example.com";
   const password = overrides.password ?? "password123";
   const name = overrides.name ?? "Alice";
@@ -70,6 +73,7 @@ export async function signUp(app: FastifyInstance, overrides: Partial<{ email: s
       email,
       password,
       name,
+      ...(overrides.timezone ? { timezone: overrides.timezone } : {}),
     },
   });
 

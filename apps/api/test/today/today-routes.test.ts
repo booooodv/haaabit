@@ -122,4 +122,50 @@ describe("today routes", () => {
       },
     });
   });
+
+  it("switches the effective today date after the user's Shanghai local cutoff", async () => {
+    context = await createTestContext();
+    const { body, cookie } = await signUp(context.app, {
+      timezone: "Asia/Shanghai",
+    });
+
+    await createOwnedHabit(context, body.user.id, {
+      name: "Morning stretch",
+      frequency: {
+        type: "daily",
+      },
+      startDate: "2026-03-01",
+    });
+
+    const beforeCutoff = await context.app.inject({
+      method: "GET",
+      url: "/api/today",
+      headers: {
+        cookie,
+        "x-haaabit-now": "2026-03-07T19:59:59.000Z",
+      },
+    });
+    const afterCutoff = await context.app.inject({
+      method: "GET",
+      url: "/api/today",
+      headers: {
+        cookie,
+        "x-haaabit-now": "2026-03-07T20:00:00.000Z",
+      },
+    });
+
+    expect(beforeCutoff.statusCode).toBe(200);
+    expect(beforeCutoff.json()).toMatchObject({
+      summary: {
+        date: "2026-03-07",
+      },
+    });
+
+    expect(afterCutoff.statusCode).toBe(200);
+    expect(afterCutoff.json()).toMatchObject({
+      summary: {
+        date: "2026-03-08",
+      },
+    });
+  });
 });

@@ -1,3 +1,5 @@
+import { normalizeUserTimeZone } from "../../shared/timezone";
+
 const WEEKDAY_NAMES = [
   "sunday",
   "monday",
@@ -136,7 +138,8 @@ export function getMonthBounds(dateKey: string) {
 export function resolveHabitDay(input: ResolveHabitDayInput): HabitDay {
   const cutoffHour = input.cutoffHour ?? 4;
   const timestamp = parseTimestamp(input.timestamp);
-  const local = getLocalDateParts(timestamp, input.timeZone);
+  const timeZone = normalizeUserTimeZone(input.timeZone);
+  const local = getLocalDateParts(timestamp, timeZone);
   const localDateKey = `${local.year}-${local.month}-${local.day}`;
   const todayKey = local.hour < cutoffHour ? addDays(localDateKey, -1) : localDateKey;
   const week = getWeekBounds(todayKey);
@@ -152,6 +155,6 @@ export function resolveHabitDay(input: ResolveHabitDayInput): HabitDay {
     monthEndKey: month.monthEndKey,
     weekday: getWeekday(todayKey),
     cutoffHour,
-    timeZone: input.timeZone,
+    timeZone,
   };
 }

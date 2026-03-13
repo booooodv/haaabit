@@ -81,6 +81,7 @@ export async function createHabitHandler(request: FastifyRequest, reply: Fastify
       {
         userId: user.id,
         input: request.body,
+        timestamp: getRequestTimestamp(request),
       },
     );
 

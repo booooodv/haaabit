@@ -35,17 +35,31 @@ describe("resolveHabitDay", () => {
     });
   });
 
-  it("answers the same UTC instant differently for different user timezones", () => {
-    const losAngeles = resolveHabitDay({
+  it("answers the same UTC instant differently for UTC and Asia/Shanghai around the cutoff", () => {
+    const utc = resolveHabitDay({
+      timestamp: "2026-03-07T20:30:00.000Z",
+      timeZone: "UTC",
+    });
+    const shanghai = resolveHabitDay({
+      timestamp: "2026-03-07T20:30:00.000Z",
+      timeZone: "Asia/Shanghai",
+    });
+
+    expect(utc.todayKey).toBe("2026-03-07");
+    expect(shanghai.todayKey).toBe("2026-03-08");
+  });
+
+  it("keeps the same instant on the same effective day before the Shanghai cutoff", () => {
+    const utc = resolveHabitDay({
       timestamp: "2026-03-07T10:30:00.000Z",
-      timeZone: "America/Los_Angeles",
+      timeZone: "UTC",
     });
     const shanghai = resolveHabitDay({
       timestamp: "2026-03-07T10:30:00.000Z",
       timeZone: "Asia/Shanghai",
     });
 
-    expect(losAngeles.todayKey).toBe("2026-03-06");
+    expect(utc.todayKey).toBe("2026-03-07");
     expect(shanghai.todayKey).toBe("2026-03-07");
   });
 });

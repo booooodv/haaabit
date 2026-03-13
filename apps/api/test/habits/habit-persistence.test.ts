@@ -110,4 +110,31 @@ describe("createHabit persistence", () => {
     expect(stored.kind).toBe("QUANTITY");
     expect(stored.weekdays.map((entry) => entry.day)).toEqual(["FRIDAY", "MONDAY", "WEDNESDAY"]);
   });
+
+  it("defaults the startDate from the user's timezone-aware current habit day", async () => {
+    context = await createTestContext();
+    const { body } = await signUp(context.app, {
+      email: "timezone@example.com",
+      name: "Timezone User",
+      timezone: "Asia/Shanghai",
+    });
+
+    const habit = await createHabit(
+      {
+        db: context.app.db,
+      },
+      {
+        userId: body.user.id,
+        input: {
+          name: "Late-night planning",
+          frequency: {
+            type: "daily",
+          },
+        },
+        timestamp: "2026-03-07T20:30:00.000Z",
+      },
+    );
+
+    expect(habit.startDate).toBe("2026-03-08");
+  });
 });

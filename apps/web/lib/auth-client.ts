@@ -57,7 +57,17 @@ type SignInInput = {
 
 type SignUpInput = SignInInput & {
   name: string;
+  timezone?: string;
 };
+
+function getBrowserTimeZone() {
+  try {
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    return typeof timeZone === "string" && timeZone.trim().length > 0 ? timeZone : undefined;
+  } catch {
+    return undefined;
+  }
+}
 
 async function readErrorMessage(response: Response) {
   const text = await response.text();
@@ -132,7 +142,10 @@ async function requestNoContent(path: string, init?: RequestInit): Promise<void>
 export async function signUp(input: SignUpInput) {
   return requestJson<{ user: { id: string; email: string; name: string } }>("/api/auth/sign-up/email", {
     method: "POST",
-    body: JSON.stringify(input),
+    body: JSON.stringify({
+      ...input,
+      timezone: input.timezone ?? getBrowserTimeZone(),
+    }),
   });
 }
 

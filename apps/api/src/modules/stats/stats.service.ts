@@ -1,5 +1,6 @@
 import type { OverviewStats } from "@haaabit/contracts/stats";
 
+import { normalizeUserTimeZone } from "../../shared/timezone";
 import {
   serializeContractFrequencyType,
   serializeContractHabitKind,
@@ -51,9 +52,10 @@ export async function getOverviewStats(
     throw new Error("User not found");
   }
 
+  const timeZone = normalizeUserTimeZone(user.timezone);
   const day = resolveHabitDay({
     timestamp: params.timestamp ?? new Date(),
-    timeZone: user.timezone,
+    timeZone,
   });
   const rangeStart = addDays(day.todayKey, -29);
   const activeHabits = await listActiveHabitStatsRecords(dependencies.db, {
@@ -67,7 +69,7 @@ export async function getOverviewStats(
   for (let cursor = rangeStart; compareDateKeys(cursor, day.todayKey) <= 0; cursor = addDays(cursor, 1)) {
     const summary = buildDailySummaryForDate(activeHabits, {
       dateKey: cursor,
-      timeZone: user.timezone,
+      timeZone,
     });
 
     last30Days.push({
