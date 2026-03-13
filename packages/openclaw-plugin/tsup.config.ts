@@ -3,8 +3,8 @@ import { defineConfig } from "tsup";
 export default defineConfig({
   clean: true,
   entry: ["src/index.ts"],
-  external: ["zod"],
   format: ["esm"],
+  noExternal: ["zod"],
   outDir: "dist",
   sourcemap: false,
   splitting: false,
