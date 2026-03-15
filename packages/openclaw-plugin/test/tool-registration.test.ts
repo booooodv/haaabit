@@ -43,6 +43,10 @@ describe("native tool registration", () => {
     const todaySummary = findRegisteredTool(registerTool, "today_get_summary");
     expect(todaySummary).toMatchObject({
       description: expect.stringContaining("today"),
+      parameters: {
+        type: "object",
+        properties: {},
+      },
       execute: expect.any(Function),
     });
   });

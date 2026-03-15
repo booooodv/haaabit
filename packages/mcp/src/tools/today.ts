@@ -13,6 +13,7 @@ export const todayTools: InventoryTool[] = [
     method: "GET",
     path: "/today",
     description: "Read today's canonical checklist first when the user asks what is due, what remains, or whether today is already complete.",
+    inputSchema: z.object({}),
     responseSchema: todaySummaryResponseSchema,
     outputSchema: z.object({
       today: todaySummarySchema,
