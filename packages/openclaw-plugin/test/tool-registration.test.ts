@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import { activateHaaabitOpenClawPlugin } from "../src/index";
+import type { OpenClawRegisteredTool } from "../src/types";
 
 function hasSchemaKey(value: unknown, targetKey: string): boolean {
   if (Array.isArray(value)) {
@@ -39,12 +40,10 @@ describe("native tool registration", () => {
       },
     );
 
-    const todaySummary = registerTool.mock.calls.find(([name]) => name === "today_get_summary");
-    expect(todaySummary?.[1]).toMatchObject({
+    const todaySummary = findRegisteredTool(registerTool, "today_get_summary");
+    expect(todaySummary).toMatchObject({
       description: expect.stringContaining("today"),
-      outputSchema: expect.objectContaining({
-        type: "object",
-      }),
+      execute: expect.any(Function),
     });
   });
 
@@ -63,12 +62,12 @@ describe("native tool registration", () => {
       },
     );
 
-    const habitsList = registerTool.mock.calls.find(([name]) => name === "habits_list");
-    const habitsEdit = registerTool.mock.calls.find(([name]) => name === "habits_edit");
-    const todayComplete = registerTool.mock.calls.find(([name]) => name === "today_complete");
+    const habitsList = findRegisteredTool(registerTool, "habits_list");
+    const habitsEdit = findRegisteredTool(registerTool, "habits_edit");
+    const todayComplete = findRegisteredTool(registerTool, "today_complete");
 
-    expect(hasSchemaKey(habitsList?.[1].inputSchema, "default")).toBe(false);
-    expect(habitsEdit?.[1].inputSchema).toMatchObject({
+    expect(hasSchemaKey(habitsList?.parameters, "default")).toBe(false);
+    expect(habitsEdit?.parameters).toMatchObject({
       type: "object",
       required: ["habitId"],
       properties: expect.objectContaining({
@@ -77,9 +76,8 @@ describe("native tool registration", () => {
         }),
       }),
     });
-    expect(hasSchemaKey(habitsEdit?.[1].inputSchema, "allOf")).toBe(false);
-    expect(hasSchemaKey(todayComplete?.[1].inputSchema, "default")).toBe(false);
-    expect(hasSchemaKey(todayComplete?.[1].outputSchema, "$schema")).toBe(false);
+    expect(hasSchemaKey(habitsEdit?.parameters, "allOf")).toBe(false);
+    expect(hasSchemaKey(todayComplete?.parameters, "default")).toBe(false);
   });
 
   it("uses shared-runtime-backed native handlers by default", async () => {
@@ -103,14 +101,16 @@ describe("native tool registration", () => {
       },
     );
 
-    const habitsList = registerTool.mock.calls.find(([name]) => name === "habits_list");
-    const handler = habitsList?.[2] as ((input: unknown) => Promise<Record<string, unknown>>) | undefined;
+    const habitsList = findRegisteredTool(registerTool, "habits_list");
 
-    await expect(handler?.({})).resolves.toMatchObject({
-      ok: true,
-      toolName: "habits_list",
-      data: {
-        items: [],
+    await expect(habitsList?.execute({})).resolves.toMatchObject({
+      content: [{ type: "text", text: "No habits matched the default active filter." }],
+      details: {
+        ok: true,
+        toolName: "habits_list",
+        data: {
+          items: [],
+        },
       },
     });
     expect(fetchImpl).toHaveBeenCalledWith(
@@ -123,3 +123,9 @@ describe("native tool registration", () => {
     );
   });
 });
+
+function findRegisteredTool(registerTool: ReturnType<typeof vi.fn>, name: string) {
+  return registerTool.mock.calls.find(([tool]) => (tool as OpenClawRegisteredTool).name === name)?.[0] as
+    | OpenClawRegisteredTool
+    | undefined;
+}

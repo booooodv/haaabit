@@ -7,6 +7,7 @@ import openClawDefaultRegister, {
   activate as activateOpenClawEntry,
   register as registerOpenClawEntry,
 } from "../src/openclaw";
+import type { OpenClawRegisteredTool } from "../src/types";
 
 const packageRoot = new URL("../", import.meta.url);
 
@@ -26,7 +27,7 @@ describe("activateHaaabitOpenClawPlugin", () => {
     );
 
     expect(result.registeredTools).toEqual(EXPECTED_TOOL_NAMES);
-    expect(registerTool.mock.calls.map(([name]) => name)).toEqual(EXPECTED_TOOL_NAMES);
+    expect(registerTool.mock.calls.map(([tool]) => (tool as OpenClawRegisteredTool).name)).toEqual(EXPECTED_TOOL_NAMES);
   });
 
   it("exports OpenClaw-compatible register and activate entrypoints", () => {
@@ -47,7 +48,7 @@ describe("activateHaaabitOpenClawPlugin", () => {
     expect(defaultRegister).toBe(register);
     expect(activate).not.toBe(register);
     expect(registration.registeredTools).toEqual(EXPECTED_TOOL_NAMES);
-    expect(registerTool.mock.calls.map(([name]) => name)).toEqual(EXPECTED_TOOL_NAMES);
+    expect(registerTool.mock.calls.map(([tool]) => (tool as OpenClawRegisteredTool).name)).toEqual(EXPECTED_TOOL_NAMES);
   });
 
   it("loads through the OpenClaw wrapper entry and flattens nested env sources", () => {
@@ -86,7 +87,7 @@ describe("activateHaaabitOpenClawPlugin", () => {
       timeoutMs: 10_000,
     });
     expect(registration.registeredTools).toEqual(EXPECTED_TOOL_NAMES);
-    expect(registerTool.mock.calls.map(([name]) => name)).toEqual(EXPECTED_TOOL_NAMES);
+    expect(registerTool.mock.calls.map(([tool]) => (tool as OpenClawRegisteredTool).name)).toEqual(EXPECTED_TOOL_NAMES);
   });
 
   it("starts successfully when options.env is a plain string map", () => {
@@ -137,8 +138,10 @@ describe("activateHaaabitOpenClawPlugin", () => {
       apiToken: "secret-token",
       timeoutMs: 10_000,
     });
-    expect(registerTool.mock.calls.find(([name]) => name === "habits_edit")?.[1]).toMatchObject({
-      inputSchema: expect.objectContaining({
+    expect(
+      registerTool.mock.calls.find(([tool]) => (tool as OpenClawRegisteredTool).name === "habits_edit")?.[0],
+    ).toMatchObject({
+      parameters: expect.objectContaining({
         type: "object",
       }),
     });
@@ -179,7 +182,7 @@ describe("activateHaaabitOpenClawPlugin", () => {
         apiToken: "secret-token",
         timeoutMs: 10_000,
       });
-      expect(registerTool.mock.calls.map(([name]) => name)).toEqual(EXPECTED_TOOL_NAMES);
+      expect(registerTool.mock.calls.map(([tool]) => (tool as OpenClawRegisteredTool).name)).toEqual(EXPECTED_TOOL_NAMES);
     } finally {
       resetProcessEnv("HAAABIT_API_URL", previousApiUrl);
       resetProcessEnv("HAAABIT_API_TOKEN", previousApiToken);

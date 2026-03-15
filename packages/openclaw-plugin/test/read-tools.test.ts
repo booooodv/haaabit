@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import { activateHaaabitOpenClawPlugin } from "../src/index";
+import type { OpenClawRegisteredTool } from "../src/types";
 
 function createJsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -28,7 +29,10 @@ function registerHandlers(fetchImpl: typeof fetch) {
   );
 
   return Object.fromEntries(
-    registerTool.mock.calls.map(([name, _registration, handler]) => [name as string, handler as (input: unknown) => Promise<unknown>]),
+    registerTool.mock.calls.map(([tool]) => [
+      (tool as OpenClawRegisteredTool).name,
+      async (input: unknown) => ((await (tool as OpenClawRegisteredTool).execute(input)).details ?? null),
+    ]),
   ) as Record<string, (input: unknown) => Promise<unknown>>;
 }
 

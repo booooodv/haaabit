@@ -4,7 +4,7 @@ import { pathToFileURL } from "node:url";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { activateHaaabitOpenClawPlugin, EXPECTED_TOOL_NAMES } from "../src/index";
-import type { OpenClawToolHandler } from "../src/types";
+import type { OpenClawRegisteredTool, OpenClawToolHandler } from "../src/types";
 
 const packageRoot = path.resolve(import.meta.dirname, "..");
 const workspaceRoot = path.resolve(packageRoot, "../..");
@@ -133,7 +133,10 @@ describe("native plugin integration", () => {
     expect(activation.registeredTools).toEqual(EXPECTED_TOOL_NAMES);
 
     const handlers = Object.fromEntries(
-      registerTool.mock.calls.map(([name, _registration, handler]) => [name as string, handler as OpenClawToolHandler]),
+      registerTool.mock.calls.map(([tool]) => [
+        (tool as OpenClawRegisteredTool).name,
+        (async (input: unknown) => ((await (tool as OpenClawRegisteredTool).execute(input)).details ?? null)) as OpenClawToolHandler,
+      ]),
     ) as Record<string, OpenClawToolHandler>;
 
     const initialToday = await handlers.today_get_summary?.({});

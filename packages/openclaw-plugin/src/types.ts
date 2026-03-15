@@ -37,14 +37,25 @@ export type OpenClawToolResult<TData extends Record<string, unknown> = Record<st
 
 export type OpenClawToolHandler = (input: unknown) => Promise<OpenClawToolResult>;
 
-export type OpenClawToolRegistration = {
+export type OpenClawToolContent = {
+  type: "text";
+  text: string;
+};
+
+export type OpenClawToolExecutionResult = {
+  content: OpenClawToolContent[];
+  details?: Record<string, unknown>;
+};
+
+export type OpenClawRegisteredTool = {
+  name: string;
   description: string;
-  inputSchema?: ProviderSafeJsonSchema;
-  outputSchema?: ProviderSafeJsonSchema;
+  parameters?: ProviderSafeJsonSchema;
+  execute: (input: unknown) => Promise<OpenClawToolExecutionResult>;
 };
 
 export type OpenClawPluginApi = {
-  registerTool: (name: string, registration: OpenClawToolRegistration, handler: OpenClawToolHandler) => void;
+  registerTool: (tool: OpenClawRegisteredTool, options?: Record<string, unknown>) => void;
   config?: {
     env?: unknown;
   };
