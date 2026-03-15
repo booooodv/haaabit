@@ -45,6 +45,9 @@ export type OpenClawToolRegistration = {
 
 export type OpenClawPluginApi = {
   registerTool: (name: string, registration: OpenClawToolRegistration, handler: OpenClawToolHandler) => void;
+  config?: {
+    env?: unknown;
+  };
 };
 
 export type NativeToolDefinition = {

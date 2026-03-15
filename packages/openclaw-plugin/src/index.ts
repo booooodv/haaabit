@@ -1,4 +1,4 @@
-import { parsePluginEnv } from "./config/env.js";
+import { parsePluginEnv, resolvePluginRuntimeEnv } from "./config/env.js";
 import { createNativeHandlers } from "./native-handlers.js";
 import { formatStartupError, OpenClawPluginError } from "./errors.js";
 import { registerTools } from "./register-tools.js";
@@ -12,7 +12,10 @@ export { formatStartupError, OpenClawPluginError, redactSecrets } from "./errors
 export type { NativePluginConfig, NativeToolDefinition, OpenClawPluginApi, OpenClawToolHandler } from "./types.js";
 
 export type PluginActivationOptions = {
-  env?: NodeJS.ProcessEnv;
+  env?: unknown;
+  config?: {
+    env?: unknown;
+  };
   fetch?: typeof fetch;
   handlers?: Partial<Record<string, OpenClawToolHandler>>;
 };
@@ -21,8 +24,10 @@ export function activateHaaabitOpenClawPlugin(
   api: OpenClawPluginApi,
   options: PluginActivationOptions = {},
 ) {
+  const env = resolvePluginRuntimeEnv(api, options);
+
   try {
-    const config = parsePluginEnv(options.env ?? process.env);
+    const config = parsePluginEnv(env);
     const catalog = createToolCatalog();
     const nativeHandlers = createNativeHandlers(config, {
       fetch: options.fetch,
@@ -48,7 +53,7 @@ export function activateHaaabitOpenClawPlugin(
       throw error;
     }
 
-    const payload = formatStartupError(error, options.env ?? process.env);
+    const payload = formatStartupError(error, env);
     throw new OpenClawPluginError({
       category: "startup",
       code: "PLUGIN_BOOTSTRAP_FAILED",

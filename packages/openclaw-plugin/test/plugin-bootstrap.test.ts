@@ -3,6 +3,10 @@ import { readFile } from "node:fs/promises";
 import { describe, expect, it, vi } from "vitest";
 
 import defaultRegister, { activate, activateHaaabitOpenClawPlugin, EXPECTED_TOOL_NAMES, register } from "../src/index";
+import openClawDefaultRegister, {
+  activate as activateOpenClawEntry,
+  register as registerOpenClawEntry,
+} from "../src/openclaw";
 
 const packageRoot = new URL("../", import.meta.url);
 
@@ -46,6 +50,45 @@ describe("activateHaaabitOpenClawPlugin", () => {
     expect(registerTool.mock.calls.map(([name]) => name)).toEqual(EXPECTED_TOOL_NAMES);
   });
 
+  it("loads through the OpenClaw wrapper entry and flattens nested env sources", () => {
+    const registerTool = vi.fn();
+
+    const registration = registerOpenClawEntry(
+      {
+        registerTool,
+        config: {
+          env: {
+            HAAABIT_API_URL: "https://api-config.example.com/api",
+            HAAABIT_API_TOKEN: "api-config-token",
+          },
+        },
+      },
+      {
+        config: {
+          env: {
+            HAAABIT_API_TOKEN: "options-config-token",
+          },
+        },
+        env: {
+          HAAABIT_API_URL: "https://habit.example.com/api/",
+          HAAABIT_API_TOKEN: {
+            value: "secret-token",
+          },
+        },
+      },
+    );
+
+    expect(openClawDefaultRegister).toBe(registerOpenClawEntry);
+    expect(activateOpenClawEntry).not.toBe(registerOpenClawEntry);
+    expect(registration.config).toEqual({
+      apiUrl: "https://habit.example.com/api",
+      apiToken: "secret-token",
+      timeoutMs: 10_000,
+    });
+    expect(registration.registeredTools).toEqual(EXPECTED_TOOL_NAMES);
+    expect(registerTool.mock.calls.map(([name]) => name)).toEqual(EXPECTED_TOOL_NAMES);
+  });
+
   it("fails before registration when required env vars are missing", () => {
     const registerTool = vi.fn();
 
@@ -66,10 +109,15 @@ describe("activateHaaabitOpenClawPlugin", () => {
 
   it("keeps the bootstrap native instead of booting MCP under the hood", async () => {
     const source = await readFile(new URL("src/index.ts", packageRoot), "utf8");
+    const openClawSource = await readFile(new URL("src/openclaw.ts", packageRoot), "utf8");
 
     expect(source).not.toContain("@modelcontextprotocol/sdk");
     expect(source).not.toContain("@haaabit/mcp");
     expect(source).not.toContain("mcporter");
     expect(source).not.toContain("child_process");
+    expect(openClawSource).not.toContain("@modelcontextprotocol/sdk");
+    expect(openClawSource).not.toContain("@haaabit/mcp");
+    expect(openClawSource).not.toContain("mcporter");
+    expect(openClawSource).not.toContain("child_process");
   });
 });

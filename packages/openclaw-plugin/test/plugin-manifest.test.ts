@@ -23,10 +23,11 @@ describe("openclaw plugin manifest", () => {
     expect(pkg.type).toBe("module");
     expect(pkg.exports).toMatchObject({
       ".": "./dist/index.js",
+      "./openclaw": "./dist/openclaw.js",
     });
     expect(pkg.files).toEqual(expect.arrayContaining(["dist", "openclaw.plugin.json"]));
     expect(pkg.openclaw).toMatchObject({
-      extensions: ["./dist/index.js"],
+      extensions: ["./dist/openclaw.js"],
     });
   });
 
@@ -37,7 +38,7 @@ describe("openclaw plugin manifest", () => {
       schemaVersion: 1,
       id: "@haaabit/openclaw-plugin",
       name: "Haaabit",
-      entry: "./dist/index.js",
+      entry: "./dist/openclaw.js",
       configSchema: {},
     });
     expect(String(manifest.description)).toContain("Haaabit");
@@ -50,10 +51,14 @@ describe("openclaw plugin manifest", () => {
     });
 
     const distSource = await readFile(new URL("dist/index.js", packageRoot), "utf8");
+    const wrapperSource = await readFile(new URL("dist/openclaw.js", packageRoot), "utf8");
 
     expect(distSource).not.toMatch(/from\s+["']zod["']/);
     expect(distSource).not.toMatch(/import\s+["']zod["']/);
     expect(distSource).not.toMatch(/require\(["']zod["']\)/);
+    expect(wrapperSource).not.toMatch(/from\s+["']zod["']/);
+    expect(wrapperSource).not.toMatch(/import\s+["']zod["']/);
+    expect(wrapperSource).not.toMatch(/require\(["']zod["']\)/);
 
     const tempRoot = await mkdtemp(path.join(os.tmpdir(), "haaabit-openclaw-plugin-"));
     const tempDistDir = path.join(tempRoot, "dist");
@@ -61,8 +66,15 @@ describe("openclaw plugin manifest", () => {
     await mkdir(tempDistDir, { recursive: true });
     await writeFile(path.join(tempRoot, "package.json"), JSON.stringify({ type: "module" }), "utf8");
     await writeFile(path.join(tempDistDir, "index.js"), distSource, "utf8");
+    await writeFile(path.join(tempDistDir, "openclaw.js"), wrapperSource, "utf8");
 
     await expect(import(pathToFileURL(path.join(tempDistDir, "index.js")).href)).resolves.toMatchObject({
+      default: expect.any(Function),
+      register: expect.any(Function),
+      activate: expect.any(Function),
+      activateHaaabitOpenClawPlugin: expect.any(Function),
+    });
+    await expect(import(pathToFileURL(path.join(tempDistDir, "openclaw.js")).href)).resolves.toMatchObject({
       default: expect.any(Function),
       register: expect.any(Function),
       activate: expect.any(Function),

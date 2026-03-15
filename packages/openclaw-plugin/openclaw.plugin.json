@@ -4,6 +4,6 @@
   "name": "Haaabit",
   "description": "Native OpenClaw tools for Haaabit habits, today, and stats.",
   "runtime": "node",
-  "entry": "./dist/index.js",
+  "entry": "./dist/openclaw.js",
   "configSchema": {}
 }

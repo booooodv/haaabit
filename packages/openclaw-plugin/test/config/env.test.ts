@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { OpenClawPluginError } from "../../src/errors";
-import { parsePluginEnv } from "../../src/config/env";
+import { parsePluginEnv, resolvePluginRuntimeEnv } from "../../src/config/env";
 
 describe("parsePluginEnv", () => {
   it("requires HAAABIT_API_URL and HAAABIT_API_TOKEN", () => {
@@ -39,6 +39,52 @@ describe("parsePluginEnv", () => {
       apiToken: "secret-token",
       timeoutMs: 10_000,
     });
+  });
+
+  it("merges env from OpenClaw-compatible nested sources with explicit env precedence", () => {
+    const env = resolvePluginRuntimeEnv(
+      {
+        config: {
+          env: {
+            HAAABIT_API_URL: "https://api-config.example.com/api",
+            HAAABIT_API_TOKEN: "api-config-token",
+          },
+        },
+      },
+      {
+        config: {
+          env: {
+            HAAABIT_API_TOKEN: "options-config-token",
+          },
+        },
+        env: {
+          HAAABIT_API_URL: "https://habit.example.com/api/",
+          HAAABIT_API_TOKEN: {
+            value: "secret-token",
+          },
+        },
+      },
+    );
+
+    expect(env).toMatchObject({
+      HAAABIT_API_URL: "https://habit.example.com/api/",
+      HAAABIT_API_TOKEN: "secret-token",
+    });
+  });
+
+  it("treats unresolved non-string env values as missing instead of crashing on trim", () => {
+    expect(() =>
+      parsePluginEnv({
+        env: {
+          HAAABIT_API_URL: {
+            secretRef: "HAAABIT_API_URL",
+          },
+          HAAABIT_API_TOKEN: {
+            secretRef: "HAAABIT_API_TOKEN",
+          },
+        },
+      }),
+    ).toThrowError("Missing required plugin configuration: HAAABIT_API_URL, HAAABIT_API_TOKEN.");
   });
 
   it("throws OpenClawPluginError instances for config failures", () => {

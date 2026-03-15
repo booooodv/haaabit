@@ -38,6 +38,7 @@ describe("native OpenClaw verification smoke", () => {
 
     expect(manifestTest).toContain("openclaw plugin manifest");
     expect(bootstrapTest).toContain("keeps the bootstrap native");
+    expect(bootstrapTest).toContain("flattens nested env sources");
     expect(startupErrorsTest).toContain("structured startup errors");
     expect(envTest).toContain("HAAABIT_API_URL");
     expect(registrationTest).toContain("native tool registration");

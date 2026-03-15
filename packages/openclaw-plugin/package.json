@@ -15,11 +15,12 @@
     "examples"
   ],
   "exports": {
-    ".": "./dist/index.js"
+    ".": "./dist/index.js",
+    "./openclaw": "./dist/openclaw.js"
   },
   "openclaw": {
     "extensions": [
-      "./dist/index.js"
+      "./dist/openclaw.js"
     ]
   },
   "scripts": {

@@ -25,9 +25,10 @@ describe("OpenClaw native docs", () => {
     const example = await readPackageFile("examples/openclaw-plugin.jsonc");
 
     expect(pkg.files).toEqual(expect.arrayContaining(["README.md", "examples"]));
-    expect(pkg.openclaw?.extensions).toEqual(["./dist/index.js"]);
+    expect(pkg.openclaw?.extensions).toEqual(["./dist/openclaw.js"]);
     expect(readme).toContain("native OpenClaw integration");
     expect(readme).toContain("openclaw.extensions");
+    expect(readme).toContain("./dist/openclaw.js");
     expect(readme).toContain("@haaabit/openclaw-plugin");
     expect(readme).toContain("ok\": true");
     expect(readme).toContain("error.category");
