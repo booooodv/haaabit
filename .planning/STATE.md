@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: none
 milestone_name: none
 status: awaiting_next_milestone
-stopped_at: Quick task 14 complete; next step is start a new milestone
-last_updated: "2026-03-15T13:32:02+08:00"
-last_activity: 2026-03-15 — Completed quick task 14: 修复 packages/openclaw-plugin 的 habits_edit schema None 与 env trim 崩溃，统一入口和 manifest/exports
+stopped_at: Quick task 15 complete; next step is start a new milestone
+last_updated: "2026-03-15T15:06:00+08:00"
+last_activity: 2026-03-15 — Completed quick task 15: 继续修复 packages/openclaw-plugin 的 OpenClaw env reference object 解析，消除 trim 崩溃并补回归测试
 progress:
   total_phases: 0
   completed_phases: 0
@@ -29,7 +29,7 @@ Milestone: none active
 Phase: between milestones
 Plan: start the next milestone with `$gsd-new-milestone`
 Status: v1.7 OpenClaw Native Plugin has been archived, tagged, and moved into milestone history; the repo is ready for the next requirements definition cycle
-Last activity: 2026-03-15 — Completed quick task 14: 修复 packages/openclaw-plugin 的 habits_edit schema None 与 env trim 崩溃，统一入口和 manifest/exports
+Last activity: 2026-03-15 — Completed quick task 15: 继续修复 packages/openclaw-plugin 的 OpenClaw env reference object 解析，消除 trim 崩溃并补回归测试
 
 Progress: [----------] 0%
 
@@ -93,6 +93,7 @@ Recent decisions affecting current work:
 | 12 | 修复 Haaabit OpenClaw 插件缺少 register/activate 导出，确保 OpenClaw 直接加载 dist 入口 | 2026-03-13 | f1fc4a0 | [12-haaabit-openclaw-register-activate-openc](./quick/12-haaabit-openclaw-register-activate-openc/) |
 | 13 | 修复 OpenClaw 安装插件后 habits_edit schema 变成 None 导致 Invalid schema 报错 | 2026-03-15 | 27158f3 | [13-openclaw-habits-edit-schema-none-invalid](./quick/13-openclaw-habits-edit-schema-none-invalid/) |
 | 14 | 修复 packages/openclaw-plugin 的 habits_edit schema None 与 env trim 崩溃，统一入口和 manifest/exports | 2026-03-15 | e4cd723 | [14-packages-openclaw-plugin-habits-edit-sch](./quick/14-packages-openclaw-plugin-habits-edit-sch/) |
+| 15 | 继续修复 packages/openclaw-plugin 的 OpenClaw env reference object 解析，消除 trim 崩溃并补回归测试 | 2026-03-15 | c2b368b | [15-packages-openclaw-plugin-openclaw-env-re](./quick/15-packages-openclaw-plugin-openclaw-env-re/) |
 
 ## Session Continuity
 
