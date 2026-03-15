@@ -39,4 +39,22 @@ describe("formatStartupError", () => {
       },
     });
   });
+
+  it("does not re-crash when redactSecrets receives a non-string env structure", () => {
+    const payload = formatStartupError(new Error("boom"), {
+      HAAABIT_API_TOKEN: {
+        source: "env",
+        id: "HAAABIT_API_TOKEN",
+      },
+    });
+
+    expect(payload).toEqual({
+      ok: false,
+      error: {
+        category: "startup",
+        code: "UNKNOWN_STARTUP_ERROR",
+        message: "boom",
+      },
+    });
+  });
 });

@@ -89,6 +89,103 @@ describe("activateHaaabitOpenClawPlugin", () => {
     expect(registerTool.mock.calls.map(([name]) => name)).toEqual(EXPECTED_TOOL_NAMES);
   });
 
+  it("starts successfully when options.env is a plain string map", () => {
+    const registerTool = vi.fn();
+
+    const result = registerOpenClawEntry(
+      {
+        registerTool,
+      },
+      {
+        env: {
+          HAAABIT_API_URL: "https://habit.example.com/api",
+          HAAABIT_API_TOKEN: "secret-token",
+        },
+      },
+    );
+
+    expect(result.config).toEqual({
+      apiUrl: "https://habit.example.com/api",
+      apiToken: "secret-token",
+      timeoutMs: 10_000,
+    });
+    expect(result.registeredTools).toEqual(EXPECTED_TOOL_NAMES);
+  });
+
+  it("starts successfully when api.config.env uses { value } wrappers", () => {
+    const registerTool = vi.fn();
+
+    const result = registerOpenClawEntry(
+      {
+        registerTool,
+        config: {
+          env: {
+            HAAABIT_API_URL: {
+              value: "https://habit.example.com/api/",
+            },
+            HAAABIT_API_TOKEN: {
+              value: "secret-token",
+            },
+          },
+        },
+      },
+      {},
+    );
+
+    expect(result.config).toEqual({
+      apiUrl: "https://habit.example.com/api",
+      apiToken: "secret-token",
+      timeoutMs: 10_000,
+    });
+    expect(registerTool.mock.calls.find(([name]) => name === "habits_edit")?.[1]).toMatchObject({
+      inputSchema: expect.objectContaining({
+        type: "object",
+      }),
+    });
+  });
+
+  it("starts successfully when api.config.env uses env reference objects resolved from process.env", () => {
+    const registerTool = vi.fn();
+    const previousApiUrl = process.env.HAAABIT_API_URL;
+    const previousApiToken = process.env.HAAABIT_API_TOKEN;
+
+    process.env.HAAABIT_API_URL = "https://habit.example.com/api/";
+    process.env.HAAABIT_API_TOKEN = "secret-token";
+
+    try {
+      const result = registerOpenClawEntry(
+        {
+          registerTool,
+          config: {
+            env: {
+              HAAABIT_API_URL: {
+                source: "env",
+                id: "HAAABIT_API_URL",
+                provider: "default",
+              },
+              HAAABIT_API_TOKEN: {
+                source: "env",
+                key: "HAAABIT_API_TOKEN",
+                provider: "default",
+              },
+            },
+          },
+        },
+        {},
+      );
+
+      expect(result.config).toEqual({
+        apiUrl: "https://habit.example.com/api",
+        apiToken: "secret-token",
+        timeoutMs: 10_000,
+      });
+      expect(registerTool.mock.calls.map(([name]) => name)).toEqual(EXPECTED_TOOL_NAMES);
+    } finally {
+      resetProcessEnv("HAAABIT_API_URL", previousApiUrl);
+      resetProcessEnv("HAAABIT_API_TOKEN", previousApiToken);
+    }
+  });
+
   it("fails before registration when required env vars are missing", () => {
     const registerTool = vi.fn();
 
@@ -121,3 +218,12 @@ describe("activateHaaabitOpenClawPlugin", () => {
     expect(openClawSource).not.toContain("child_process");
   });
 });
+
+function resetProcessEnv(key: string, value: string | undefined) {
+  if (value === undefined) {
+    delete process.env[key];
+    return;
+  }
+
+  process.env[key] = value;
+}

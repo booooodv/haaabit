@@ -28,7 +28,7 @@ export function createConfigError(code: string, message: string, hint?: string) 
   });
 }
 
-export function formatStartupError(error: unknown, env: NodeJS.ProcessEnv = process.env) {
+export function formatStartupError(error: unknown, env: unknown = process.env) {
   const pluginError =
     error instanceof OpenClawPluginError
       ? error
@@ -52,8 +52,8 @@ export function formatStartupError(error: unknown, env: NodeJS.ProcessEnv = proc
   } as const;
 }
 
-export function redactSecrets(message: string, env: NodeJS.ProcessEnv = process.env) {
-  const token = env.HAAABIT_API_TOKEN;
+export function redactSecrets(message: string, env: unknown = process.env) {
+  const token = readEnvToken(env);
   let sanitized = message
     .replace(/Bearer\s+\S+/gi, "Bearer [REDACTED]")
     .replace(/token\s+\S+/gi, "token [REDACTED]");
@@ -63,4 +63,14 @@ export function redactSecrets(message: string, env: NodeJS.ProcessEnv = process.
   }
 
   return sanitized;
+}
+
+function readEnvToken(env: unknown) {
+  if (typeof env !== "object" || env === null || Array.isArray(env)) {
+    return undefined;
+  }
+
+  const token = (env as Record<string, unknown>).HAAABIT_API_TOKEN;
+
+  return typeof token === "string" ? token : undefined;
 }
