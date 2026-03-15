@@ -15,6 +15,7 @@ Supported native runtime contract:
 | Symptom | What it usually means | Supported fix |
 |---------|------------------------|---------------|
 | `plugin not loading` | OpenClaw is not loading `@haaabit/openclaw-plugin` at all | Re-check the plugin block in [`../packages/openclaw-plugin/examples/openclaw-plugin.jsonc`](../packages/openclaw-plugin/examples/openclaw-plugin.jsonc) and confirm the host can resolve the package. |
+| `Invalid schema for function 'habits_edit': schema must be a JSON Schema of 'type: "object"', got 'type: "None"'` | You are loading a plugin build where `habits_edit` exported a top-level intersection schema instead of an object schema | Update to a build that includes Quick Task 13 or rebuild the current workspace plugin so `habits_edit` registers with top-level `type: "object"` and required `habitId`. |
 | Startup says `HAAABIT_API_TOKEN` is missing | The native plugin runtime did not receive the token env | Put a personal API token into the secret that resolves to `HAAABIT_API_TOKEN`. Do not inject an email or password. |
 | Startup says the token looks like an email or URL | The wrong secret shape was injected | Keep the API URL in `HAAABIT_API_URL` and inject a personal API token into `HAAABIT_API_TOKEN`. |
 | Tool returns `error.category = "auth"` | The token reached the plugin, but it is rejected by the API | Replace or rotate `HAAABIT_API_TOKEN` and retry. |

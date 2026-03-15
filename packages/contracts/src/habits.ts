@@ -97,19 +97,19 @@ export const habitListFiltersSchema = z
     status: "active",
   });
 
-export const updateHabitInputSchema = z
-  .strictObject({
-    name: nonEmptyString.optional(),
-    description: nullableOptionalNonEmptyString,
-    category: nullableOptionalNonEmptyString,
-    targetValue: z.number().int().positive().optional(),
-    unit: nullableOptionalNonEmptyString,
-    startDate: isoDateSchema.optional(),
-    frequency: habitFrequencySchema.optional(),
-  })
-  .refine((value) => Object.keys(value).length > 0, {
-    message: "At least one editable habit field must be provided",
-  });
+export const editableHabitFieldsSchema = z.strictObject({
+  name: nonEmptyString.optional(),
+  description: nullableOptionalNonEmptyString,
+  category: nullableOptionalNonEmptyString,
+  targetValue: z.number().int().positive().optional(),
+  unit: nullableOptionalNonEmptyString,
+  startDate: isoDateSchema.optional(),
+  frequency: habitFrequencySchema.optional(),
+});
+
+export const updateHabitInputSchema = editableHabitFieldsSchema.refine((value) => Object.keys(value).length > 0, {
+  message: "At least one editable habit field must be provided",
+});
 
 export const habitRecordSchema = z.object({
   id: nonEmptyString,

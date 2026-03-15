@@ -26,6 +26,7 @@ describe("createToolCatalog", () => {
   it("preserves descriptions while converting schemas into provider-safe JSON Schema", () => {
     const catalog = createToolCatalog();
     const habitsAdd = catalog.find((tool) => tool.name === "habits_add");
+    const habitsEdit = catalog.find((tool) => tool.name === "habits_edit");
     const habitsList = catalog.find((tool) => tool.name === "habits_list");
 
     expect(habitsAdd?.description).toContain("Create a new habit definition");
@@ -47,6 +48,16 @@ describe("createToolCatalog", () => {
         }),
       }),
     });
+    expect(habitsEdit?.inputSchema).toMatchObject({
+      type: "object",
+      required: ["habitId"],
+      properties: expect.objectContaining({
+        habitId: expect.objectContaining({
+          type: "string",
+        }),
+      }),
+    });
+    expect(hasSchemaKey(habitsEdit?.inputSchema, "allOf")).toBe(false);
     expect(hasSchemaKey(habitsAdd?.inputSchema, "default")).toBe(false);
     expect(hasSchemaKey(habitsAdd?.outputSchema, "default")).toBe(false);
     expect(hasSchemaKey(habitsAdd?.outputSchema, "$schema")).toBe(false);

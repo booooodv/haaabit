@@ -64,9 +64,20 @@ describe("native tool registration", () => {
     );
 
     const habitsList = registerTool.mock.calls.find(([name]) => name === "habits_list");
+    const habitsEdit = registerTool.mock.calls.find(([name]) => name === "habits_edit");
     const todayComplete = registerTool.mock.calls.find(([name]) => name === "today_complete");
 
     expect(hasSchemaKey(habitsList?.[1].inputSchema, "default")).toBe(false);
+    expect(habitsEdit?.[1].inputSchema).toMatchObject({
+      type: "object",
+      required: ["habitId"],
+      properties: expect.objectContaining({
+        habitId: expect.objectContaining({
+          type: "string",
+        }),
+      }),
+    });
+    expect(hasSchemaKey(habitsEdit?.[1].inputSchema, "allOf")).toBe(false);
     expect(hasSchemaKey(todayComplete?.[1].inputSchema, "default")).toBe(false);
     expect(hasSchemaKey(todayComplete?.[1].outputSchema, "$schema")).toBe(false);
   });

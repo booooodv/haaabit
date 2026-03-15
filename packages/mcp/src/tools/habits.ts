@@ -1,11 +1,11 @@
 import { habitPathParamsSchema } from "../contracts/api.js";
 import {
   createHabitInputSchema,
+  editableHabitFieldsSchema,
   habitDetailResponseSchema,
   habitListFiltersSchema,
   habitItemResponseSchema,
   habitListResponseSchema,
-  updateHabitInputSchema,
 } from "../contracts/habits.js";
 import { z } from "zod";
 
@@ -14,9 +14,13 @@ import type { ToolOperation } from "./operation-types.js";
 import { createMutationToolResult, createReadToolResult, formatNameList } from "./read-results.js";
 import type { InventoryTool } from "./catalog.js";
 
-export const editHabitToolInputSchema = z.object({
-  habitId: habitPathParamsSchema.shape.habitId,
-}).and(updateHabitInputSchema);
+export const editHabitToolInputSchema = editableHabitFieldsSchema
+  .extend({
+    habitId: habitPathParamsSchema.shape.habitId,
+  })
+  .refine((value) => Object.keys(value).some((key) => key !== "habitId"), {
+    message: "At least one editable habit field must be provided",
+  });
 
 export const habitsTools: InventoryTool[] = [
   {
