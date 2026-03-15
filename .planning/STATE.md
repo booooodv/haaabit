@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: none
 milestone_name: none
 status: awaiting_next_milestone
-stopped_at: Quick task 15 complete; next step is start a new milestone
-last_updated: "2026-03-15T15:06:00+08:00"
-last_activity: 2026-03-15 — Completed quick task 15: 继续修复 packages/openclaw-plugin 的 OpenClaw env reference object 解析，消除 trim 崩溃并补回归测试
+stopped_at: Quick task 16 complete; next step is start a new milestone
+last_updated: "2026-03-15T17:35:06+08:00"
+last_activity: 2026-03-15 — Completed quick task 16: 修复 packages/openclaw-plugin 对 OpenClaw 2026.3.x 新版 registerTool API 的兼容性
 progress:
   total_phases: 0
   completed_phases: 0
@@ -29,7 +29,7 @@ Milestone: none active
 Phase: between milestones
 Plan: start the next milestone with `$gsd-new-milestone`
 Status: v1.7 OpenClaw Native Plugin has been archived, tagged, and moved into milestone history; the repo is ready for the next requirements definition cycle
-Last activity: 2026-03-15 — Completed quick task 15: 继续修复 packages/openclaw-plugin 的 OpenClaw env reference object 解析，消除 trim 崩溃并补回归测试
+Last activity: 2026-03-15 — Completed quick task 16: 修复 packages/openclaw-plugin 对 OpenClaw 2026.3.x 新版 registerTool API 的兼容性
 
 Progress: [----------] 0%
 
@@ -94,6 +94,7 @@ Recent decisions affecting current work:
 | 13 | 修复 OpenClaw 安装插件后 habits_edit schema 变成 None 导致 Invalid schema 报错 | 2026-03-15 | 27158f3 | [13-openclaw-habits-edit-schema-none-invalid](./quick/13-openclaw-habits-edit-schema-none-invalid/) |
 | 14 | 修复 packages/openclaw-plugin 的 habits_edit schema None 与 env trim 崩溃，统一入口和 manifest/exports | 2026-03-15 | e4cd723 | [14-packages-openclaw-plugin-habits-edit-sch](./quick/14-packages-openclaw-plugin-habits-edit-sch/) |
 | 15 | 继续修复 packages/openclaw-plugin 的 OpenClaw env reference object 解析，消除 trim 崩溃并补回归测试 | 2026-03-15 | c2b368b | [15-packages-openclaw-plugin-openclaw-env-re](./quick/15-packages-openclaw-plugin-openclaw-env-re/) |
+| 16 | 修复 packages/openclaw-plugin 对 OpenClaw 2026.3.x 新版 registerTool API 的兼容性 | 2026-03-15 | 00fc09c | [16-packages-openclaw-plugin-openclaw-2026-3](./quick/16-packages-openclaw-plugin-openclaw-2026-3/) |
 
 ## Session Continuity
 
